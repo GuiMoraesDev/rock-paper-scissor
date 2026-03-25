@@ -1,0 +1,14 @@
+services:
+  - type: web
+    name: rps-server
+    runtime: node
+    region: oregon
+    plan: free
+    buildCommand: npm install && npm run build -- --filter=@rps/shared --filter=@rps/server
+    startCommand: node apps/server/dist/index.js
+    envVars:
+      - key: NODE_VERSION
+        value: 20
+      - key: CLIENT_URL
+        sync: false
+    healthCheckPath: /health
