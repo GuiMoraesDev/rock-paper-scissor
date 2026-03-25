@@ -2,7 +2,7 @@ import { createServer } from "node:http";
 import cors from "@fastify/cors";
 import Fastify from "fastify";
 import { Server } from "socket.io";
-import { registerSocketHandlers } from "./game-engine.js";
+import { registerSocketHandlers } from "./socket-handlers.js";
 
 const PORT = parseInt(process.env.PORT || "3001", 10);
 

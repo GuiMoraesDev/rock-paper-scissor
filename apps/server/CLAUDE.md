@@ -12,23 +12,33 @@ npm run start  # Run compiled dist/index.js
 
 ## Architecture
 
-Fastify 5 server with Socket.IO for real-time game state. No database — all state lives in an in-memory `Map<gameId, Game>` inside `game-engine.ts`.
+Fastify 5 server with Socket.IO for real-time game state. No database — all state lives in-memory via `game-store.ts`.
 
 ### Entry point (`src/index.ts`)
 
 - Creates Fastify with a custom `serverFactory` to share the HTTP server with Socket.IO
 - Single REST endpoint: `GET /health`
 
-### Game engine (`src/game-engine.ts`)
+### Types (`src/types.ts`)
 
-`registerSocketHandlers(io, socket)` — registers all Socket.IO event handlers for a connected client. Player identity is tracked via `socket.gameId` and `socket.playerIndex` (stored on the socket object via `as any` casts).
+Server-internal types: `SocketMeta`, `ServerPlayer`, `Game`, `RoundResult`. Shared client-facing types come from `@rps/shared`.
 
-**Key functions:**
+### Game logic (`src/game-logic.ts`)
+
+Pure functions with no side effects or Socket.IO dependency:
 
 - `generateGameId()` — 6-char alphanumeric code (excludes ambiguous chars like O/0/1/I)
 - `resolveRound(move1, move2)` — determines round winner
 - `sanitizeGame(game)` — strips moves from player data (hides choices during play)
 - `sanitizeGameFull(game)` — includes moves (used for round-result and finished states)
+
+### Game store (`src/game-store.ts`)
+
+In-memory state layer wrapping two `Map` instances (`games` and `socketMeta`) behind accessor functions: `getGame`, `setGame`, `deleteGame`, `hasGame`, `getSocketMeta`, `setSocketMeta`, `deleteSocketMeta`.
+
+### Socket handlers (`src/socket-handlers.ts`)
+
+`registerSocketHandlers(io, socket)` — registers all Socket.IO event handlers for a connected client. Delegates to `game-store` and `game-logic`.
 
 **Socket events handled:**
 | Event | Description |
@@ -40,7 +50,3 @@ Fastify 5 server with Socket.IO for real-time game state. No database — all st
 | `next-round` | Resets moves, increments round, transitions back to `playing` |
 | `request-game-state` | Returns current state (for page refresh reconnection) |
 | `disconnect` | Notifies opponent; cleans up game after 30s if room empty |
-
-### Types
-
-Server-internal types (`ServerPlayer`, `Game`, `RoundResult`) are defined locally in `game-engine.ts`. Shared client-facing types come from `@rps/shared`.
