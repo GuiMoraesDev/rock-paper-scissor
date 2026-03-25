@@ -4,10 +4,13 @@ import { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { getSocket } from "@/lib/socket";
 import { GameState, RoundResult, Move } from "@rps/shared";
-import Lobby from "@/components/Lobby";
-import GamePlay from "@/components/GamePlay";
-import RoundResultScreen from "@/components/RoundResultScreen";
-import GameFinished from "@/components/GameFinished";
+import { ErrorToast } from "@/components/atoms";
+import {
+  Lobby,
+  GamePlay,
+  RoundResultScreen,
+  GameFinished,
+} from "@/components/organisms";
 
 export default function GamePage() {
   const params = useParams()!;
@@ -99,11 +102,7 @@ export default function GamePage() {
 
   return (
     <main className="min-h-dvh flex items-center justify-center p-4">
-      {error && (
-        <div className="fixed top-4 left-1/2 -translate-x-1/2 bg-rps-red text-white px-6 py-3 rounded-xl font-fun text-xl z-50 animate-bounce-in shadow-lg">
-          {error}
-        </div>
-      )}
+      <ErrorToast message={error} />
 
       {!game && playerIndex === -1 && (
         <div className="text-center">

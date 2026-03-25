@@ -4,6 +4,8 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { getSocket } from "@/lib/socket";
+import { Button } from "@/components/atoms/Button";
+import { Input } from "@/components/atoms/Input";
 
 export default function CreatePage() {
   const router = useRouter();
@@ -38,45 +40,36 @@ export default function CreatePage() {
   return (
     <main className="min-h-dvh flex items-center justify-center p-4">
       <div className="text-center animate-bounce-in w-full max-w-lg">
-        <Link
-          href="/"
-          className="absolute top-6 left-6 font-fun text-xl text-gray-400 hover:text-rps-blue transition-colors"
-        >
-          ← Back
-        </Link>
+        <Button asChild variant="ghost" size="sm">
+          <Link href="/" className="absolute top-6 left-6 hover:text-rps-blue">
+            ← Back
+          </Link>
+        </Button>
 
         {step === "name" && (
           <div>
-            <h2 className="font-fun text-4xl md:text-5xl mb-8 text-rps-blue">
+            <h2 className="font-fun text-4xl md:text-5xl text-rps-blue mb-8">
               What&apos;s your name?
             </h2>
             <form onSubmit={handleNameSubmit} className="flex flex-col gap-6">
-              <input
-                type="text"
+              <Input
                 value={playerName}
                 onChange={(e) => setPlayerName(e.target.value)}
                 placeholder="Enter your name..."
                 maxLength={20}
                 autoFocus
-                className="font-fun text-2xl md:text-3xl text-center bg-white
-                  border-3 border-gray-200 rounded-2xl px-6 py-4 text-gray-800 placeholder-gray-300
-                  focus:outline-none focus:border-rps-blue transition-colors shadow-md"
+                focusColor="blue"
               />
-              <button
-                type="submit"
-                disabled={!playerName.trim()}
-                className="game-btn bg-rps-blue hover:bg-rps-blue-dark text-white
-                  disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:scale-100"
-              >
+              <Button type="submit" disabled={!playerName.trim()}>
                 Next →
-              </button>
+              </Button>
             </form>
           </div>
         )}
 
         {step === "rounds" && (
           <div>
-            <h2 className="font-fun text-4xl md:text-5xl mb-4 text-rps-blue">
+            <h2 className="font-fun text-4xl md:text-5xl text-rps-blue mb-4">
               How many rounds?
             </h2>
             <p className="font-fun text-xl text-gray-400 mb-8">
@@ -84,22 +77,17 @@ export default function CreatePage() {
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               {[1, 3, 5].map((rounds) => (
-                <button
+                <Button
                   key={rounds}
+                  variant={rounds === 1 ? "yellow" : rounds === 3 ? "red" : "blue"}
                   onClick={() => handleRoundsSelect(rounds)}
-                  className={`game-btn text-white flex-1 ${
-                    rounds === 1
-                      ? "bg-rps-yellow hover:bg-rps-yellow-dark"
-                      : rounds === 3
-                      ? "bg-rps-red hover:bg-rps-red-dark"
-                      : "bg-rps-blue hover:bg-rps-blue-dark"
-                  }`}
+                  className="flex-1"
                 >
                   <span className="text-5xl md:text-6xl block mb-2">
                     {rounds === 1 ? "⚡" : rounds === 3 ? "🔥" : "💀"}
                   </span>
                   {rounds} {rounds === 1 ? "Round" : "Rounds"}
-                </button>
+                </Button>
               ))}
             </div>
           </div>

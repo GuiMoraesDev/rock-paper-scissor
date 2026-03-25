@@ -85,11 +85,6 @@ body {
   animation: float 3s ease-in-out infinite;
 }
 
-.game-btn {
-  @apply font-fun text-2xl md:text-3xl px-8 py-5 rounded-2xl transition-all duration-200
-    transform hover:scale-105 active:scale-95 cursor-pointer tracking-wider shadow-lg hover:shadow-xl;
-}
-
 .emoji-btn {
   @apply text-6xl md:text-8xl p-4 md:p-6 rounded-3xl transition-all duration-200
     transform hover:scale-110 active:scale-95 cursor-pointer
