@@ -10,16 +10,6 @@
   --bg-gradient-to: #24243e;
 }
 
-body {
-  background: linear-gradient(
-    135deg,
-    var(--bg-gradient-from),
-    var(--bg-gradient-via),
-    var(--bg-gradient-to)
-  );
-  min-height: 100vh;
-}
-
 @keyframes bounce-in {
   0% {
     transform: scale(0.3);
