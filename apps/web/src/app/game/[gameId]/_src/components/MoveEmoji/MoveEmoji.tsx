@@ -1,4 +1,4 @@
-import { type ComponentProps } from "react";
+import type { ComponentProps } from "react";
 import { tv, type VariantProps } from "tailwind-variants";
 
 export const moveEmojiVariants = tv({
@@ -32,9 +32,10 @@ export const moveEmojiMap: Record<string, string> = {
   scissors: "✂️",
 };
 
-type Props = ComponentProps<"span"> & VariantProps<typeof moveEmojiVariants> & {
-  move: string;
-};
+type Props = ComponentProps<"span"> &
+  VariantProps<typeof moveEmojiVariants> & {
+    move: string;
+  };
 
 export function MoveEmoji({
   move,
@@ -44,7 +45,10 @@ export function MoveEmoji({
   ...props
 }: Props) {
   return (
-    <span className={moveEmojiVariants({ size, interactive, className })} {...props}>
+    <span
+      className={moveEmojiVariants({ size, interactive, className })}
+      {...props}
+    >
       {moveEmojiMap[move]}
     </span>
   );

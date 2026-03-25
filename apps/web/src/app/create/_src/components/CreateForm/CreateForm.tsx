@@ -1,11 +1,11 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { getSocket } from "@/lib/socket";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/atoms/Button";
 import { Input } from "@/components/atoms/Input";
+import { getSocket } from "@/lib/socket";
 
 export function CreateForm() {
   const router = useRouter();
@@ -78,7 +78,9 @@ export function CreateForm() {
             {[1, 3, 5].map((rounds) => (
               <Button
                 key={rounds}
-                variant={rounds === 1 ? "yellow" : rounds === 3 ? "red" : "blue"}
+                variant={
+                  rounds === 1 ? "yellow" : rounds === 3 ? "red" : "blue"
+                }
                 onClick={() => handleRoundsSelect(rounds)}
                 className="flex-1"
               >

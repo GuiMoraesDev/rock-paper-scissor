@@ -1,5 +1,5 @@
-import { type ComponentProps } from "react";
 import { Slot } from "@radix-ui/react-slot";
+import type { ComponentProps } from "react";
 import { tv, type VariantProps } from "tailwind-variants";
 
 export const buttonVariants = tv({
@@ -23,10 +23,7 @@ export const buttonVariants = tv({
         "tracking-wider",
         "shadow-lg hover:shadow-xl",
       ],
-      sm: [
-        "text-xl",
-        "px-4 py-2 rounded-xl",
-      ],
+      sm: ["text-xl", "px-4 py-2 rounded-xl"],
       icon: "p-2 rounded-lg",
     },
     glow: {
@@ -68,4 +65,3 @@ export function Button({
     />
   );
 }
-

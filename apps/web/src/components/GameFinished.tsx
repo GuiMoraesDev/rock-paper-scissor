@@ -1,6 +1,6 @@
 "use client";
 
-import { GameState } from "@rps/shared";
+import type { GameState } from "@rps/shared";
 
 interface Props {
   game: GameState;
@@ -14,7 +14,11 @@ const moveEmoji: Record<string, string> = {
   scissors: "✂️",
 };
 
-export default function GameFinished({ game, playerIndex, onPlayAgain }: Props) {
+export default function GameFinished({
+  game,
+  playerIndex,
+  onPlayAgain,
+}: Props) {
   const p1Score = game.players[0]?.score || 0;
   const p2Score = game.players[1]?.score || 0;
   const isDraw = p1Score === p2Score;
@@ -44,31 +48,45 @@ export default function GameFinished({ game, playerIndex, onPlayAgain }: Props) 
       </div>
 
       <div className="flex justify-center gap-8 font-fun text-3xl mb-8">
-        <span className={p1Score > p2Score ? "text-green-500" : p1Score < p2Score ? "text-rps-red" : "text-rps-yellow"}>
+        <span
+          className={
+            p1Score > p2Score
+              ? "text-green-500"
+              : p1Score < p2Score
+                ? "text-rps-red"
+                : "text-rps-yellow"
+          }
+        >
           {game.players[0]?.name}: {p1Score}
         </span>
         <span className="text-gray-300">-</span>
-        <span className={p2Score > p1Score ? "text-green-500" : p2Score < p1Score ? "text-rps-red" : "text-rps-yellow"}>
+        <span
+          className={
+            p2Score > p1Score
+              ? "text-green-500"
+              : p2Score < p1Score
+                ? "text-rps-red"
+                : "text-rps-yellow"
+          }
+        >
           {game.players[1]?.name}: {p2Score}
         </span>
       </div>
 
       <div className="bg-gray-50 rounded-2xl p-6 mb-8 border-3 border-gray-100 shadow-sm">
-        <h3 className="font-fun text-2xl text-gray-600 mb-4">
-          Round by Round
-        </h3>
+        <h3 className="font-fun text-2xl text-gray-600 mb-4">Round by Round</h3>
         <div className="space-y-3">
-          {game.roundResults.map((result, idx) => {
+          {game.roundResults.map((result) => {
             const roundWinnerName =
               result.winner === "draw"
                 ? "Draw"
                 : result.winner === "player1"
-                ? game.players[0]?.name
-                : game.players[1]?.name;
+                  ? game.players[0]?.name
+                  : game.players[1]?.name;
 
             return (
               <div
-                key={idx}
+                key={result.round}
                 className="flex items-center justify-between bg-white rounded-xl px-4 py-3 shadow-sm"
               >
                 <span className="font-fun text-lg text-gray-400">
@@ -84,9 +102,9 @@ export default function GameFinished({ game, playerIndex, onPlayAgain }: Props) 
                     result.winner === "draw"
                       ? "text-rps-yellow"
                       : (result.winner === "player1" && playerIndex === 0) ||
-                        (result.winner === "player2" && playerIndex === 1)
-                      ? "text-green-500"
-                      : "text-rps-red"
+                          (result.winner === "player2" && playerIndex === 1)
+                        ? "text-green-500"
+                        : "text-rps-red"
                   }`}
                 >
                   {roundWinnerName}
@@ -98,6 +116,7 @@ export default function GameFinished({ game, playerIndex, onPlayAgain }: Props) 
       </div>
 
       <button
+        type="button"
         onClick={onPlayAgain}
         className="game-btn bg-rps-blue hover:bg-rps-blue-dark text-white animate-pulse-glow"
       >

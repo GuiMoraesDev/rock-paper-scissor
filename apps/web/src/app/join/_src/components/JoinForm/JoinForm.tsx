@@ -1,12 +1,12 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { getSocket } from "@/lib/socket";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/atoms/Button";
 import { Input } from "@/components/atoms/Input";
 import { Toast } from "@/components/atoms/Toast";
+import { getSocket } from "@/lib/socket";
 
 export function JoinForm() {
   const router = useRouter();

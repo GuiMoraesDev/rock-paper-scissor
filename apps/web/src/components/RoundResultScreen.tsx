@@ -1,6 +1,6 @@
 "use client";
 
-import { GameState, RoundResult } from "@rps/shared";
+import type { GameState, RoundResult } from "@rps/shared";
 
 interface Props {
   game: GameState;
@@ -39,8 +39,8 @@ export default function RoundResultScreen({
           isDraw
             ? "text-rps-yellow"
             : playerWon
-            ? "text-green-500"
-            : "text-rps-red"
+              ? "text-green-500"
+              : "text-rps-red"
         }`}
       >
         {isDraw ? "It's a Draw!" : playerWon ? "You Win!" : "You Lose!"}
@@ -80,6 +80,7 @@ export default function RoundResultScreen({
 
       {!isLastRound && (
         <button
+          type="button"
           onClick={onNextRound}
           className="game-btn bg-rps-blue hover:bg-rps-blue-dark text-white animate-pulse-glow"
         >

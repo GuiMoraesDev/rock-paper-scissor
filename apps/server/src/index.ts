@@ -1,6 +1,6 @@
-import Fastify from "fastify";
+import { createServer } from "node:http";
 import cors from "@fastify/cors";
-import { createServer } from "http";
+import Fastify from "fastify";
 import { Server } from "socket.io";
 import { registerSocketHandlers } from "./game-engine.js";
 

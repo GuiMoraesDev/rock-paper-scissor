@@ -1,6 +1,6 @@
 "use client";
 
-import { GameState } from "@rps/shared";
+import type { GameState } from "@rps/shared";
 
 interface Props {
   game: GameState;
@@ -19,7 +19,8 @@ export default function Lobby({ game, playerIndex, onReady }: Props) {
 
       <div className="mb-8">
         <p className="font-fun text-lg text-gray-400 mb-2">Game Code</p>
-        <div
+        <button
+          type="button"
           className="font-fun text-4xl md:text-5xl tracking-[0.4em] text-gray-800 bg-gray-50
           rounded-2xl py-4 px-6 inline-block border-3 border-gray-200 cursor-pointer
           hover:border-rps-blue transition-colors shadow-md"
@@ -27,7 +28,7 @@ export default function Lobby({ game, playerIndex, onReady }: Props) {
           title="Click to copy"
         >
           {game.id}
-        </div>
+        </button>
         <p className="font-fun text-sm text-gray-400 mt-2">
           Click to copy • Share with your friend!
         </p>
@@ -43,7 +44,7 @@ export default function Lobby({ game, playerIndex, onReady }: Props) {
         <p className="font-fun text-2xl text-gray-600">Players</p>
         {game.players.map((player, idx) => (
           <div
-            key={idx}
+            key={player.name}
             className={`flex items-center justify-between bg-white
               rounded-xl px-6 py-4 border-3 transition-colors shadow-sm ${
                 player.ready ? "border-green-400" : "border-gray-200"
@@ -77,6 +78,7 @@ export default function Lobby({ game, playerIndex, onReady }: Props) {
 
       {!isReady && (
         <button
+          type="button"
           onClick={onReady}
           disabled={game.players.length < 2}
           className="game-btn bg-green-500 hover:bg-green-600 text-white

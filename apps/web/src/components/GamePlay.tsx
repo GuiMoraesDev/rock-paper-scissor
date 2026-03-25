@@ -1,7 +1,7 @@
 "use client";
 
+import type { GameState, Move } from "@rps/shared";
 import { useState } from "react";
-import { GameState, Move } from "@rps/shared";
 import { moveEmojiVariants } from "@/app/game/[gameId]/_src/components/MoveEmoji";
 
 interface Props {
@@ -10,10 +10,38 @@ interface Props {
   onMove: (move: Move) => void;
 }
 
-const moves: { move: Move; emoji: string; label: string; color: string; selectedBorder: string; selectedBg: string }[] = [
-  { move: "rock", emoji: "🪨", label: "Rock", color: "rps-blue", selectedBorder: "border-rps-blue", selectedBg: "bg-rps-blue/10" },
-  { move: "paper", emoji: "📄", label: "Paper", color: "rps-yellow", selectedBorder: "border-rps-yellow", selectedBg: "bg-rps-yellow/10" },
-  { move: "scissors", emoji: "✂️", label: "Scissors", color: "rps-red", selectedBorder: "border-rps-red", selectedBg: "bg-rps-red/10" },
+const moves: {
+  move: Move;
+  emoji: string;
+  label: string;
+  color: string;
+  selectedBorder: string;
+  selectedBg: string;
+}[] = [
+  {
+    move: "rock",
+    emoji: "🪨",
+    label: "Rock",
+    color: "rps-blue",
+    selectedBorder: "border-rps-blue",
+    selectedBg: "bg-rps-blue/10",
+  },
+  {
+    move: "paper",
+    emoji: "📄",
+    label: "Paper",
+    color: "rps-yellow",
+    selectedBorder: "border-rps-yellow",
+    selectedBg: "bg-rps-yellow/10",
+  },
+  {
+    move: "scissors",
+    emoji: "✂️",
+    label: "Scissors",
+    color: "rps-red",
+    selectedBorder: "border-rps-red",
+    selectedBg: "bg-rps-red/10",
+  },
 ];
 
 export default function GamePlay({ game, playerIndex, onMove }: Props) {
@@ -51,13 +79,15 @@ export default function GamePlay({ game, playerIndex, onMove }: Props) {
       <div className="flex justify-center gap-4 md:gap-8 mb-8 mt-8">
         {moves.map(({ move, emoji, label, selectedBorder, selectedBg }) => (
           <button
+            type="button"
             key={move}
             onClick={() => handleMove(move)}
             disabled={hasChosen}
             className={moveEmojiVariants({
               interactive: true,
               className: [
-                selectedMove === move && `${selectedBorder} ${selectedBg} scale-110`,
+                selectedMove === move &&
+                  `${selectedBorder} ${selectedBg} scale-110`,
                 hasChosen && selectedMove !== move && "opacity-30",
                 "disabled:cursor-default",
               ],

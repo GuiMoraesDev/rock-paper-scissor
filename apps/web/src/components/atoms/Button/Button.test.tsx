@@ -1,5 +1,5 @@
-import { render, screen, fireEvent } from "@testing-library/react";
-import { describe, it, expect, vi } from "vitest";
+import { fireEvent, render, screen } from "@testing-library/react";
+import { describe, expect, it, vi } from "vitest";
 import { Button } from "./Button";
 
 describe("Button", () => {
@@ -24,7 +24,7 @@ describe("Button", () => {
     render(
       <Button asChild variant="red">
         <a href="/test">Go</a>
-      </Button>
+      </Button>,
     );
     const link = screen.getByRole("link");
     expect(link).toHaveAttribute("href", "/test");
@@ -60,7 +60,9 @@ describe("Button", () => {
 
   it("applies glow animation class", () => {
     render(<Button glow>Glow</Button>);
-    expect(screen.getByRole("button").className).toContain("animate-pulse-glow");
+    expect(screen.getByRole("button").className).toContain(
+      "animate-pulse-glow",
+    );
   });
 
   it("supports submit type", () => {
