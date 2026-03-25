@@ -1,5 +1,5 @@
-import { render, screen, fireEvent } from "@testing-library/react";
-import { describe, it, expect, vi } from "vitest";
+import { fireEvent, render, screen } from "@testing-library/react";
+import { describe, expect, it, vi } from "vitest";
 import { Input } from "./Input";
 
 describe("Input", () => {
@@ -11,7 +11,9 @@ describe("Input", () => {
   it("calls onChange with native event", () => {
     const onChange = vi.fn();
     render(<Input value="" onChange={onChange} />);
-    fireEvent.change(screen.getByRole("textbox"), { target: { value: "test" } });
+    fireEvent.change(screen.getByRole("textbox"), {
+      target: { value: "test" },
+    });
     expect(onChange).toHaveBeenCalledOnce();
   });
 
@@ -27,12 +29,16 @@ describe("Input", () => {
 
   it("applies blue focus color by default", () => {
     render(<Input />);
-    expect(screen.getByRole("textbox").className).toContain("focus:border-rps-blue");
+    expect(screen.getByRole("textbox").className).toContain(
+      "focus:border-rps-blue",
+    );
   });
 
   it("applies red focus color", () => {
     render(<Input focusColor="red" />);
-    expect(screen.getByRole("textbox").className).toContain("focus:border-rps-red");
+    expect(screen.getByRole("textbox").className).toContain(
+      "focus:border-rps-red",
+    );
   });
 
   it("applies large size classes", () => {

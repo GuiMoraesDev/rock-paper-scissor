@@ -1,16 +1,14 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import type { GameState, Move, RoundResult } from "@rps/shared";
 import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+import { Toast } from "@/components/atoms/Toast";
+import GameFinished from "@/components/GameFinished";
+import GamePlay from "@/components/GamePlay";
+import Lobby from "@/components/Lobby";
+import RoundResultScreen from "@/components/RoundResultScreen";
 import { getSocket } from "@/lib/socket";
-import { type GameState, type RoundResult, type Move } from "@rps/shared";
-import { ErrorToast } from "@/components/atoms";
-import {
-  Lobby,
-  GamePlay,
-  RoundResultScreen,
-  GameFinished,
-} from "@/components/organisms";
 
 type GameClientProps = {
   gameId: string;
@@ -104,7 +102,7 @@ export function GameClient({ gameId }: GameClientProps) {
 
   return (
     <>
-      <ErrorToast message={error} />
+      <Toast message={error} />
 
       {!game && playerIndex === -1 && (
         <div className="text-center">

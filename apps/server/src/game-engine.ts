@@ -1,6 +1,12 @@
 import type { Server, Socket } from "socket.io";
 
+type SocketMeta = {
+  gameId: string;
+  playerIndex: number;
+};
+
 const games = new Map<string, Game>();
+const socketMeta = new Map<string, SocketMeta>();
 
 interface ServerPlayer {
   id: string;
@@ -36,7 +42,7 @@ function generateGameId(): string {
 
 function resolveRound(
   move1: string,
-  move2: string
+  move2: string,
 ): "player1" | "player2" | "draw" {
   if (move1 === move2) return "draw";
   if (
@@ -93,15 +99,20 @@ export function registerSocketHandlers(io: Server, socket: Socket) {
         rounds,
         currentRound: 0,
         players: [
-          { id: socket.id, name: playerName, ready: false, move: null, score: 0 },
+          {
+            id: socket.id,
+            name: playerName,
+            ready: false,
+            move: null,
+            score: 0,
+          },
         ],
         roundResults: [],
         status: "waiting",
       };
       games.set(gameId, game);
       socket.join(gameId);
-      (socket as any).gameId = gameId;
-      (socket as any).playerIndex = 0;
+      socketMeta.set(socket.id, { gameId, playerIndex: 0 });
       socket.emit("game-created", { gameId, game: sanitizeGame(game) });
       console.log(`Game ${gameId} created by ${playerName}`);
     } catch (error) {
@@ -135,8 +146,7 @@ export function registerSocketHandlers(io: Server, socket: Socket) {
       });
 
       socket.join(gameId);
-      (socket as any).gameId = gameId;
-      (socket as any).playerIndex = 1;
+      socketMeta.set(socket.id, { gameId, playerIndex: 1 });
 
       io.to(gameId).emit("game-updated", { game: sanitizeGame(game) });
       socket.emit("joined-game", { gameId, game: sanitizeGame(game) });
@@ -149,10 +159,12 @@ export function registerSocketHandlers(io: Server, socket: Socket) {
 
   socket.on("player-ready", () => {
     try {
-      const game = games.get((socket as any).gameId);
+      const meta = socketMeta.get(socket.id);
+      if (!meta) return;
+      const game = games.get(meta.gameId);
       if (!game) return;
 
-      game.players[(socket as any).playerIndex].ready = true;
+      game.players[meta.playerIndex].ready = true;
 
       const allReady =
         game.players.length === 2 && game.players.every((p) => p.ready);
@@ -160,10 +172,12 @@ export function registerSocketHandlers(io: Server, socket: Socket) {
       if (allReady) {
         game.status = "playing";
         game.currentRound = 1;
-        game.players.forEach((p) => (p.move = null));
+        game.players.forEach((p) => {
+          p.move = null;
+        });
       }
 
-      io.to((socket as any).gameId).emit("game-updated", {
+      io.to(meta.gameId).emit("game-updated", {
         game: sanitizeGame(game),
       });
     } catch (error) {
@@ -174,12 +188,14 @@ export function registerSocketHandlers(io: Server, socket: Socket) {
 
   socket.on("make-move", ({ move }) => {
     try {
-      const game = games.get((socket as any).gameId);
+      const meta = socketMeta.get(socket.id);
+      if (!meta) return;
+      const game = games.get(meta.gameId);
       if (!game || game.status !== "playing") return;
 
-      game.players[(socket as any).playerIndex].move = move;
+      game.players[meta.playerIndex].move = move;
 
-      io.to((socket as any).gameId).emit("game-updated", {
+      io.to(meta.gameId).emit("game-updated", {
         game: sanitizeGame(game),
       });
 
@@ -198,14 +214,14 @@ export function registerSocketHandlers(io: Server, socket: Socket) {
         game.roundResults.push(roundResult);
         game.status = "round-result";
 
-        io.to((socket as any).gameId).emit("round-result", {
+        io.to(meta.gameId).emit("round-result", {
           game: sanitizeGameFull(game),
           roundResult,
         });
 
         if (game.currentRound >= game.rounds) {
           game.status = "finished";
-          io.to((socket as any).gameId).emit("game-finished", {
+          io.to(meta.gameId).emit("game-finished", {
             game: sanitizeGameFull(game),
           });
         }
@@ -218,14 +234,18 @@ export function registerSocketHandlers(io: Server, socket: Socket) {
 
   socket.on("next-round", () => {
     try {
-      const game = games.get((socket as any).gameId);
+      const meta = socketMeta.get(socket.id);
+      if (!meta) return;
+      const game = games.get(meta.gameId);
       if (!game || game.status !== "round-result") return;
 
       game.currentRound++;
       game.status = "playing";
-      game.players.forEach((p) => (p.move = null));
+      game.players.forEach((p) => {
+        p.move = null;
+      });
 
-      io.to((socket as any).gameId).emit("game-updated", {
+      io.to(meta.gameId).emit("game-updated", {
         game: sanitizeGame(game),
       });
     } catch (error) {
@@ -250,7 +270,10 @@ export function registerSocketHandlers(io: Server, socket: Socket) {
         game.status === "round-result" || game.status === "finished"
           ? sanitizeGameFull(game)
           : sanitizeGame(game);
-      socket.emit("game-state-response", { game: sanitized, playerIndex: pIdx });
+      socket.emit("game-state-response", {
+        game: sanitized,
+        playerIndex: pIdx,
+      });
     } catch (error) {
       console.error("Error on request-game-state:", error);
       socket.emit("game-state-response", { game: null, playerIndex: -1 });
@@ -259,22 +282,25 @@ export function registerSocketHandlers(io: Server, socket: Socket) {
 
   socket.on("disconnect", () => {
     try {
-      const gameId = (socket as any).gameId;
-      const game = games.get(gameId);
-      if (game) {
-        io.to(gameId).emit("player-disconnected", {
-          playerName:
-            game.players[(socket as any).playerIndex]?.name || "Unknown player",
-        });
-        setTimeout(() => {
-          if (games.has(gameId)) {
-            const room = io.sockets.adapter.rooms.get(gameId);
-            if (!room || room.size === 0) {
-              games.delete(gameId);
-              console.log(`Game ${gameId} cleaned up`);
+      const meta = socketMeta.get(socket.id);
+      if (meta) {
+        const game = games.get(meta.gameId);
+        if (game) {
+          io.to(meta.gameId).emit("player-disconnected", {
+            playerName:
+              game.players[meta.playerIndex]?.name || "Unknown player",
+          });
+          setTimeout(() => {
+            if (games.has(meta.gameId)) {
+              const room = io.sockets.adapter.rooms.get(meta.gameId);
+              if (!room || room.size === 0) {
+                games.delete(meta.gameId);
+                console.log(`Game ${meta.gameId} cleaned up`);
+              }
             }
-          }
-        }, 30000);
+          }, 30000);
+        }
+        socketMeta.delete(socket.id);
       }
       console.log("Client disconnected:", socket.id);
     } catch (error) {

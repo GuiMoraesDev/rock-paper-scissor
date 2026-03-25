@@ -1,5 +1,6 @@
 import Image from "next/image";
-import { GameButton } from "@/components/atoms";
+import Link from "next/link";
+import { Button } from "@/components/atoms/Button";
 
 export default function Home() {
   return (
@@ -20,12 +21,12 @@ export default function Home() {
           Multiplayer Showdown!
         </p>
         <div className="flex flex-col gap-6 items-center">
-          <GameButton as="link" href="/create" glow>
-            Create a New Game
-          </GameButton>
-          <GameButton as="link" href="/join" variant="red">
-            Join an Existing Game
-          </GameButton>
+          <Button asChild glow>
+            <Link href="/create">Create a New Game</Link>
+          </Button>
+          <Button asChild variant="red">
+            <Link href="/join">Join an Existing Game</Link>
+          </Button>
         </div>
       </div>
     </main>

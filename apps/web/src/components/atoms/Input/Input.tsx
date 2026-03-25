@@ -1,4 +1,4 @@
-import { type ComponentProps } from "react";
+import type { ComponentProps } from "react";
 import { tv, type VariantProps } from "tailwind-variants";
 
 export const inputVariants = tv({
@@ -26,7 +26,8 @@ export const inputVariants = tv({
   },
 });
 
-type Props = ComponentProps<"input"> & VariantProps<typeof inputVariants>;
+type Props = Omit<ComponentProps<"input">, "size"> &
+  VariantProps<typeof inputVariants>;
 
 export function Input({ focusColor, size, className, ...props }: Props) {
   return (
