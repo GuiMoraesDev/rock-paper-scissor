@@ -12,10 +12,12 @@
     "test": "turbo test",
     "lint": "biome check .",
     "lint:fix": "biome check --write .",
-    "check-types": "turbo check-types"
+    "check-types": "turbo check-types",
+    "prepare": "husky"
   },
   "devDependencies": {
     "@biomejs/biome": "2.4.9",
+    "husky": "^9.1.7",
     "turbo": "^2.4.0",
     "typescript": "^5.4.0"
   }
