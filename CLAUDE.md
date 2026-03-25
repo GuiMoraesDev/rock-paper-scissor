@@ -23,7 +23,7 @@ npm run dev -- --filter=@rps/server # Fastify on port 3001 (tsx watch)
 
 Turborepo monorepo with three workspaces:
 
-- **`apps/web`** — Next.js 15 frontend (App Router) with Tailwind CSS and Socket.IO client
+- **`apps/web`** — Next.js 15 frontend (App Router) with Tailwind CSS, Framer Motion, and Socket.IO client
 - **`apps/server`** — Fastify backend with Socket.IO server, holds all game logic in-memory
 - **`packages/shared`** — Shared TypeScript types (`Move`, `Player`, `GameState`, `RoundResult`) imported as `@rps/shared`
 
@@ -35,6 +35,12 @@ All state synchronization happens through Socket.IO events — no REST API, no e
 
 **Key server events:** `create-game`, `join-game`, `player-ready`, `make-move`, `next-round`, `request-game-state`
 **Key client events:** `game-updated`, `round-result`, `game-finished`, `error-msg`, `player-disconnected`
+
+### Animations (web)
+
+- Use **Framer Motion** (`motion.*` components, `AnimatePresence`) for component transitions and interactive animations (hover, tap, entrance/exit).
+- Use **Tailwind CSS animations** for simple, declarative effects (`animate-float`, `animate-bounce-in`, `animate-pulse`, etc.).
+- Framer Motion is globally mocked in `vitest.setup.ts` — tests render motion components as plain DOM elements. No special test setup needed per component.
 
 ### TypeScript conventions (all workspaces)
 
