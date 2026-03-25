@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { GameState, Move } from "@rps/shared";
+import { moveEmojiVariants } from "@/app/game/[gameId]/_src/components/MoveEmoji";
 
 interface Props {
   game: GameState;
@@ -53,12 +54,14 @@ export default function GamePlay({ game, playerIndex, onMove }: Props) {
             key={move}
             onClick={() => handleMove(move)}
             disabled={hasChosen}
-            className={`emoji-btn ${
-              selectedMove === move
-                ? `${selectedBorder} ${selectedBg} scale-110`
-                : ""
-            } ${hasChosen && selectedMove !== move ? "opacity-30" : ""}
-              disabled:cursor-default`}
+            className={moveEmojiVariants({
+              interactive: true,
+              className: [
+                selectedMove === move && `${selectedBorder} ${selectedBg} scale-110`,
+                hasChosen && selectedMove !== move && "opacity-30",
+                "disabled:cursor-default",
+              ],
+            })}
             title={label}
           >
             <span className="block">{emoji}</span>

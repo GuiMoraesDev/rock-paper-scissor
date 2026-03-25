@@ -1,1 +1,1 @@
-export { MoveEmoji, moveEmojiMap } from "./MoveEmoji";
+export { MoveEmoji, moveEmojiMap, moveEmojiVariants } from "./MoveEmoji";

@@ -38,7 +38,7 @@ Each component has its own folder with barrel file and co-located unit test.
 ### Styling
 
 - Tailwind with custom theme in `tailwind.config.js`: colors (`rps-blue`, `rps-red`, `rps-yellow`), Fredoka font (`font-fun`)
-- Custom animations in `globals.css`: `bounce-in`, `pulse-glow`, `shake`, `float`
+- Custom animations in `tailwind.config.js`: `bounce-in`, `pulse-glow`
 - Path alias `@/*` maps to project root
 
 ### Types
