@@ -7,6 +7,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ```bash
 npm run dev    # Next.js dev server on port 3000
 npm run build  # Production build
+npx vitest run # Run unit tests (Vitest + Testing Library)
 ```
 
 ## Architecture
@@ -26,12 +27,13 @@ Next.js 15 App Router frontend with Tailwind CSS. All game state comes from Sock
 
 ### Components
 
-All in `components/`, each corresponds to a game phase rendered by `/game/[gameId]`:
+Organized using **Atomic Design** — see `components/CLAUDE.md` for full conventions.
 
-- `Lobby` — Shows game code, waits for both players to ready up
-- `GamePlay` — Move selection (rock/paper/scissors)
-- `RoundResultScreen` — Shows both moves and round winner
-- `GameFinished` — Final scores and round history
+- `atoms/` — Generic reusable primitives (Button, Input, Toast)
+- `molecules/` — Composed UI units
+- `organisms/` — Full page sections (Lobby, GamePlay, RoundResultScreen, GameFinished)
+
+Each component has its own folder with barrel file and co-located unit test.
 
 ### Styling
 
