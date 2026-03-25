@@ -1,12 +1,13 @@
 "use client";
 
 import { SocketEvents } from "@rps/shared";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { Button } from "@/components/atoms/Button";
 import { Input } from "@/components/atoms/Input";
 import { getSocket } from "@/lib/socket";
+
+const ROUNDS_OPTIONS = [1, 3, 5];
 
 export function CreateForm() {
   const router = useRouter();
@@ -42,18 +43,13 @@ export function CreateForm() {
   };
 
   return (
-    <div className="text-center animate-bounce-in w-full max-w-lg">
-      <Button asChild variant="ghost" size="sm">
-        <Link href="/" className="absolute top-6 left-6 hover:text-rps-blue">
-          ← Back
-        </Link>
-      </Button>
-
+    <section className="text-center animate-bounce-in w-full max-w-lg flex flex-col gap-8">
       {step === "name" && (
-        <div>
-          <h2 className="font-fun text-4xl md:text-5xl text-rps-blue mb-8">
+        <>
+          <h2 className="font-fun text-4xl md:text-5xl text-rps-blue">
             What&apos;s your name?
           </h2>
+
           <form onSubmit={handleNameSubmit} className="flex flex-col gap-6">
             <Input
               value={playerName}
@@ -63,23 +59,28 @@ export function CreateForm() {
               autoFocus
               focusColor="blue"
             />
+
             <Button type="submit" disabled={!playerName.trim()}>
               Next →
             </Button>
           </form>
-        </div>
+        </>
       )}
 
       {step === "rounds" && (
-        <div>
-          <h2 className="font-fun text-4xl md:text-5xl text-rps-blue mb-4">
-            How many rounds?
-          </h2>
-          <p className="font-fun text-xl text-gray-400 mb-8">
-            Choose wisely, {playerName}!
-          </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            {[1, 3, 5].map((rounds) => (
+        <>
+          <header className="flex flex-col gap-4">
+            <h2 className="font-fun text-4xl md:text-5xl text-rps-blue">
+              How many rounds?
+            </h2>
+
+            <p className="font-fun text-xl text-gray-400">
+              Choose wisely, {playerName}!
+            </p>
+          </header>
+
+          <div className="flex flex-col sm:flex-row gap-6 justify-center">
+            {ROUNDS_OPTIONS.map((rounds) => (
               <Button
                 key={rounds}
                 variant={
@@ -88,15 +89,15 @@ export function CreateForm() {
                 onClick={() => handleRoundsSelect(rounds)}
                 className="flex-1"
               >
-                <span className="text-5xl md:text-6xl block mb-2">
+                <span className="text-5xl md:text-6xl block">
                   {rounds === 1 ? "⚡" : rounds === 3 ? "🔥" : "💀"}
                 </span>
                 {rounds} {rounds === 1 ? "Round" : "Rounds"}
               </Button>
             ))}
           </div>
-        </div>
+        </>
       )}
-    </div>
+    </section>
   );
 }

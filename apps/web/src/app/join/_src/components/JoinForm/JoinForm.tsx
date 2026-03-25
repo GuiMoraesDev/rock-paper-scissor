@@ -1,7 +1,6 @@
 "use client";
 
 import { SocketEvents } from "@rps/shared";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { Button } from "@/components/atoms/Button";
@@ -56,18 +55,13 @@ export function JoinForm() {
     <>
       <Toast message={error} />
 
-      <div className="text-center animate-bounce-in w-full max-w-lg">
-        <Button asChild variant="ghost" size="sm">
-          <Link href="/" className="absolute top-6 left-6 hover:text-rps-red">
-            ← Back
-          </Link>
-        </Button>
-
+      <section className="text-center animate-bounce-in w-full max-w-lg flex flex-col gap-8">
         {step === "name" && (
-          <div>
-            <h2 className="font-fun text-4xl md:text-5xl text-rps-red mb-8">
+          <>
+            <h2 className="font-fun text-4xl md:text-5xl text-rps-red">
               What&apos;s your name?
             </h2>
+
             <form onSubmit={handleNameSubmit} className="flex flex-col gap-6">
               <Input
                 value={playerName}
@@ -77,21 +71,26 @@ export function JoinForm() {
                 autoFocus
                 focusColor="red"
               />
+
               <Button variant="red" type="submit" disabled={!playerName.trim()}>
                 Next →
               </Button>
             </form>
-          </div>
+          </>
         )}
 
         {step === "code" && (
-          <div>
-            <h2 className="font-fun text-4xl md:text-5xl text-rps-red mb-4">
-              Enter Game Code
-            </h2>
-            <p className="font-fun text-xl text-gray-400 mb-8">
-              Ask your friend for the code!
-            </p>
+          <>
+            <header className="flex flex-col gap-4">
+              <h2 className="font-fun text-4xl md:text-5xl text-rps-red">
+                Enter Game Code
+              </h2>
+
+              <p className="font-fun text-xl text-gray-400">
+                Ask your friend for the code!
+              </p>
+            </header>
+
             <form onSubmit={handleJoin} className="flex flex-col gap-6">
               <Input
                 value={gameId}
@@ -110,9 +109,9 @@ export function JoinForm() {
                 Join Game
               </Button>
             </form>
-          </div>
+          </>
         )}
-      </div>
+      </section>
     </>
   );
 }

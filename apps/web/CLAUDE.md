@@ -27,7 +27,7 @@ Each component has its own folder with barrel file and co-located unit test.
 ## Styling
 
 - Tailwind with custom theme in `tailwind.config.js`: colors (`rps-blue`, `rps-red`, `rps-yellow`), Fredoka font (`font-fun`)
-- Custom animations in `tailwind.config.js`: `bounce-in`, `pulse-glow`
+- Custom animations in `tailwind.config.js`: `bounce-in`, `pulse-glow`, `slide-in-left`
 - Path alias `@/*` maps to `src/`
 - Use `clsx` for composing Tailwind classes. Prefer arrays of strings for readability over template literals:
   ```ts
@@ -53,6 +53,12 @@ Each component has its own folder with barrel file and co-located unit test.
 
   type Props = ComponentProps<"button"> & VariantProps<typeof buttonVariants>;
   ```
+
+## HTML & layout conventions
+
+- Use semantic HTML tags (`section`, `header`, `footer`, `nav`, `article`) over generic `div` wrappers. Choose the tag that best describes the content's role.
+- Use Fragments (`<>...</>`) instead of wrapping elements when no extra DOM node is needed.
+- Prefer `gap` (via `flex`/`grid` parent) over margin utilities (`mb-*`, `mt-*`) for spacing between sibling elements.
 
 ## Props conventions
 
