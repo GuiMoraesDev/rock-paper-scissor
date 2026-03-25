@@ -1,5 +1,6 @@
 "use client";
 
+import { SocketEvents } from "@rps/shared";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -15,12 +16,12 @@ export function CreateForm() {
   useEffect(() => {
     const socket = getSocket();
 
-    socket.on("game-created", ({ gameId }) => {
+    socket.on(SocketEvents.GAME_CREATED, ({ gameId }) => {
       router.push(`/game/${gameId}`);
     });
 
     return () => {
-      socket.off("game-created");
+      socket.off(SocketEvents.GAME_CREATED);
     };
   }, [router]);
 
@@ -34,7 +35,10 @@ export function CreateForm() {
 
   const handleRoundsSelect = (rounds: number) => {
     const socket = getSocket();
-    socket.emit("create-game", { playerName: playerName.trim(), rounds });
+    socket.emit(SocketEvents.CREATE_GAME, {
+      playerName: playerName.trim(),
+      rounds,
+    });
   };
 
   return (

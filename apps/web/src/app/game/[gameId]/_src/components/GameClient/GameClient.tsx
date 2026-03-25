@@ -1,6 +1,11 @@
 "use client";
 
-import type { GameState, Move, RoundResult } from "@rps/shared";
+import {
+  type GameState,
+  type Move,
+  type RoundResult,
+  SocketEvents,
+} from "@rps/shared";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { Toast } from "@/components/atoms/Toast";
@@ -28,70 +33,73 @@ export function GameClient({ gameId }: GameClientProps) {
     const socket = getSocket();
 
     // Determine player index from existing socket state
-    socket.on("game-created", ({ game }) => {
+    socket.on(SocketEvents.GAME_CREATED, ({ game }) => {
       setGame(game);
       setPlayerIndex(0);
     });
 
-    socket.on("joined-game", ({ game }) => {
+    socket.on(SocketEvents.JOINED_GAME, ({ game }) => {
       setGame(game);
       setPlayerIndex(1);
     });
 
-    socket.on("game-updated", ({ game }) => {
+    socket.on(SocketEvents.GAME_UPDATED, ({ game }) => {
       setGame(game);
     });
 
-    socket.on("round-result", ({ game, roundResult }) => {
+    socket.on(SocketEvents.ROUND_RESULT, ({ game, roundResult }) => {
       setGame(game);
       setLastRoundResult(roundResult);
     });
 
-    socket.on("game-finished", ({ game }) => {
+    socket.on(SocketEvents.GAME_FINISHED, ({ game }) => {
       setGame(game);
     });
 
-    socket.on("error-msg", ({ message }) => {
+    socket.on(SocketEvents.ERROR_MSG, ({ message }) => {
       setError(message);
       setTimeout(() => setError(""), 3000);
     });
 
-    socket.on("player-disconnected", ({ playerName }) => {
+    socket.on(SocketEvents.PLAYER_DISCONNECTED, ({ playerName }) => {
       setError(`${playerName} disconnected!`);
     });
 
     // Request current game state in case of page refresh
-    socket.emit("request-game-state", { gameId });
+    socket.emit(SocketEvents.REQUEST_GAME_STATE, { gameId });
 
-    socket.on("game-state-response", ({ game, playerIndex: pIdx }) => {
-      if (game) {
-        setGame(game);
-        setPlayerIndex(pIdx);
-      }
-    });
+    socket.on(
+      SocketEvents.GAME_STATE_RESPONSE,
+      ({ game, playerIndex: pIdx }) => {
+        if (game) {
+          setGame(game);
+          setPlayerIndex(pIdx);
+        }
+      },
+    );
 
     return () => {
-      socket.off("game-created");
-      socket.off("joined-game");
-      socket.off("game-updated");
-      socket.off("round-result");
-      socket.off("game-finished");
-      socket.off("error-msg");
-      socket.off("player-disconnected");
-      socket.off("game-state-response");
+      socket.off(SocketEvents.GAME_CREATED);
+      socket.off(SocketEvents.JOINED_GAME);
+      socket.off(SocketEvents.GAME_UPDATED);
+      socket.off(SocketEvents.ROUND_RESULT);
+      socket.off(SocketEvents.GAME_FINISHED);
+      socket.off(SocketEvents.ERROR_MSG);
+      socket.off(SocketEvents.PLAYER_DISCONNECTED);
+      socket.off(SocketEvents.GAME_STATE_RESPONSE);
     };
   }, [gameId]);
 
   const handleReady = () => {
-    getSocket().emit("player-ready");
+    getSocket().emit(SocketEvents.PLAYER_READY);
   };
 
   const handleMove = (move: Move) => {
-    getSocket().emit("make-move", { move });
+    getSocket().emit(SocketEvents.MAKE_MOVE, { move });
   };
 
   const handleNextRound = () => {
-    getSocket().emit("next-round");
+    getSocket().emit(SocketEvents.NEXT_ROUND);
   };
 
   const handlePlayAgain = () => {

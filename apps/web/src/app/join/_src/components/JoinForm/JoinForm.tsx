@@ -1,5 +1,6 @@
 "use client";
 
+import { SocketEvents } from "@rps/shared";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -18,18 +19,18 @@ export function JoinForm() {
   useEffect(() => {
     const socket = getSocket();
 
-    socket.on("joined-game", ({ gameId }) => {
+    socket.on(SocketEvents.JOINED_GAME, ({ gameId }) => {
       router.push(`/game/${gameId}`);
     });
 
-    socket.on("error-msg", ({ message }) => {
+    socket.on(SocketEvents.ERROR_MSG, ({ message }) => {
       setError(message);
       setTimeout(() => setError(""), 3000);
     });
 
     return () => {
-      socket.off("joined-game");
-      socket.off("error-msg");
+      socket.off(SocketEvents.JOINED_GAME);
+      socket.off(SocketEvents.ERROR_MSG);
     };
   }, [router]);
 
@@ -44,7 +45,7 @@ export function JoinForm() {
     e.preventDefault();
     if (gameId.trim()) {
       const socket = getSocket();
-      socket.emit("join-game", {
+      socket.emit(SocketEvents.JOIN_GAME, {
         gameId: gameId.trim().toUpperCase(),
         playerName: playerName.trim(),
       });

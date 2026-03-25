@@ -1,3 +1,4 @@
+import { SocketEvents } from "@rps/shared";
 import type { Server, Socket } from "socket.io";
 
 type SocketMeta = {
@@ -91,7 +92,7 @@ function sanitizeGameFull(game: Game) {
 export function registerSocketHandlers(io: Server, socket: Socket) {
   console.log("Client connected:", socket.id);
 
-  socket.on("create-game", ({ playerName, rounds }) => {
+  socket.on(SocketEvents.CREATE_GAME, ({ playerName, rounds }) => {
     try {
       const gameId = generateGameId();
       const game: Game = {
@@ -113,27 +114,34 @@ export function registerSocketHandlers(io: Server, socket: Socket) {
       games.set(gameId, game);
       socket.join(gameId);
       socketMeta.set(socket.id, { gameId, playerIndex: 0 });
-      socket.emit("game-created", { gameId, game: sanitizeGame(game) });
+      socket.emit(SocketEvents.GAME_CREATED, {
+        gameId,
+        game: sanitizeGame(game),
+      });
       console.log(`Game ${gameId} created by ${playerName}`);
     } catch (error) {
       console.error("Error creating game:", error);
-      socket.emit("error-msg", { message: "Failed to create game." });
+      socket.emit(SocketEvents.ERROR_MSG, {
+        message: "Failed to create game.",
+      });
     }
   });
 
-  socket.on("join-game", ({ gameId, playerName }) => {
+  socket.on(SocketEvents.JOIN_GAME, ({ gameId, playerName }) => {
     try {
       const game = games.get(gameId);
       if (!game) {
-        socket.emit("error-msg", { message: "Game not found!" });
+        socket.emit(SocketEvents.ERROR_MSG, { message: "Game not found!" });
         return;
       }
       if (game.players.length >= 2) {
-        socket.emit("error-msg", { message: "Game is full!" });
+        socket.emit(SocketEvents.ERROR_MSG, { message: "Game is full!" });
         return;
       }
       if (game.status !== "waiting") {
-        socket.emit("error-msg", { message: "Game already started!" });
+        socket.emit(SocketEvents.ERROR_MSG, {
+          message: "Game already started!",
+        });
         return;
       }
 
@@ -148,16 +156,21 @@ export function registerSocketHandlers(io: Server, socket: Socket) {
       socket.join(gameId);
       socketMeta.set(socket.id, { gameId, playerIndex: 1 });
 
-      io.to(gameId).emit("game-updated", { game: sanitizeGame(game) });
-      socket.emit("joined-game", { gameId, game: sanitizeGame(game) });
+      io.to(gameId).emit(SocketEvents.GAME_UPDATED, {
+        game: sanitizeGame(game),
+      });
+      socket.emit(SocketEvents.JOINED_GAME, {
+        gameId,
+        game: sanitizeGame(game),
+      });
       console.log(`${playerName} joined game ${gameId}`);
     } catch (error) {
       console.error("Error joining game:", error);
-      socket.emit("error-msg", { message: "Failed to join game." });
+      socket.emit(SocketEvents.ERROR_MSG, { message: "Failed to join game." });
     }
   });
 
-  socket.on("player-ready", () => {
+  socket.on(SocketEvents.PLAYER_READY, () => {
     try {
       const meta = socketMeta.get(socket.id);
       if (!meta) return;
@@ -177,16 +190,16 @@ export function registerSocketHandlers(io: Server, socket: Socket) {
         });
       }
 
-      io.to(meta.gameId).emit("game-updated", {
+      io.to(meta.gameId).emit(SocketEvents.GAME_UPDATED, {
         game: sanitizeGame(game),
       });
     } catch (error) {
       console.error("Error on player-ready:", error);
-      socket.emit("error-msg", { message: "Something went wrong." });
+      socket.emit(SocketEvents.ERROR_MSG, { message: "Something went wrong." });
     }
   });
 
-  socket.on("make-move", ({ move }) => {
+  socket.on(SocketEvents.MAKE_MOVE, ({ move }) => {
     try {
       const meta = socketMeta.get(socket.id);
       if (!meta) return;
@@ -195,7 +208,7 @@ export function registerSocketHandlers(io: Server, socket: Socket) {
 
       game.players[meta.playerIndex].move = move;
 
-      io.to(meta.gameId).emit("game-updated", {
+      io.to(meta.gameId).emit(SocketEvents.GAME_UPDATED, {
         game: sanitizeGame(game),
       });
 
@@ -214,25 +227,27 @@ export function registerSocketHandlers(io: Server, socket: Socket) {
         game.roundResults.push(roundResult);
         game.status = "round-result";
 
-        io.to(meta.gameId).emit("round-result", {
+        io.to(meta.gameId).emit(SocketEvents.ROUND_RESULT, {
           game: sanitizeGameFull(game),
           roundResult,
         });
 
         if (game.currentRound >= game.rounds) {
           game.status = "finished";
-          io.to(meta.gameId).emit("game-finished", {
+          io.to(meta.gameId).emit(SocketEvents.GAME_FINISHED, {
             game: sanitizeGameFull(game),
           });
         }
       }
     } catch (error) {
       console.error("Error on make-move:", error);
-      socket.emit("error-msg", { message: "Failed to process move." });
+      socket.emit(SocketEvents.ERROR_MSG, {
+        message: "Failed to process move.",
+      });
     }
   });
 
-  socket.on("next-round", () => {
+  socket.on(SocketEvents.NEXT_ROUND, () => {
     try {
       const meta = socketMeta.get(socket.id);
       if (!meta) return;
@@ -245,38 +260,49 @@ export function registerSocketHandlers(io: Server, socket: Socket) {
         p.move = null;
       });
 
-      io.to(meta.gameId).emit("game-updated", {
+      io.to(meta.gameId).emit(SocketEvents.GAME_UPDATED, {
         game: sanitizeGame(game),
       });
     } catch (error) {
       console.error("Error on next-round:", error);
-      socket.emit("error-msg", { message: "Failed to start next round." });
+      socket.emit(SocketEvents.ERROR_MSG, {
+        message: "Failed to start next round.",
+      });
     }
   });
 
-  socket.on("request-game-state", ({ gameId }) => {
+  socket.on(SocketEvents.REQUEST_GAME_STATE, ({ gameId }) => {
     try {
       const game = games.get(gameId);
       if (!game) {
-        socket.emit("game-state-response", { game: null, playerIndex: -1 });
+        socket.emit(SocketEvents.GAME_STATE_RESPONSE, {
+          game: null,
+          playerIndex: -1,
+        });
         return;
       }
       const pIdx = game.players.findIndex((p) => p.id === socket.id);
       if (pIdx === -1) {
-        socket.emit("game-state-response", { game: null, playerIndex: -1 });
+        socket.emit(SocketEvents.GAME_STATE_RESPONSE, {
+          game: null,
+          playerIndex: -1,
+        });
         return;
       }
       const sanitized =
         game.status === "round-result" || game.status === "finished"
           ? sanitizeGameFull(game)
           : sanitizeGame(game);
-      socket.emit("game-state-response", {
+      socket.emit(SocketEvents.GAME_STATE_RESPONSE, {
         game: sanitized,
         playerIndex: pIdx,
       });
     } catch (error) {
       console.error("Error on request-game-state:", error);
-      socket.emit("game-state-response", { game: null, playerIndex: -1 });
+      socket.emit(SocketEvents.GAME_STATE_RESPONSE, {
+        game: null,
+        playerIndex: -1,
+      });
     }
   });
 
@@ -286,7 +312,7 @@ export function registerSocketHandlers(io: Server, socket: Socket) {
       if (meta) {
         const game = games.get(meta.gameId);
         if (game) {
-          io.to(meta.gameId).emit("player-disconnected", {
+          io.to(meta.gameId).emit(SocketEvents.PLAYER_DISCONNECTED, {
             playerName:
               game.players[meta.playerIndex]?.name || "Unknown player",
           });
