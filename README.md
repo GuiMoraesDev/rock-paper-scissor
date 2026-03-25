@@ -28,11 +28,9 @@ This starts both the web app (`http://localhost:3000`) and the server (`http://l
 
 ## Environment variables
 
-| Variable | App | Default | Description |
-|---|---|---|---|
+| Variable                 | App | Default                 | Description          |
+| ------------------------ | --- | ----------------------- | -------------------- |
 | `NEXT_PUBLIC_SERVER_URL` | web | `http://localhost:3001` | Socket.IO server URL |
-| `CLIENT_URL` | server | `http://localhost:3000` | Allowed CORS origin |
-| `PORT` | server | `3001` | Server port |
 
 ## Project structure
 

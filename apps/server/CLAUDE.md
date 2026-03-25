@@ -17,8 +17,6 @@ Fastify 5 server with Socket.IO for real-time game state. No database — all st
 ### Entry point (`src/index.ts`)
 
 - Creates Fastify with a custom `serverFactory` to share the HTTP server with Socket.IO
-- CORS configured via `CLIENT_URL` env var (defaults to `http://localhost:3000`)
-- Port configured via `PORT` env var (defaults to `3001`)
 - Single REST endpoint: `GET /health`
 
 ### Game engine (`src/game-engine.ts`)
@@ -26,6 +24,7 @@ Fastify 5 server with Socket.IO for real-time game state. No database — all st
 `registerSocketHandlers(io, socket)` — registers all Socket.IO event handlers for a connected client. Player identity is tracked via `socket.gameId` and `socket.playerIndex` (stored on the socket object via `as any` casts).
 
 **Key functions:**
+
 - `generateGameId()` — 6-char alphanumeric code (excludes ambiguous chars like O/0/1/I)
 - `resolveRound(move1, move2)` — determines round winner
 - `sanitizeGame(game)` — strips moves from player data (hides choices during play)

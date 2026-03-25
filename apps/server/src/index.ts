@@ -15,13 +15,19 @@ const fastify = Fastify({
   },
 });
 
+const CORS = [
+  process.env.NODE_ENV === "development" ? "http://localhost:3000" : false,
+  "https://rock-paper-scissor.guimoraes.dev",
+  "https://rock-paper-scissor-web-steel.vercel.app",
+].filter((link) => !!link);
+
 await fastify.register(cors, {
-  origin: process.env.CLIENT_URL || "http://localhost:3000",
+  origin: CORS,
 });
 
 const io = new Server(fastify.server, {
   cors: {
-    origin: process.env.CLIENT_URL || "http://localhost:3000",
+    origin: CORS,
   },
 });
 

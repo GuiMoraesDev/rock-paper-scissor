@@ -9,6 +9,4 @@ services:
     envVars:
       - key: NODE_VERSION
         value: 20
-      - key: CLIENT_URL
-        sync: false
     healthCheckPath: /health
