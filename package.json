@@ -3,9 +3,8 @@
   "version": "1.0.0",
   "description": "Multiplayer Rock Paper Scissors game",
   "scripts": {
-    "dev": "node server.js",
-    "build": "next build",
-    "start": "NODE_ENV=production node server.js"
+    "dev": "next dev",
+    "build": "next build"
   },
   "dependencies": {
     "next": "^14.2.0",
