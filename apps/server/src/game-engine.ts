@@ -2,7 +2,7 @@ import type { Server, Socket } from "socket.io";
 
 const games = new Map<string, Game>();
 
-interface Player {
+interface ServerPlayer {
   id: string;
   name: string;
   ready: boolean;
@@ -14,7 +14,7 @@ interface Game {
   id: string;
   rounds: number;
   currentRound: number;
-  players: Player[];
+  players: ServerPlayer[];
   roundResults: RoundResult[];
   status: "waiting" | "ready" | "playing" | "round-result" | "finished";
 }

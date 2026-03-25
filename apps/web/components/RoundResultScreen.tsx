@@ -1,6 +1,6 @@
 "use client";
 
-import { GameState, RoundResult } from "@/lib/types";
+import { GameState, RoundResult } from "@rps/shared";
 
 interface Props {
   game: GameState;

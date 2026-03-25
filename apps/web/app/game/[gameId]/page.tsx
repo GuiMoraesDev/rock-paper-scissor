@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { getSocket } from "@/lib/socket";
-import { GameState, RoundResult, Move } from "@/lib/types";
+import { GameState, RoundResult, Move } from "@rps/shared";
 import Lobby from "@/components/Lobby";
 import GamePlay from "@/components/GamePlay";
 import RoundResultScreen from "@/components/RoundResultScreen";
@@ -17,7 +17,7 @@ export default function GamePage() {
   const [game, setGame] = useState<GameState | null>(null);
   const [playerIndex, setPlayerIndex] = useState<number>(-1);
   const [lastRoundResult, setLastRoundResult] = useState<RoundResult | null>(
-    null
+    null,
   );
   const [error, setError] = useState("");
 
@@ -100,14 +100,14 @@ export default function GamePage() {
   return (
     <main className="min-h-dvh flex items-center justify-center p-4">
       {error && (
-        <div className="fixed top-4 left-1/2 -translate-x-1/2 bg-red-500/90 backdrop-blur-sm text-white px-6 py-3 rounded-xl font-fun text-xl z-50 animate-bounce-in">
+        <div className="fixed top-4 left-1/2 -translate-x-1/2 bg-red-500/90 backdrop-blur-sm text-gray-800 px-6 py-3 rounded-xl font-fun text-xl z-50 animate-bounce-in">
           {error}
         </div>
       )}
 
       {!game && playerIndex === -1 && (
         <div className="text-center">
-          <p className="font-fun text-2xl text-white/50 animate-pulse">
+          <p className="font-fun text-2xl text-gray-800/50 animate-pulse">
             Connecting to game {gameId}...
           </p>
         </div>

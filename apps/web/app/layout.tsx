@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import SocketInitializer from "@/components/SocketInitializer";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -14,10 +13,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className="min-h-screen text-white">
-        <SocketInitializer />
-        {children}
-      </body>
+      <body className="min-h-screen text-white">{children}</body>
     </html>
   );
 }

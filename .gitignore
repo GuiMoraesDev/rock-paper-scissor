@@ -2,7 +2,9 @@ node_modules
 .next
 out
 build
+dist
 *.tsbuildinfo
 next-env.d.ts
 .DS_Store
 *.log
+.turbo

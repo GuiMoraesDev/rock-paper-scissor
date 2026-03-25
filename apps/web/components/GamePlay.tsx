@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { GameState, Move } from "@/lib/types";
+import { GameState, Move } from "@rps/shared";
 
 interface Props {
   game: GameState;
