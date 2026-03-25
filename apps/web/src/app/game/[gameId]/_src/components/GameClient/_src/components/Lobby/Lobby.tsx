@@ -1,6 +1,8 @@
 "use client";
 
 import clsx from "clsx";
+import { motion } from "framer-motion";
+import { Button } from "@/components/atoms/Button";
 import { useGame } from "../../../../../provider/GameProvider";
 
 export function Lobby() {
@@ -11,16 +13,22 @@ export function Lobby() {
   const isReady = game.players[playerIndex]?.ready;
 
   return (
-    <section className="flex flex-col items-center gap-8 text-center animate-bounce-in w-full max-w-lg">
+    <section className="flex flex-col items-center gap-8 text-center w-full max-w-lg">
       <header className="flex flex-col gap-2">
-        <h2 className="font-fun text-4xl md:text-5xl text-rps-blue">
+        <motion.h2
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="font-fun text-4xl md:text-5xl text-rps-blue"
+        >
           Game Lobby
-        </h2>
+        </motion.h2>
 
         <p className="font-fun text-lg text-gray-400">Game Code</p>
 
-        <button
+        <motion.button
           type="button"
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
           className={clsx(
             "font-fun text-4xl md:text-5xl tracking-[0.4em] text-gray-800",
             "bg-gray-50 rounded-2xl py-4 px-6 border-3 border-gray-200",
@@ -30,7 +38,7 @@ export function Lobby() {
           title="Click to copy"
         >
           {game.id}
-        </button>
+        </motion.button>
 
         <p className="font-fun text-sm text-gray-400">
           Click to copy • Share with your friend!
@@ -45,8 +53,11 @@ export function Lobby() {
         <p className="font-fun text-2xl text-gray-600">Players</p>
 
         {game.players.map((player, idx) => (
-          <article
+          <motion.article
             key={player.name}
+            initial={{ opacity: 0, x: idx === 0 ? -30 : 30 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: idx * 0.15 }}
             className={clsx(
               "flex items-center justify-between rounded-xl px-6 py-4",
               "bg-white border-3 transition-colors shadow-sm",
@@ -65,37 +76,43 @@ export function Lobby() {
             >
               {player.ready ? "✅ Ready!" : "⏳ Waiting..."}
             </span>
-          </article>
+          </motion.article>
         ))}
 
         {game.players.length < 2 && (
-          <p
+          <motion.p
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
             className={clsx(
               "flex items-center justify-center font-fun text-xl text-gray-300",
               "bg-gray-50 rounded-xl px-6 py-4 border-3 border-dashed border-gray-200",
             )}
           >
             Waiting for opponent...
-          </p>
+          </motion.p>
         )}
       </section>
 
       {isReady ? (
-        <p className="font-fun text-2xl text-green-500 animate-pulse">
-          Waiting for opponent to be ready...
-        </p>
-      ) : (
-        <button
-          type="button"
-          onClick={handleReady}
-          disabled={game.players.length < 2}
-          className={clsx(
-            "game-btn bg-green-500 hover:bg-green-600 text-white animate-pulse-glow",
-            "disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:scale-100",
-          )}
+        <motion.p
+          animate={{ opacity: [0.5, 1, 0.5] }}
+          transition={{ duration: 2, repeat: Infinity }}
+          className="font-fun text-2xl text-green-500"
         >
-          ✊ I&apos;m Ready!
-        </button>
+          Waiting for opponent to be ready...
+        </motion.p>
+      ) : (
+        <Button asChild variant="green">
+          <motion.button
+            type="button"
+            onClick={handleReady}
+            disabled={game.players.length < 2}
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+          >
+            ✊ I&apos;m Ready!
+          </motion.button>
+        </Button>
       )}
     </section>
   );

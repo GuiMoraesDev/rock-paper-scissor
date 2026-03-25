@@ -7,6 +7,7 @@ export const buttonVariants = tv({
     "font-fun cursor-pointer",
     "transition-all duration-200",
     "transform hover:scale-105 active:scale-95",
+    "disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:scale-100",
   ],
   variants: {
     variant: {

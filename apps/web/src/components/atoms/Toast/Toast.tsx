@@ -4,16 +4,16 @@ import { tv, type VariantProps } from "tailwind-variants";
 export const toastVariants = tv({
   base: [
     "fixed top-4 left-1/2 -translate-x-1/2 z-50",
-    "px-6 py-3 rounded-xl",
-    "font-fun text-xl",
-    "animate-bounce-in shadow-lg",
+    "px-6 py-3 rounded-2xl",
+    "font-fun text-xl text-white",
+    "animate-bounce-in shadow-xl",
   ],
   variants: {
     variant: {
-      error: "bg-rps-red text-white",
-      success: "bg-green-500 text-white",
-      info: "bg-rps-blue text-white",
-      warning: "bg-rps-yellow text-white",
+      error: "bg-rps-red",
+      success: "bg-green-500",
+      info: "bg-rps-blue",
+      warning: "bg-rps-yellow",
     },
   },
   defaultVariants: {

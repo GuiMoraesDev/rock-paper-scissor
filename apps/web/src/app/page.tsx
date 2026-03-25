@@ -11,6 +11,7 @@ export default function Home() {
         width={220}
         height={220}
         priority
+        className="animate-float"
       />
 
       <section className="flex flex-col gap-4">

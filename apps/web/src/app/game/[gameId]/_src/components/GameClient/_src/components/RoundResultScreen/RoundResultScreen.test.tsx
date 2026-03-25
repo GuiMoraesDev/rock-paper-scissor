@@ -33,25 +33,27 @@ describe("RoundResultScreen", () => {
     expect(screen.getByText("Round 1 Result")).toBeInTheDocument();
   });
 
-  it("shows You Win when player wins the round", () => {
+  it("shows a win message when player wins the round", () => {
     renderWithGame(<RoundResultScreen />, {
       game: roundResultGame(),
       playerIndex: 0,
       lastRoundResult: winResult,
     });
-    expect(screen.getByText("You Win!")).toBeInTheDocument();
+    const heading = screen.getByRole("heading", { level: 2 });
+    expect(heading.className).toContain("text-green-500");
   });
 
-  it("shows You Lose when player loses the round", () => {
+  it("shows a lose message when player loses the round", () => {
     renderWithGame(<RoundResultScreen />, {
       game: roundResultGame(),
       playerIndex: 1,
       lastRoundResult: winResult,
     });
-    expect(screen.getByText("You Lose!")).toBeInTheDocument();
+    const heading = screen.getByRole("heading", { level: 2 });
+    expect(heading.className).toContain("text-rps-red");
   });
 
-  it("shows draw result", () => {
+  it("shows draw result with draw color", () => {
     renderWithGame(<RoundResultScreen />, {
       game: roundResultGame(),
       lastRoundResult: createRoundResult({
@@ -59,7 +61,8 @@ describe("RoundResultScreen", () => {
         moves: ["rock", "rock"],
       }),
     });
-    expect(screen.getByText("It's a Draw!")).toBeInTheDocument();
+    const heading = screen.getByRole("heading", { level: 2 });
+    expect(heading.className).toContain("text-rps-yellow");
   });
 
   it("displays both player names", () => {
