@@ -7,6 +7,7 @@
     "packages/*"
   ],
   "scripts": {
+    "start": "turbo start",
     "dev": "turbo dev",
     "build": "turbo build",
     "test": "turbo test",
