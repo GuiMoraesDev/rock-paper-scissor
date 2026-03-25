@@ -16,7 +16,7 @@ Next.js 15 App Router frontend with Tailwind CSS. All game state comes from Sock
 
 ### Socket connection
 
-`lib/socket.ts` — singleton Socket.IO client connecting to `NEXT_PUBLIC_SERVER_URL` (defaults to `http://localhost:3001`). Use `getSocket()` to access the shared instance.
+`src/lib/socket.ts` — singleton Socket.IO client connecting to `NEXT_PUBLIC_SERVER_URL` (defaults to `http://localhost:3001`). Use `getSocket()` to access the shared instance.
 
 ### Pages (App Router)
 
@@ -27,7 +27,7 @@ Next.js 15 App Router frontend with Tailwind CSS. All game state comes from Sock
 
 ### Components
 
-Organized using **Atomic Design** — see `components/CLAUDE.md` for full conventions.
+Organized using **Atomic Design** — see `src/components/CLAUDE.md` for full conventions.
 
 - `atoms/` — Generic reusable primitives (Button, Input, Toast)
 - `molecules/` — Composed UI units
@@ -39,7 +39,7 @@ Each component has its own folder with barrel file and co-located unit test.
 
 - Tailwind with custom theme in `tailwind.config.js`: colors (`rps-blue`, `rps-red`, `rps-yellow`), Fredoka font (`font-fun`)
 - Custom animations in `tailwind.config.js`: `bounce-in`, `pulse-glow`
-- Path alias `@/*` maps to project root
+- Path alias `@/*` maps to `src/`
 
 ### Types
 
