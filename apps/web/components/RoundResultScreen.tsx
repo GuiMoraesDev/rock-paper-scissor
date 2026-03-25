@@ -30,17 +30,17 @@ export default function RoundResultScreen({
 
   return (
     <div className="text-center animate-bounce-in w-full max-w-lg">
-      <p className="font-fun text-lg text-white/50 mb-2">
+      <p className="font-fun text-lg text-gray-400 mb-2">
         Round {roundResult.round} Result
       </p>
 
       <h2
         className={`font-fun text-5xl md:text-6xl mb-8 ${
           isDraw
-            ? "text-yellow-400"
+            ? "text-rps-yellow"
             : playerWon
-            ? "text-green-400"
-            : "text-red-400"
+            ? "text-green-500"
+            : "text-rps-red"
         }`}
       >
         {isDraw ? "It's a Draw!" : playerWon ? "You Win!" : "You Lose!"}
@@ -48,7 +48,7 @@ export default function RoundResultScreen({
 
       <div className="flex justify-center items-center gap-8 mb-8">
         <div className="text-center">
-          <p className="font-fun text-lg text-white/60 mb-2">
+          <p className="font-fun text-lg text-gray-500 mb-2">
             {game.players[0]?.name}
           </p>
           <div className="text-6xl md:text-7xl animate-bounce-in">
@@ -56,10 +56,10 @@ export default function RoundResultScreen({
           </div>
         </div>
 
-        <span className="font-fun text-3xl text-white/40">VS</span>
+        <span className="font-fun text-3xl text-gray-300">VS</span>
 
         <div className="text-center">
-          <p className="font-fun text-lg text-white/60 mb-2">
+          <p className="font-fun text-lg text-gray-500 mb-2">
             {game.players[1]?.name}
           </p>
           <div className="text-6xl md:text-7xl animate-bounce-in">
@@ -68,11 +68,11 @@ export default function RoundResultScreen({
         </div>
       </div>
 
-      <div className="flex justify-center gap-8 font-fun text-2xl text-white/70 mb-8">
+      <div className="flex justify-center gap-8 font-fun text-2xl text-gray-600 mb-8">
         <span>
           {game.players[0]?.name}: {game.players[0]?.score}
         </span>
-        <span>-</span>
+        <span className="text-gray-300">-</span>
         <span>
           {game.players[1]?.name}: {game.players[1]?.score}
         </span>
@@ -81,7 +81,7 @@ export default function RoundResultScreen({
       {!isLastRound && (
         <button
           onClick={onNextRound}
-          className="game-btn bg-gradient-to-r from-purple-600 to-pink-600 text-white animate-pulse-glow"
+          className="game-btn bg-rps-blue hover:bg-rps-blue-dark text-white animate-pulse-glow"
         >
           Next Round →
         </button>

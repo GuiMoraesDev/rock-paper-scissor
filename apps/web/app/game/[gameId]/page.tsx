@@ -100,14 +100,14 @@ export default function GamePage() {
   return (
     <main className="min-h-dvh flex items-center justify-center p-4">
       {error && (
-        <div className="fixed top-4 left-1/2 -translate-x-1/2 bg-red-500/90 backdrop-blur-sm text-gray-800 px-6 py-3 rounded-xl font-fun text-xl z-50 animate-bounce-in">
+        <div className="fixed top-4 left-1/2 -translate-x-1/2 bg-rps-red text-white px-6 py-3 rounded-xl font-fun text-xl z-50 animate-bounce-in shadow-lg">
           {error}
         </div>
       )}
 
       {!game && playerIndex === -1 && (
         <div className="text-center">
-          <p className="font-fun text-2xl text-gray-800/50 animate-pulse">
+          <p className="font-fun text-2xl text-gray-400 animate-pulse">
             Connecting to game {gameId}...
           </p>
         </div>

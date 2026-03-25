@@ -23,38 +23,38 @@ export default function GameFinished({ game, playerIndex, onPlayAgain }: Props) 
 
   return (
     <div className="text-center animate-bounce-in w-full max-w-lg">
-      <h2 className="font-fun text-3xl md:text-4xl mb-2 text-white/50">
+      <h2 className="font-fun text-3xl md:text-4xl mb-2 text-gray-400">
         Game Over!
       </h2>
 
       <div className="mb-6">
         {isDraw ? (
-          <p className="font-fun text-5xl md:text-6xl text-yellow-400">
+          <p className="font-fun text-5xl md:text-6xl text-rps-yellow">
             🤝 It&apos;s a Tie! 🤝
           </p>
         ) : playerWon ? (
-          <p className="font-fun text-5xl md:text-6xl text-green-400">
+          <p className="font-fun text-5xl md:text-6xl text-green-500">
             🏆 You Win! 🏆
           </p>
         ) : (
-          <p className="font-fun text-5xl md:text-6xl text-red-400">
+          <p className="font-fun text-5xl md:text-6xl text-rps-red">
             😢 You Lose! 😢
           </p>
         )}
       </div>
 
       <div className="flex justify-center gap-8 font-fun text-3xl mb-8">
-        <span className={p1Score > p2Score ? "text-green-400" : p1Score < p2Score ? "text-red-400" : "text-yellow-400"}>
+        <span className={p1Score > p2Score ? "text-green-500" : p1Score < p2Score ? "text-rps-red" : "text-rps-yellow"}>
           {game.players[0]?.name}: {p1Score}
         </span>
-        <span className="text-white/40">-</span>
-        <span className={p2Score > p1Score ? "text-green-400" : p2Score < p1Score ? "text-red-400" : "text-yellow-400"}>
+        <span className="text-gray-300">-</span>
+        <span className={p2Score > p1Score ? "text-green-500" : p2Score < p1Score ? "text-rps-red" : "text-rps-yellow"}>
           {game.players[1]?.name}: {p2Score}
         </span>
       </div>
 
-      <div className="bg-white/5 backdrop-blur-sm rounded-2xl p-6 mb-8 border border-white/10">
-        <h3 className="font-fun text-2xl text-white/70 mb-4">
+      <div className="bg-gray-50 rounded-2xl p-6 mb-8 border-3 border-gray-100 shadow-sm">
+        <h3 className="font-fun text-2xl text-gray-600 mb-4">
           Round by Round
         </h3>
         <div className="space-y-3">
@@ -69,24 +69,24 @@ export default function GameFinished({ game, playerIndex, onPlayAgain }: Props) 
             return (
               <div
                 key={idx}
-                className="flex items-center justify-between bg-white/5 rounded-xl px-4 py-3"
+                className="flex items-center justify-between bg-white rounded-xl px-4 py-3 shadow-sm"
               >
-                <span className="font-fun text-lg text-white/50">
+                <span className="font-fun text-lg text-gray-400">
                   Round {result.round}
                 </span>
                 <div className="flex items-center gap-3">
                   <span className="text-2xl">{moveEmoji[result.moves[0]]}</span>
-                  <span className="font-fun text-sm text-white/30">vs</span>
+                  <span className="font-fun text-sm text-gray-300">vs</span>
                   <span className="text-2xl">{moveEmoji[result.moves[1]]}</span>
                 </div>
                 <span
                   className={`font-fun text-lg ${
                     result.winner === "draw"
-                      ? "text-yellow-400"
+                      ? "text-rps-yellow"
                       : (result.winner === "player1" && playerIndex === 0) ||
                         (result.winner === "player2" && playerIndex === 1)
-                      ? "text-green-400"
-                      : "text-red-400"
+                      ? "text-green-500"
+                      : "text-rps-red"
                   }`}
                 >
                   {roundWinnerName}
@@ -99,9 +99,9 @@ export default function GameFinished({ game, playerIndex, onPlayAgain }: Props) 
 
       <button
         onClick={onPlayAgain}
-        className="game-btn bg-gradient-to-r from-purple-600 to-pink-600 text-white animate-pulse-glow"
+        className="game-btn bg-rps-blue hover:bg-rps-blue-dark text-white animate-pulse-glow"
       >
-        🎮 Play Again
+        Play Again
       </button>
     </div>
   );

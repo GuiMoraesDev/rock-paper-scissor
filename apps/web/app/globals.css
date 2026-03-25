@@ -2,12 +2,19 @@
 @tailwind components;
 @tailwind utilities;
 
-@import url("https://fonts.googleapis.com/css2?family=Bangers&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&display=swap");
 
 :root {
-  --bg-gradient-from: #0f0c29;
-  --bg-gradient-via: #302b63;
-  --bg-gradient-to: #24243e;
+  --rps-blue: #4285F4;
+  --rps-red: #EA4335;
+  --rps-yellow: #FBBC04;
+  --rps-blue-light: #7BAAF7;
+  --rps-red-light: #F28B82;
+  --rps-yellow-light: #FDD663;
+}
+
+body {
+  background: #ffffff;
 }
 
 @keyframes bounce-in {
@@ -46,10 +53,19 @@
 @keyframes pulse-glow {
   0%,
   100% {
-    box-shadow: 0 0 20px rgba(168, 85, 247, 0.4);
+    box-shadow: 0 0 20px rgba(66, 133, 244, 0.3);
   }
   50% {
-    box-shadow: 0 0 40px rgba(168, 85, 247, 0.8);
+    box-shadow: 0 0 40px rgba(66, 133, 244, 0.6);
+  }
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-8px);
   }
 }
 
@@ -65,13 +81,21 @@
   animation: pulse-glow 2s ease-in-out infinite;
 }
 
+.animate-float {
+  animation: float 3s ease-in-out infinite;
+}
+
 .game-btn {
   @apply font-fun text-2xl md:text-3xl px-8 py-5 rounded-2xl transition-all duration-200
-    transform hover:scale-105 active:scale-95 cursor-pointer tracking-wider;
+    transform hover:scale-105 active:scale-95 cursor-pointer tracking-wider shadow-lg hover:shadow-xl;
 }
 
 .emoji-btn {
   @apply text-6xl md:text-8xl p-4 md:p-6 rounded-3xl transition-all duration-200
     transform hover:scale-110 active:scale-95 cursor-pointer
-    bg-white/10 backdrop-blur-sm border-2 border-white/20 hover:border-white/50;
+    bg-gray-50 border-3 border-gray-200 hover:border-gray-300 shadow-md hover:shadow-lg;
+}
+
+.card {
+  @apply bg-white rounded-2xl shadow-lg border border-gray-100 p-6;
 }

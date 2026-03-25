@@ -40,14 +40,14 @@ export default function CreatePage() {
       <div className="text-center animate-bounce-in w-full max-w-lg">
         <Link
           href="/"
-          className="absolute top-6 left-6 font-fun text-xl text-white/60 hover:text-white transition-colors"
+          className="absolute top-6 left-6 font-fun text-xl text-gray-400 hover:text-rps-blue transition-colors"
         >
           ← Back
         </Link>
 
         {step === "name" && (
           <div>
-            <h2 className="font-fun text-4xl md:text-5xl mb-8 text-yellow-400">
+            <h2 className="font-fun text-4xl md:text-5xl mb-8 text-rps-blue">
               What&apos;s your name?
             </h2>
             <form onSubmit={handleNameSubmit} className="flex flex-col gap-6">
@@ -58,14 +58,14 @@ export default function CreatePage() {
                 placeholder="Enter your name..."
                 maxLength={20}
                 autoFocus
-                className="font-fun text-2xl md:text-3xl text-center bg-white backdrop-blur-sm
-                  border-2 border-white/30 rounded-2xl px-6 py-4 text-gray-800 placeholder-gray-400
-                  focus:outline-none focus:border-purple-400 transition-colors"
+                className="font-fun text-2xl md:text-3xl text-center bg-white
+                  border-3 border-gray-200 rounded-2xl px-6 py-4 text-gray-800 placeholder-gray-300
+                  focus:outline-none focus:border-rps-blue transition-colors shadow-md"
               />
               <button
                 type="submit"
                 disabled={!playerName.trim()}
-                className="game-btn bg-gradient-to-r from-green-500 to-emerald-600 text-white
+                className="game-btn bg-rps-blue hover:bg-rps-blue-dark text-white
                   disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:scale-100"
               >
                 Next →
@@ -76,10 +76,10 @@ export default function CreatePage() {
 
         {step === "rounds" && (
           <div>
-            <h2 className="font-fun text-4xl md:text-5xl mb-4 text-yellow-400">
+            <h2 className="font-fun text-4xl md:text-5xl mb-4 text-rps-blue">
               How many rounds?
             </h2>
-            <p className="font-fun text-xl text-white/50 mb-8">
+            <p className="font-fun text-xl text-gray-400 mb-8">
               Choose wisely, {playerName}!
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
@@ -87,8 +87,13 @@ export default function CreatePage() {
                 <button
                   key={rounds}
                   onClick={() => handleRoundsSelect(rounds)}
-                  className="game-btn bg-gradient-to-br from-purple-600 to-indigo-700 text-white
-                    flex-1 hover:from-purple-500 hover:to-indigo-600"
+                  className={`game-btn text-white flex-1 ${
+                    rounds === 1
+                      ? "bg-rps-yellow hover:bg-rps-yellow-dark"
+                      : rounds === 3
+                      ? "bg-rps-red hover:bg-rps-red-dark"
+                      : "bg-rps-blue hover:bg-rps-blue-dark"
+                  }`}
                 >
                   <span className="text-5xl md:text-6xl block mb-2">
                     {rounds === 1 ? "⚡" : rounds === 3 ? "🔥" : "💀"}

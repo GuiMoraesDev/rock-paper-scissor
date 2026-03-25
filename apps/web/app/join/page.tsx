@@ -51,7 +51,7 @@ export default function JoinPage() {
   return (
     <main className="min-h-dvh flex items-center justify-center p-4">
       {error && (
-        <div className="fixed top-4 left-1/2 -translate-x-1/2 bg-red-500/90 backdrop-blur-sm text-white px-6 py-3 rounded-xl font-fun text-xl z-50 animate-bounce-in">
+        <div className="fixed top-4 left-1/2 -translate-x-1/2 bg-rps-red text-white px-6 py-3 rounded-xl font-fun text-xl z-50 animate-bounce-in shadow-lg">
           {error}
         </div>
       )}
@@ -59,14 +59,14 @@ export default function JoinPage() {
       <div className="text-center animate-bounce-in w-full max-w-lg">
         <Link
           href="/"
-          className="absolute top-6 left-6 font-fun text-xl text-white/60 hover:text-white transition-colors"
+          className="absolute top-6 left-6 font-fun text-xl text-gray-400 hover:text-rps-red transition-colors"
         >
           ← Back
         </Link>
 
         {step === "name" && (
           <div>
-            <h2 className="font-fun text-4xl md:text-5xl mb-8 text-cyan-400">
+            <h2 className="font-fun text-4xl md:text-5xl mb-8 text-rps-red">
               What&apos;s your name?
             </h2>
             <form onSubmit={handleNameSubmit} className="flex flex-col gap-6">
@@ -77,14 +77,14 @@ export default function JoinPage() {
                 placeholder="Enter your name..."
                 maxLength={20}
                 autoFocus
-                className="font-fun text-2xl md:text-3xl text-center bg-white backdrop-blur-sm
-                  border-2 border-white/30 rounded-2xl px-6 py-4 text-gray-800 placeholder-gray-400
-                  focus:outline-none focus:border-cyan-400 transition-colors"
+                className="font-fun text-2xl md:text-3xl text-center bg-white
+                  border-3 border-gray-200 rounded-2xl px-6 py-4 text-gray-800 placeholder-gray-300
+                  focus:outline-none focus:border-rps-red transition-colors shadow-md"
               />
               <button
                 type="submit"
                 disabled={!playerName.trim()}
-                className="game-btn bg-gradient-to-r from-cyan-500 to-blue-600 text-white
+                className="game-btn bg-rps-red hover:bg-rps-red-dark text-white
                   disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:scale-100"
               >
                 Next →
@@ -95,10 +95,10 @@ export default function JoinPage() {
 
         {step === "code" && (
           <div>
-            <h2 className="font-fun text-4xl md:text-5xl mb-4 text-cyan-400">
+            <h2 className="font-fun text-4xl md:text-5xl mb-4 text-rps-red">
               Enter Game Code
             </h2>
-            <p className="font-fun text-xl text-white/50 mb-8">
+            <p className="font-fun text-xl text-gray-400 mb-8">
               Ask your friend for the code!
             </p>
             <form onSubmit={handleJoin} className="flex flex-col gap-6">
@@ -110,16 +110,16 @@ export default function JoinPage() {
                 maxLength={6}
                 autoFocus
                 className="font-fun text-4xl md:text-5xl text-center tracking-[0.5em] bg-white
-                  backdrop-blur-sm border-2 border-white/30 rounded-2xl px-6 py-4 text-gray-800
-                  placeholder-gray-300 focus:outline-none focus:border-cyan-400 transition-colors uppercase"
+                  border-3 border-gray-200 rounded-2xl px-6 py-4 text-gray-800
+                  placeholder-gray-300 focus:outline-none focus:border-rps-red transition-colors shadow-md uppercase"
               />
               <button
                 type="submit"
                 disabled={gameId.trim().length < 6}
-                className="game-btn bg-gradient-to-r from-cyan-500 to-blue-600 text-white
+                className="game-btn bg-rps-red hover:bg-rps-red-dark text-white
                   disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:scale-100"
               >
-                🚀 Join Game
+                Join Game
               </button>
             </form>
           </div>
