@@ -12,8 +12,8 @@ npm run dev
 npm run build
 
 # Run individual apps
-cd apps/web && npm run dev    # Next.js on port 3000
-cd apps/server && npm run dev # Fastify on port 3001 (tsx watch)
+npm run dev -- --filter=@rps/web    # Next.js on port 3000
+npm run dev -- --filter=@rps/server # Fastify on port 3001 (tsx watch)
 ```
 
 No linting or test scripts are configured.
