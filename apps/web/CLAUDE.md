@@ -5,9 +5,10 @@ Next.js 15 App Router frontend with Tailwind CSS. All game state comes from Sock
 ## Commands
 
 ```bash
-npm run dev    # Next.js dev server on port 3000
-npm run build  # Production build
-npm run test   # Run unit tests (Vitest + Testing Library)
+npm run dev      # Next.js dev server on port 3000
+npm run build    # Production build
+npm run test     # Run unit tests (Vitest + Testing Library)
+npm run test:e2e # Run e2e tests (Playwright, auto-starts both servers)
 ```
 
 ## Socket connection
@@ -22,7 +23,7 @@ Organized using **Atomic Design** — see `src/components/CLAUDE.md` for full co
 - `molecules/` — Composed UI units
 - `organisms/` — Full page sections (Lobby, GamePlay, RoundResultScreen, GameFinished)
 
-Each component has its own folder with barrel file and co-located unit test.
+Each component has its own folder with barrel file and co-located unit test. Interactive elements should have `data-testid` attributes for e2e test targeting.
 
 ## Styling
 
@@ -71,6 +72,12 @@ type Props = ComponentProps<"button"> & {
   variant?: "blue" | "red";
 };
 ```
+
+## Testing
+
+- **Unit tests** — Vitest + Testing Library, co-located with components (`*.test.tsx`). Framer Motion is globally mocked in `vitest.setup.ts`.
+- **E2E tests** — Playwright in `src/tests/e2e/`. See `src/tests/CLAUDE.md` for conventions. Vitest excludes this directory.
+- Use `data-testid` attributes on interactive elements for stable e2e selectors instead of text content or CSS classes.
 
 ## Types
 

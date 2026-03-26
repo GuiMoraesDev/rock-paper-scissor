@@ -11,8 +11,11 @@ npm run dev
 # Build all apps
 npm run build
 
-# Run all tests
+# Run all unit tests
 npm run test
+
+# Run e2e tests (Playwright, web only)
+npm run test:e2e --filter=@rps/web
 
 # Run individual apps
 npm run dev -- --filter=@rps/web    # Next.js on port 3000
@@ -40,7 +43,13 @@ All state synchronization happens through Socket.IO events — no REST API, no e
 
 - Use **Framer Motion** (`motion.*` components, `AnimatePresence`) for component transitions and interactive animations (hover, tap, entrance/exit).
 - Use **Tailwind CSS animations** for simple, declarative effects (`animate-float`, `animate-bounce-in`, `animate-pulse`, etc.).
-- Framer Motion is globally mocked in `vitest.setup.ts` — tests render motion components as plain DOM elements. No special test setup needed per component.
+- Framer Motion is globally mocked in `vitest.setup.ts` — unit tests render motion components as plain DOM elements. No special test setup needed per component.
+
+### Testing
+
+- **Unit tests** — Vitest + Testing Library, co-located with components. Run with `npm run test`.
+- **E2E tests** — Playwright in `apps/web/src/tests/e2e/`. Run with `npm run test:e2e` from `apps/web`. See `src/tests/CLAUDE.md` for conventions.
+- Use `data-testid` attributes on interactive elements for stable e2e selectors. Vitest excludes the `src/tests/e2e/` directory.
 
 ### TypeScript conventions (all workspaces)
 
