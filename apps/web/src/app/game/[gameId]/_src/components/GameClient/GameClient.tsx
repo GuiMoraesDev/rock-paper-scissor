@@ -23,7 +23,12 @@ export function GameClient() {
         transition={{ duration: 0.3 }}
         className="flex flex-col items-center gap-6 text-center"
       >
-        <p className="font-fun text-4xl text-white">Game not found</p>
+        <p
+          data-testid="game-not-found"
+          className="font-fun text-4xl text-white"
+        >
+          Game not found
+        </p>
         <p className="font-fun text-xl text-gray-400">
           This game doesn&apos;t exist or has already ended.
         </p>

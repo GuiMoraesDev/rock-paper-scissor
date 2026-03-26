@@ -19,7 +19,10 @@ export function GameFinished() {
     (playerIndex === 1 && game.winner === "player2");
 
   return (
-    <section className="flex flex-col items-center gap-6 text-center w-full max-w-lg">
+    <section
+      data-testid="game-finished-screen"
+      className="flex flex-col items-center gap-6 text-center w-full max-w-lg"
+    >
       <header className="flex flex-col gap-2">
         <motion.h2
           initial={{ opacity: 0, y: -20 }}
@@ -30,6 +33,7 @@ export function GameFinished() {
         </motion.h2>
 
         <motion.p
+          data-testid="game-result"
           initial={{ scale: 0, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
           transition={{ delay: 0.3, type: "spring", stiffness: 150 }}
@@ -81,7 +85,12 @@ export function GameFinished() {
         transition={{ delay: 0.6 }}
         className="flex flex-col gap-3 w-full bg-gray-50 rounded-2xl p-6 border-3 border-gray-100 shadow-sm"
       >
-        <h3 className="font-fun text-2xl text-gray-600">Round by Round</h3>
+        <h3
+          data-testid="round-by-round"
+          className="font-fun text-2xl text-gray-600"
+        >
+          Round by Round
+        </h3>
 
         {game.roundResults.map((result, idx) => {
           const roundWinnerName =
@@ -136,6 +145,7 @@ export function GameFinished() {
       <Button asChild variant="blue">
         <motion.button
           type="button"
+          data-testid="play-again-button"
           onClick={handlePlayAgain}
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}

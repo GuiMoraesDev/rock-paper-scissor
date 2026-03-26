@@ -27,6 +27,7 @@ export function Lobby() {
 
         <motion.button
           type="button"
+          data-testid="game-code"
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
           className={clsx(
@@ -55,6 +56,7 @@ export function Lobby() {
         {game.players.map((player, idx) => (
           <motion.article
             key={player.name}
+            data-testid={`player-${idx}`}
             initial={{ opacity: 0, x: idx === 0 ? -30 : 30 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: idx * 0.15 }}
@@ -81,6 +83,7 @@ export function Lobby() {
 
         {game.players.length < 2 && (
           <motion.p
+            data-testid="waiting-opponent"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             className={clsx(
@@ -105,6 +108,7 @@ export function Lobby() {
         <Button asChild variant="green">
           <motion.button
             type="button"
+            data-testid="ready-button"
             onClick={handleReady}
             disabled={game.players.length < 2}
             whileHover={{ scale: 1.05 }}

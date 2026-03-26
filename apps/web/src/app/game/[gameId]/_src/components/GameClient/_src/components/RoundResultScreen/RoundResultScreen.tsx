@@ -39,7 +39,10 @@ export function RoundResultScreen() {
   const isLastRound = game.currentRound >= game.rounds;
 
   return (
-    <section className="flex flex-col items-center gap-8 text-center w-full max-w-lg">
+    <section
+      data-testid="round-result-screen"
+      className="flex flex-col items-center gap-8 text-center w-full max-w-lg"
+    >
       <header className="flex flex-col gap-2">
         <p className="font-fun text-lg text-gray-400">
           Round {lastRoundResult.round} Result
@@ -135,6 +138,7 @@ export function RoundResultScreen() {
         <Button asChild variant="blue">
           <motion.button
             type="button"
+            data-testid="next-round-button"
             onClick={handleNextRound}
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}

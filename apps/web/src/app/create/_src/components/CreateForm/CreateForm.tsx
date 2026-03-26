@@ -52,6 +52,7 @@ export function CreateForm() {
 
           <form onSubmit={handleNameSubmit} className="flex flex-col gap-6">
             <Input
+              data-testid="name-input"
               value={playerName}
               onChange={(e) => setPlayerName(e.target.value)}
               placeholder="Enter your name..."
@@ -60,7 +61,11 @@ export function CreateForm() {
               focusColor="blue"
             />
 
-            <Button type="submit" disabled={!playerName.trim()}>
+            <Button
+              data-testid="next-button"
+              type="submit"
+              disabled={!playerName.trim()}
+            >
               Next →
             </Button>
           </form>
@@ -83,6 +88,7 @@ export function CreateForm() {
             {ROUNDS_OPTIONS.map((rounds) => (
               <Button
                 key={rounds}
+                data-testid={`rounds-${rounds}`}
                 variant={
                   rounds === 1 ? "yellow" : rounds === 3 ? "red" : "blue"
                 }

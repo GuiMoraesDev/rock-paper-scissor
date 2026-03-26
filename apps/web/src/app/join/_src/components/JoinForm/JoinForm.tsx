@@ -64,6 +64,7 @@ export function JoinForm() {
 
             <form onSubmit={handleNameSubmit} className="flex flex-col gap-6">
               <Input
+                data-testid="name-input"
                 value={playerName}
                 onChange={(e) => setPlayerName(e.target.value)}
                 placeholder="Enter your name..."
@@ -72,7 +73,12 @@ export function JoinForm() {
                 focusColor="red"
               />
 
-              <Button variant="red" type="submit" disabled={!playerName.trim()}>
+              <Button
+                data-testid="next-button"
+                variant="red"
+                type="submit"
+                disabled={!playerName.trim()}
+              >
                 Next →
               </Button>
             </form>
@@ -93,6 +99,7 @@ export function JoinForm() {
 
             <form onSubmit={handleJoin} className="flex flex-col gap-6">
               <Input
+                data-testid="game-code-input"
                 value={gameId}
                 onChange={(e) => setGameId(e.target.value.toUpperCase())}
                 placeholder="XXXXXX"
@@ -102,6 +109,7 @@ export function JoinForm() {
                 size="lg"
               />
               <Button
+                data-testid="join-game-button"
                 variant="red"
                 type="submit"
                 disabled={gameId.trim().length < 6}

@@ -25,7 +25,10 @@ export function GamePlay() {
   };
 
   return (
-    <section className="flex flex-col items-center gap-8 text-center w-full max-w-2xl">
+    <section
+      data-testid="gameplay-screen"
+      className="flex flex-col items-center gap-8 text-center w-full max-w-2xl"
+    >
       <header className="flex flex-col gap-2">
         <p className="font-fun text-lg text-gray-400">
           Round {game.currentRound} of {game.rounds}
@@ -105,6 +108,7 @@ export function GamePlay() {
           <motion.button
             type="button"
             key={move}
+            data-testid={`move-${move}`}
             disabled={hasChosen}
             onClick={() => onMove(move)}
             initial={{ opacity: 0, y: 20 }}
