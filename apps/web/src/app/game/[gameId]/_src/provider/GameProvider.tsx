@@ -21,6 +21,7 @@ type GameContextValue = {
   playerIndex: number;
   lastRoundResult: RoundResult | null;
   error: string;
+  gameNotFound: boolean;
   handleReady: () => void;
   handleMove: (move: Move) => void;
   handleNextRound: () => void;
@@ -51,6 +52,7 @@ export function GameProvider({ gameId, children }: GameProviderProps) {
     null,
   );
   const [error, setError] = useState("");
+  const [gameNotFound, setGameNotFound] = useState(false);
 
   useEffect(() => {
     const socket = getSocket();
@@ -95,6 +97,8 @@ export function GameProvider({ gameId, children }: GameProviderProps) {
         if (game) {
           setGame(game);
           setPlayerIndex(pIdx);
+        } else {
+          setGameNotFound(true);
         }
       },
     );
@@ -134,6 +138,7 @@ export function GameProvider({ gameId, children }: GameProviderProps) {
         playerIndex,
         lastRoundResult,
         error,
+        gameNotFound,
         handleReady,
         handleMove,
         handleNextRound,

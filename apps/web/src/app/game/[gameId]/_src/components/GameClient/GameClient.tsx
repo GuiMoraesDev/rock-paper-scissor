@@ -1,6 +1,8 @@
 "use client";
 
 import { AnimatePresence, motion } from "framer-motion";
+import Link from "next/link";
+import { Button } from "@/components/atoms/Button";
 import { Toast } from "@/components/atoms/Toast";
 import { useGame } from "../../provider/GameProvider";
 import { GameFinished } from "./_src/components/GameFinished";
@@ -9,9 +11,28 @@ import { Lobby } from "./_src/components/Lobby";
 import { RoundResultScreen } from "./_src/components/RoundResultScreen";
 
 export function GameClient() {
-  const { game, playerIndex, lastRoundResult, error } = useGame();
+  const { game, playerIndex, lastRoundResult, error, gameNotFound } = useGame();
 
   const status = game?.status;
+
+  if (gameNotFound) {
+    return (
+      <motion.section
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.3 }}
+        className="flex flex-col items-center gap-6 text-center"
+      >
+        <p className="font-fun text-4xl text-white">Game not found</p>
+        <p className="font-fun text-xl text-gray-400">
+          This game doesn&apos;t exist or has already ended.
+        </p>
+        <Button asChild>
+          <Link href="/">Back to Home</Link>
+        </Button>
+      </motion.section>
+    );
+  }
 
   if (error) {
     return (
