@@ -7,11 +7,18 @@ import {
 } from "../../testing/render-with-game";
 import { GameFinished } from "./GameFinished";
 
-const finishedGame = (p1Score: number, p2Score: number) =>
+const finishedGame = (
+  p1Score: number,
+  p2Score: number,
+  winner?: "player1" | "player2" | "draw",
+) =>
   createGameState({
     status: "finished",
     rounds: 3,
     currentRound: 3,
+    winner:
+      winner ??
+      (p1Score > p2Score ? "player1" : p2Score > p1Score ? "player2" : "draw"),
     players: [
       { name: "Alice", ready: true, score: p1Score, hasChosen: false },
       { name: "Bob", ready: true, score: p2Score, hasChosen: false },

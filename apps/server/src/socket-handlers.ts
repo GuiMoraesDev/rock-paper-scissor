@@ -162,6 +162,16 @@ export function registerSocketHandlers(io: Server, socket: Socket) {
 
         if (game.currentRound >= game.rounds) {
           game.status = "finished";
+
+          const p1Score = game.players[0].score;
+          const p2Score = game.players[1].score;
+          game.winner =
+            p1Score > p2Score
+              ? "player1"
+              : p2Score > p1Score
+                ? "player2"
+                : "draw";
+
           io.to(meta.gameId).emit(SocketEvents.GAME_FINISHED, {
             game: sanitizeGameFull(game),
           });

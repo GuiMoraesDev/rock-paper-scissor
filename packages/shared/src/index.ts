@@ -38,4 +38,5 @@ export interface GameState {
   status: "waiting" | "ready" | "playing" | "round-result" | "finished";
   players: Player[];
   roundResults: RoundResult[];
+  winner?: "player1" | "player2" | "draw";
 }

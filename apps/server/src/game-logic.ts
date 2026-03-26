@@ -31,6 +31,7 @@ export function sanitizeGame(game: Game) {
     currentRound: game.currentRound,
     status: game.status,
     roundResults: game.roundResults,
+    winner: game.winner,
     players: game.players.map((p) => ({
       name: p.name,
       ready: p.ready,
@@ -47,6 +48,7 @@ export function sanitizeGameFull(game: Game) {
     currentRound: game.currentRound,
     status: game.status,
     roundResults: game.roundResults,
+    winner: game.winner,
     players: game.players.map((p) => ({
       name: p.name,
       ready: p.ready,

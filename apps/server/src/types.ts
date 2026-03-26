@@ -18,6 +18,7 @@ export type Game = {
   players: ServerPlayer[];
   roundResults: RoundResult[];
   status: "waiting" | "ready" | "playing" | "round-result" | "finished";
+  winner?: "player1" | "player2" | "draw";
 };
 
 export type RoundResult = {

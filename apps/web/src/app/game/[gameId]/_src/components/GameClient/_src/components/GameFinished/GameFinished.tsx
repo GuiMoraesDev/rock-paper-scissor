@@ -13,9 +13,10 @@ export function GameFinished() {
 
   const p1Score = game.players[0]?.score || 0;
   const p2Score = game.players[1]?.score || 0;
-  const isDraw = p1Score === p2Score;
-  const winnerIndex = p1Score > p2Score ? 0 : 1;
-  const playerWon = winnerIndex === playerIndex;
+  const isDraw = game.winner === "draw";
+  const playerWon =
+    (playerIndex === 0 && game.winner === "player1") ||
+    (playerIndex === 1 && game.winner === "player2");
 
   return (
     <section className="flex flex-col items-center gap-6 text-center w-full max-w-lg">
@@ -55,9 +56,9 @@ export function GameFinished() {
       >
         <span
           className={clsx(
-            p1Score > p2Score && "text-green-500",
-            p1Score < p2Score && "text-rps-red",
-            p1Score === p2Score && "text-rps-yellow",
+            isDraw && "text-rps-yellow",
+            !isDraw && game.winner === "player1" && "text-green-500",
+            !isDraw && game.winner === "player2" && "text-rps-red",
           )}
         >
           {game.players[0]?.name}: {p1Score}
@@ -65,9 +66,9 @@ export function GameFinished() {
         <span className="text-gray-300">-</span>
         <span
           className={clsx(
-            p2Score > p1Score && "text-green-500",
-            p2Score < p1Score && "text-rps-red",
-            p2Score === p1Score && "text-rps-yellow",
+            isDraw && "text-rps-yellow",
+            !isDraw && game.winner === "player2" && "text-green-500",
+            !isDraw && game.winner === "player1" && "text-rps-red",
           )}
         >
           {game.players[1]?.name}: {p2Score}

@@ -289,10 +289,14 @@ describe("make-move", () => {
     handler({ move: "scissors" });
 
     expect(game.status).toBe("finished");
+    expect(game.winner).toBe("player1");
     expect(roomEmit).toHaveBeenCalledWith(
       SocketEvents.GAME_FINISHED,
       expect.objectContaining({
-        game: expect.objectContaining({ status: "finished" }),
+        game: expect.objectContaining({
+          status: "finished",
+          winner: "player1",
+        }),
       }),
     );
   });
