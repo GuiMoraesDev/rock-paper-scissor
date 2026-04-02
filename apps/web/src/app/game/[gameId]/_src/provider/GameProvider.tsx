@@ -34,6 +34,7 @@ type GameContextValue = {
   handleRequestRematch: () => void;
   handleAcceptRematch: () => void;
   handleDenyRematch: () => void;
+  handleKickPlayer: () => void;
 };
 
 const GameContext = createContext<GameContextValue | null>(null);
@@ -130,6 +131,10 @@ export function GameProvider({ gameId, children }: GameProviderProps) {
       router.push(`/game/${newGameId}`);
     });
 
+    socket.on(SocketEvents.PLAYER_KICKED, () => {
+      router.push("/");
+    });
+
     return () => {
       socket.off(SocketEvents.GAME_CREATED);
       socket.off(SocketEvents.JOINED_GAME);
@@ -142,6 +147,7 @@ export function GameProvider({ gameId, children }: GameProviderProps) {
       socket.off(SocketEvents.REMATCH_REQUESTED);
       socket.off(SocketEvents.REMATCH_DENIED);
       socket.off(SocketEvents.REMATCH_GAME_CREATED);
+      socket.off(SocketEvents.PLAYER_KICKED);
     };
   }, [gameId, router]);
 
@@ -180,6 +186,10 @@ export function GameProvider({ gameId, children }: GameProviderProps) {
     setRematchState("idle");
   };
 
+  const handleKickPlayer = () => {
+    getSocket().emit(SocketEvents.KICK_PLAYER);
+  };
+
   return (
     <GameContext.Provider
       value={{
@@ -198,6 +208,7 @@ export function GameProvider({ gameId, children }: GameProviderProps) {
         handleRequestRematch,
         handleAcceptRematch,
         handleDenyRematch,
+        handleKickPlayer,
       }}
     >
       {children}

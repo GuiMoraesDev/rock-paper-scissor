@@ -21,6 +21,7 @@ type GameContextValue = {
   handleRequestRematch: () => void;
   handleAcceptRematch: () => void;
   handleDenyRematch: () => void;
+  handleKickPlayer: () => void;
 };
 
 // Re-create a minimal context for testing without importing the real provider
@@ -90,6 +91,7 @@ export function renderWithGame(ui: ReactNode, options: RenderOptions = {}) {
     handleRequestRematch: vi.fn(),
     handleAcceptRematch: vi.fn(),
     handleDenyRematch: vi.fn(),
+    handleKickPlayer: vi.fn(),
   };
 
   const result = render(

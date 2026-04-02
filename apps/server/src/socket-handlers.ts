@@ -181,6 +181,41 @@ export function registerSocketHandlers(io: Server, socket: Socket) {
     }
   });
 
+  socket.on(SocketEvents.KICK_PLAYER, () => {
+    try {
+      const meta = getSocketMeta(socket.id);
+      if (!meta) return;
+      if (meta.playerIndex !== 0) return;
+
+      const game = getGame(meta.gameId);
+      if (!game || game.players.length < 2) return;
+      if (game.status !== "waiting") return;
+
+      const kicked = game.players[1];
+      const kickedSocket = io.sockets.sockets.get(kicked.id);
+
+      game.players.splice(1, 1);
+
+      if (kickedSocket) {
+        kickedSocket.emit(SocketEvents.PLAYER_KICKED, {
+          message: "You have been kicked from the game.",
+        });
+        kickedSocket.leave(meta.gameId);
+        deleteSocketMeta(kicked.id);
+      }
+
+      io.to(meta.gameId).emit(SocketEvents.GAME_UPDATED, {
+        game: sanitizeGame(game),
+      });
+      console.log(`${kicked.name} was kicked from game ${meta.gameId}`);
+    } catch (error) {
+      console.error("Error on kick-player:", error);
+      socket.emit(SocketEvents.ERROR_MSG, {
+        message: "Failed to kick player.",
+      });
+    }
+  });
+
   socket.on(SocketEvents.PLAYER_READY, () => {
     try {
       const meta = getSocketMeta(socket.id);

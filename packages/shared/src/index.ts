@@ -20,6 +20,8 @@ export const SocketEvents = {
   REMATCH_ACCEPTED: "rematch-accepted",
   REMATCH_DENIED: "rematch-denied",
   REMATCH_GAME_CREATED: "rematch-game-created",
+  KICK_PLAYER: "kick-player",
+  PLAYER_KICKED: "player-kicked",
 } as const;
 
 export type Move = "rock" | "paper" | "scissors";

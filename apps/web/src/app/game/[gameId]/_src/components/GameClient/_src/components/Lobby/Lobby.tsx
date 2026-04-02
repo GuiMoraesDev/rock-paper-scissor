@@ -6,7 +6,8 @@ import { Button } from "@/components/atoms/Button";
 import { useGame } from "../../../../../provider/GameProvider";
 
 export function Lobby() {
-  const { game, playerIndex, handleReady, handleLeaveGame } = useGame();
+  const { game, playerIndex, handleReady, handleLeaveGame, handleKickPlayer } =
+    useGame();
 
   if (!game) return null;
 
@@ -89,14 +90,28 @@ export function Lobby() {
               {idx === playerIndex ? "👉 " : ""}
               {player.name}
             </span>
-            <span
-              className={clsx(
-                "font-fun text-lg",
-                player.ready ? "text-green-500" : "text-gray-400",
+            <div className="flex items-center gap-3">
+              <span
+                className={clsx(
+                  "font-fun text-lg",
+                  player.ready ? "text-green-500" : "text-gray-400",
+                )}
+              >
+                {player.ready ? "✅ Ready!" : "⏳ Waiting..."}
+              </span>
+
+              {playerIndex === 0 && idx === 1 && (
+                <Button
+                  variant="red"
+                  size="icon"
+                  data-testid="kick-player-button"
+                  onClick={handleKickPlayer}
+                  title="Kick player"
+                >
+                  ✕
+                </Button>
               )}
-            >
-              {player.ready ? "✅ Ready!" : "⏳ Waiting..."}
-            </span>
+            </div>
           </motion.article>
         ))}
 
