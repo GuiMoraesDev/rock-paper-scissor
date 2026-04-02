@@ -4,6 +4,7 @@ export const SocketEvents = {
   PLAYER_READY: "player-ready",
   MAKE_MOVE: "make-move",
   NEXT_ROUND: "next-round",
+  LEAVE_GAME: "leave-game",
   REQUEST_GAME_STATE: "request-game-state",
   GAME_CREATED: "game-created",
   JOINED_GAME: "joined-game",

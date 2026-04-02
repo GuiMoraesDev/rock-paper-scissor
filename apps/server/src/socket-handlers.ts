@@ -98,6 +98,40 @@ export function registerSocketHandlers(io: Server, socket: Socket) {
     }
   });
 
+  socket.on(SocketEvents.LEAVE_GAME, () => {
+    try {
+      const meta = getSocketMeta(socket.id);
+      if (!meta) return;
+      const game = getGame(meta.gameId);
+      if (!game) return;
+
+      const playerName =
+        game.players[meta.playerIndex]?.name || "Unknown player";
+      const isCreator = meta.playerIndex === 0;
+
+      if (isCreator) {
+        io.to(meta.gameId).emit(SocketEvents.PLAYER_DISCONNECTED, {
+          playerName,
+        });
+        deleteGame(meta.gameId);
+        console.log(`${playerName} destroyed game ${meta.gameId}`);
+      } else {
+        game.players.splice(meta.playerIndex, 1);
+        game.status = "waiting";
+        io.to(meta.gameId).emit(SocketEvents.GAME_UPDATED, {
+          game: sanitizeGame(game),
+        });
+        console.log(`${playerName} left game ${meta.gameId}`);
+      }
+
+      socket.leave(meta.gameId);
+      deleteSocketMeta(socket.id);
+    } catch (error) {
+      console.error("Error on leave-game:", error);
+      socket.emit(SocketEvents.ERROR_MSG, { message: "Failed to leave game." });
+    }
+  });
+
   socket.on(SocketEvents.PLAYER_READY, () => {
     try {
       const meta = getSocketMeta(socket.id);

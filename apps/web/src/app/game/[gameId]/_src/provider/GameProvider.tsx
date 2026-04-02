@@ -26,6 +26,7 @@ type GameContextValue = {
   handleMove: (move: Move) => void;
   handleNextRound: () => void;
   handlePlayAgain: () => void;
+  handleLeaveGame: () => void;
 };
 
 const GameContext = createContext<GameContextValue | null>(null);
@@ -131,6 +132,11 @@ export function GameProvider({ gameId, children }: GameProviderProps) {
     router.push("/");
   };
 
+  const handleLeaveGame = () => {
+    getSocket().emit(SocketEvents.LEAVE_GAME);
+    router.push("/");
+  };
+
   return (
     <GameContext.Provider
       value={{
@@ -143,6 +149,7 @@ export function GameProvider({ gameId, children }: GameProviderProps) {
         handleMove,
         handleNextRound,
         handlePlayAgain,
+        handleLeaveGame,
       }}
     >
       {children}

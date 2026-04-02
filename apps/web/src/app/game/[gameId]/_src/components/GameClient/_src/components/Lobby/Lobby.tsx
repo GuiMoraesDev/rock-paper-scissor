@@ -6,7 +6,7 @@ import { Button } from "@/components/atoms/Button";
 import { useGame } from "../../../../../provider/GameProvider";
 
 export function Lobby() {
-  const { game, playerIndex, handleReady } = useGame();
+  const { game, playerIndex, handleReady, handleLeaveGame } = useGame();
 
   if (!game) return null;
 
@@ -118,6 +118,15 @@ export function Lobby() {
           </motion.button>
         </Button>
       )}
+
+      <Button
+        variant="ghost"
+        size="sm"
+        data-testid="leave-game-button"
+        onClick={handleLeaveGame}
+      >
+        ← {playerIndex === 0 ? "Destroy & Leave" : "Leave Game"}
+      </Button>
     </section>
   );
 }
