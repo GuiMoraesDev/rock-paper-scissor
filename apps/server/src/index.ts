@@ -6,7 +6,7 @@ import { getActiveConnectionCount, getGameCount } from "./game-store.js";
 import { registerSocketHandlers } from "./socket-handlers.js";
 
 const PORT = parseInt(process.env.PORT || "3001", 10);
-const HOST = "192.168.1.39";
+const HOST = "0.0.0.0";
 
 const fastify = Fastify({
   serverFactory: (handler) => {
