@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
+  generateAIMove,
   generateGameId,
   resolveRound,
   sanitizeGame,
@@ -46,6 +47,51 @@ describe("resolveRound", () => {
     expect(resolveRound("scissors", "rock")).toBe("player2");
     expect(resolveRound("paper", "scissors")).toBe("player2");
     expect(resolveRound("rock", "paper")).toBe("player2");
+  });
+});
+
+describe("generateAIMove", () => {
+  it("returns a valid move for easy difficulty with no history", () => {
+    const validMoves = ["rock", "paper", "scissors"];
+    for (let i = 0; i < 20; i++) {
+      expect(validMoves).toContain(generateAIMove("easy", []));
+    }
+  });
+
+  it("returns a valid move for easy difficulty regardless of history", () => {
+    const validMoves = ["rock", "paper", "scissors"];
+    for (let i = 0; i < 20; i++) {
+      expect(validMoves).toContain(
+        generateAIMove("easy", ["rock", "rock", "rock"]),
+      );
+    }
+  });
+
+  it("returns a valid move for normal difficulty with empty history", () => {
+    const validMoves = ["rock", "paper", "scissors"];
+    for (let i = 0; i < 20; i++) {
+      expect(validMoves).toContain(generateAIMove("normal", []));
+    }
+  });
+
+  it("tends to counter most frequent move on normal difficulty", () => {
+    const history = Array(50).fill("rock");
+    const moves = Array.from({ length: 100 }, () =>
+      generateAIMove("normal", history),
+    );
+    const paperCount = moves.filter((m) => m === "paper").length;
+    // Should counter rock with paper at least sometimes
+    expect(paperCount).toBeGreaterThan(20);
+  });
+
+  it("strongly counters most frequent move on hard difficulty", () => {
+    const history = Array(50).fill("scissors");
+    const moves = Array.from({ length: 100 }, () =>
+      generateAIMove("hard", history),
+    );
+    const rockCount = moves.filter((m) => m === "rock").length;
+    // Hard mode should counter scissors with rock ~80% of the time
+    expect(rockCount).toBeGreaterThan(60);
   });
 });
 

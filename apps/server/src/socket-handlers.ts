@@ -18,6 +18,20 @@ import {
 } from "./game-store.js";
 import type { Game, RoundResult } from "./types.js";
 
+function getAIMoveHistory(game: Game): string[] {
+  // Current game moves (player 0's moves from round results)
+  const currentGameMoves = game.roundResults.map((r) => r.moves[0]);
+  // Cross-game history from session storage (sent by client for hard mode)
+  const pastMoves = game.aiMoveHistory ?? [];
+
+  if (game.aiDifficulty === "normal") {
+    return currentGameMoves;
+  }
+
+  // Hard mode: combine past history + current game
+  return [...pastMoves, ...currentGameMoves];
+}
+
 export function registerSocketHandlers(io: Server, socket: Socket) {
   console.log("Client connected:", socket.id);
 
@@ -56,7 +70,7 @@ export function registerSocketHandlers(io: Server, socket: Socket) {
     }
   });
 
-  socket.on(SocketEvents.ADD_AI_PLAYER, ({ difficulty }) => {
+  socket.on(SocketEvents.ADD_AI_PLAYER, ({ difficulty, moveHistory }) => {
     try {
       const meta = getSocketMeta(socket.id);
       if (!meta) return;
@@ -75,6 +89,7 @@ export function registerSocketHandlers(io: Server, socket: Socket) {
         score: 0,
       });
       game.aiDifficulty = difficulty;
+      game.aiMoveHistory = Array.isArray(moveHistory) ? moveHistory : [];
 
       io.to(meta.gameId).emit(SocketEvents.GAME_UPDATED, {
         game: sanitizeGame(game),
@@ -218,6 +233,11 @@ export function registerSocketHandlers(io: Server, socket: Socket) {
         game.players.forEach((p) => {
           p.move = null;
         });
+
+        if (game.aiDifficulty) {
+          const history = getAIMoveHistory(game);
+          game.players[1].move = generateAIMove(game.aiDifficulty, history);
+        }
       }
 
       io.to(meta.gameId).emit(SocketEvents.GAME_UPDATED, {
@@ -237,10 +257,6 @@ export function registerSocketHandlers(io: Server, socket: Socket) {
       if (!game || game.status !== "playing") return;
 
       game.players[meta.playerIndex].move = move;
-
-      if (game.aiDifficulty && meta.playerIndex === 0) {
-        game.players[1].move = generateAIMove(game.aiDifficulty, move);
-      }
 
       io.to(meta.gameId).emit(SocketEvents.GAME_UPDATED, {
         game: sanitizeGame(game),
@@ -303,6 +319,11 @@ export function registerSocketHandlers(io: Server, socket: Socket) {
       game.players.forEach((p) => {
         p.move = null;
       });
+
+      if (game.aiDifficulty) {
+        const history = getAIMoveHistory(game);
+        game.players[1].move = generateAIMove(game.aiDifficulty, history);
+      }
 
       io.to(meta.gameId).emit(SocketEvents.GAME_UPDATED, {
         game: sanitizeGame(game),

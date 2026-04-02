@@ -7,6 +7,7 @@ import { useCallback, useState } from "react";
 import { Button } from "@/components/atoms/Button";
 import { toast } from "@/components/atoms/Toaster";
 import { getSocket } from "@/lib/socket";
+import { getAIMoveHistory } from "../../../../../lib/ai-move-history";
 import { useGame } from "../../../../../provider/GameProvider";
 import { AIDifficultyModal } from "./_src/components/AIDifficultyModal";
 
@@ -16,7 +17,8 @@ export function Lobby() {
   const [isAIModalOpen, setIsAIModalOpen] = useState(false);
 
   const handleAddAI = useCallback((difficulty: AIDifficulty) => {
-    getSocket().emit(SocketEvents.ADD_AI_PLAYER, { difficulty });
+    const moveHistory = difficulty === "hard" ? getAIMoveHistory() : [];
+    getSocket().emit(SocketEvents.ADD_AI_PLAYER, { difficulty, moveHistory });
     setIsAIModalOpen(false);
   }, []);
 

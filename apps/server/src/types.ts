@@ -21,6 +21,7 @@ export type Game = {
   winner?: "player1" | "player2" | "draw";
   rematchRequestedBy?: number;
   aiDifficulty?: "easy" | "normal" | "hard";
+  aiMoveHistory?: string[];
 };
 
 export type RoundResult = {

@@ -15,6 +15,7 @@ import {
   useState,
 } from "react";
 import { getSocket } from "@/lib/socket";
+import { appendAIMoveHistory } from "../lib/ai-move-history";
 
 type RematchState = "idle" | "requested" | "received";
 
@@ -85,6 +86,13 @@ export function GameProvider({ gameId, children }: GameProviderProps) {
     socket.on(SocketEvents.ROUND_RESULT, ({ game, roundResult }) => {
       setGame(game);
       setLastRoundResult(roundResult);
+
+      const isAIGame = game.players.some((p: { name: string }) =>
+        p.name.startsWith("AI ("),
+      );
+      if (isAIGame) {
+        appendAIMoveHistory(roundResult.moves[0]);
+      }
     });
 
     socket.on(SocketEvents.GAME_FINISHED, ({ game }) => {

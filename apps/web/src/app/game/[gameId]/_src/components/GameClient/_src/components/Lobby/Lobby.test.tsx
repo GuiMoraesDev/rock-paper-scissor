@@ -128,6 +128,7 @@ describe("Lobby", () => {
     fireEvent.click(screen.getByTestId("ai-difficulty-hard"));
     expect(mockEmit).toHaveBeenCalledWith(SocketEvents.ADD_AI_PLAYER, {
       difficulty: "hard",
+      moveHistory: [],
     });
   });
 });

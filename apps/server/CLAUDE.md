@@ -29,6 +29,7 @@ Pure functions with no side effects or Socket.IO dependency:
 
 - `generateGameId()` — 6-char alphanumeric code (excludes ambiguous chars like O/0/1/I)
 - `resolveRound(move1, move2)` — determines round winner
+- `generateAIMove(difficulty, moveHistory)` — AI move generation based on difficulty and player's move history (easy=random, normal=current game patterns, hard=all session history)
 - `sanitizeGame(game)` — strips moves from player data (hides choices during play)
 - `sanitizeGameFull(game)` — includes moves (used for round-result and finished states)
 

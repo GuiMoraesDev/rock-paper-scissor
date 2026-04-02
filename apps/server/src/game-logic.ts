@@ -32,9 +32,29 @@ const COUNTER_MOVE: Record<string, string> = {
   scissors: "rock",
 };
 
+function predictMostFrequentMove(history: string[]): string | null {
+  if (history.length === 0) return null;
+
+  const frequency: Record<string, number> = {};
+  for (const move of history) {
+    frequency[move] = (frequency[move] || 0) + 1;
+  }
+
+  let maxCount = 0;
+  let mostFrequent: string | null = null;
+  for (const [move, count] of Object.entries(frequency)) {
+    if (count > maxCount) {
+      maxCount = count;
+      mostFrequent = move;
+    }
+  }
+
+  return mostFrequent;
+}
+
 export function generateAIMove(
   difficulty: "easy" | "normal" | "hard",
-  opponentMove: string,
+  moveHistory: string[],
 ): string {
   const random = MOVES[Math.floor(Math.random() * MOVES.length)];
 
@@ -42,12 +62,15 @@ export function generateAIMove(
     return random;
   }
 
+  const predicted = predictMostFrequentMove(moveHistory);
+  if (!predicted) return random;
+
   if (difficulty === "normal") {
-    return Math.random() < 0.33 ? COUNTER_MOVE[opponentMove] : random;
+    return Math.random() < 0.5 ? COUNTER_MOVE[predicted] : random;
   }
 
-  // hard: 70% counter
-  return Math.random() < 0.7 ? COUNTER_MOVE[opponentMove] : random;
+  // hard: 80% counter based on full history prediction
+  return Math.random() < 0.8 ? COUNTER_MOVE[predicted] : random;
 }
 
 export function sanitizeGame(game: Game) {
