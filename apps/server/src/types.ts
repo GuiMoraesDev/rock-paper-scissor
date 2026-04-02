@@ -20,6 +20,7 @@ export type Game = {
   status: "waiting" | "ready" | "playing" | "round-result" | "finished";
   winner?: "player1" | "player2" | "draw";
   rematchRequestedBy?: number;
+  aiDifficulty?: "easy" | "normal" | "hard";
 };
 
 export type RoundResult = {

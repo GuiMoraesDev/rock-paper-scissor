@@ -31,6 +31,9 @@ export default function Home() {
         <Button asChild variant="red">
           <Link href="/join">Join an Existing Game</Link>
         </Button>
+        <Button asChild variant="yellow">
+          <Link href="/play-ai">Play Against AI</Link>
+        </Button>
       </footer>
     </main>
   );

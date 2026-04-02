@@ -1,6 +1,7 @@
 import { SocketEvents } from "@rps/shared";
 import type { Server, Socket } from "socket.io";
 import {
+  generateAIMove,
   generateGameId,
   resolveRound,
   sanitizeGame,
@@ -54,6 +55,54 @@ export function registerSocketHandlers(io: Server, socket: Socket) {
       });
     }
   });
+
+  socket.on(
+    SocketEvents.CREATE_AI_GAME,
+    ({ playerName, rounds, difficulty }) => {
+      try {
+        const gameId = generateGameId();
+        const game: Game = {
+          id: gameId,
+          rounds,
+          currentRound: 1,
+          players: [
+            {
+              id: socket.id,
+              name: playerName,
+              ready: true,
+              move: null,
+              score: 0,
+            },
+            {
+              id: "ai-bot",
+              name: `AI (${difficulty})`,
+              ready: true,
+              move: null,
+              score: 0,
+            },
+          ],
+          roundResults: [],
+          status: "playing",
+          aiDifficulty: difficulty,
+        };
+        setGame(gameId, game);
+        socket.join(gameId);
+        setSocketMeta(socket.id, { gameId, playerIndex: 0 });
+        socket.emit(SocketEvents.GAME_CREATED, {
+          gameId,
+          game: sanitizeGame(game),
+        });
+        console.log(
+          `AI game ${gameId} created by ${playerName} (${difficulty})`,
+        );
+      } catch (error) {
+        console.error("Error creating AI game:", error);
+        socket.emit(SocketEvents.ERROR_MSG, {
+          message: "Failed to create AI game.",
+        });
+      }
+    },
+  );
 
   socket.on(SocketEvents.JOIN_GAME, ({ gameId, playerName }) => {
     try {
@@ -169,6 +218,10 @@ export function registerSocketHandlers(io: Server, socket: Socket) {
       if (!game || game.status !== "playing") return;
 
       game.players[meta.playerIndex].move = move;
+
+      if (game.aiDifficulty && meta.playerIndex === 0) {
+        game.players[1].move = generateAIMove(game.aiDifficulty, move);
+      }
 
       io.to(meta.gameId).emit(SocketEvents.GAME_UPDATED, {
         game: sanitizeGame(game),

@@ -14,6 +14,7 @@ export const inputVariants = tv({
     focusColor: {
       blue: "focus:border-rps-blue",
       red: "focus:border-rps-red",
+      yellow: "focus:border-rps-yellow",
     },
     size: {
       md: "text-2xl md:text-3xl",

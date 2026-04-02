@@ -24,6 +24,32 @@ export function resolveRound(
   return "player2";
 }
 
+const MOVES = ["rock", "paper", "scissors"] as const;
+
+const COUNTER_MOVE: Record<string, string> = {
+  rock: "paper",
+  paper: "scissors",
+  scissors: "rock",
+};
+
+export function generateAIMove(
+  difficulty: "easy" | "normal" | "hard",
+  opponentMove: string,
+): string {
+  const random = MOVES[Math.floor(Math.random() * MOVES.length)];
+
+  if (difficulty === "easy") {
+    return random;
+  }
+
+  if (difficulty === "normal") {
+    return Math.random() < 0.33 ? COUNTER_MOVE[opponentMove] : random;
+  }
+
+  // hard: 70% counter
+  return Math.random() < 0.7 ? COUNTER_MOVE[opponentMove] : random;
+}
+
 export function sanitizeGame(game: Game) {
   return {
     id: game.id,
