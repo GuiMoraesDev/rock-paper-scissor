@@ -114,7 +114,7 @@ export function JoinForm() {
             </Button>
 
             <Button
-              data-testid="next-button"
+              data-testid="next-step-button"
               variant="ghost"
               size="sm"
               className="whitespace-nowrap inline-flex items-center leading-none animate-slide-in-right hover:text-rps-red"

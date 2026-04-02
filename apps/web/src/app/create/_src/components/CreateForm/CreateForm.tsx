@@ -111,6 +111,7 @@ export function CreateForm() {
           <Button
             variant="ghost"
             size="sm"
+            data-testid="next-step-button"
             className="whitespace-nowrap inline-flex items-center leading-none animate-slide-in-right hover:text-rps-blue"
             onClick={handleGoToSecondStep}
           >
@@ -178,6 +179,7 @@ export function CreateForm() {
           <Button
             variant="ghost"
             size="sm"
+            data-testid="create-game-button"
             type="submit"
             className="whitespace-nowrap inline-flex items-center leading-none animate-slide-in-right hover:text-rps-blue"
           >

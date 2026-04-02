@@ -3,8 +3,9 @@ import { expect, type Page, test } from "@playwright/test";
 async function createGame(page: Page, playerName: string, rounds: number) {
   await page.goto("/create");
   await page.getByTestId("name-input").fill(playerName);
-  await page.getByTestId("next-button").click();
+  await page.getByTestId("next-step-button").click();
   await page.getByTestId(`rounds-${rounds}`).click();
+  await page.getByTestId("create-game-button").click();
   await expect(page.getByTestId("game-code")).toBeVisible();
 }
 
@@ -17,7 +18,7 @@ async function getGameCode(page: Page): Promise<string> {
 async function joinGame(page: Page, playerName: string, gameCode: string) {
   await page.goto("/join");
   await page.getByTestId("name-input").fill(playerName);
-  await page.getByTestId("next-button").click();
+  await page.getByTestId("next-step-button").click();
   await page.getByTestId("game-code-input").fill(gameCode);
   await page.getByTestId("join-game-button").click();
   await expect(page.getByTestId("game-code")).toBeVisible();
@@ -73,8 +74,8 @@ test.describe("Rock Paper Scissors - Full Game", () => {
     await expect(player1.getByTestId("game-result")).toContainText("You Win!");
     await expect(player2.getByTestId("game-result")).toContainText("You Lose!");
 
-    // Play Again button is visible
-    await expect(player1.getByTestId("play-again-button")).toBeVisible();
+    // Rematch button is visible
+    await expect(player1.getByTestId("rematch-button")).toBeVisible();
 
     await player1Context.close();
     await player2Context.close();
@@ -172,7 +173,7 @@ test.describe("Rock Paper Scissors - Full Game", () => {
     await expect(page.getByTestId("game-not-found")).toBeVisible();
   });
 
-  test("play again navigates back to home", async ({ browser }) => {
+  test("rematch creates a new game", async ({ browser }) => {
     const player1Context = await browser.newContext();
     const player2Context = await browser.newContext();
     const player1 = await player1Context.newPage();
@@ -189,11 +190,11 @@ test.describe("Rock Paper Scissors - Full Game", () => {
 
     await expect(player1.getByTestId("game-finished-screen")).toBeVisible();
 
-    // Click Play Again
-    await player1.getByTestId("play-again-button").click({ force: true });
+    // Click Rematch
+    await expect(player1.getByTestId("rematch-button")).toBeVisible();
 
     // Should navigate to home
-    await expect(player1).toHaveURL("/");
+    await expect(player1).toHaveURL(`/game/${gameCode}`);
 
     await player1Context.close();
     await player2Context.close();
