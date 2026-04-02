@@ -1,7 +1,10 @@
+// biome-ignore assist/source/organizeImports: Instrumentation must be the first import
+import "./instrument.mjs";
 import { createServer } from "node:http";
 import cors from "@fastify/cors";
 import Fastify from "fastify";
 import { Server } from "socket.io";
+import * as Sentry from "@sentry/node";
 import { getActiveConnectionCount, getGameCount } from "./game-store.js";
 import { registerSocketHandlers } from "./socket-handlers.js";
 
@@ -16,6 +19,8 @@ const fastify = Fastify({
     return server;
   },
 });
+
+Sentry.setupFastifyErrorHandler(fastify);
 
 const CORS = "*";
 
@@ -47,6 +52,10 @@ fastify.get("/status", async () => {
     cors: CORS,
     timestamp: Date.now(),
   };
+});
+
+fastify.get("/debug-sentry", () => {
+  throw new Error("My first Sentry error!");
 });
 
 try {
