@@ -13,6 +13,7 @@
   "dependencies": {
     "@radix-ui/react-slot": "^1.2.4",
     "@rps/shared": "*",
+    "@sentry/nextjs": "^10.47.0",
     "clsx": "^2.1.1",
     "framer-motion": "^12.38.0",
     "next": "^15.5.0",
