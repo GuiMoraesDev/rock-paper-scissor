@@ -371,12 +371,62 @@ export function registerSocketHandlers(io: Server, socket: Socket) {
     }
   });
 
+  function createRematchGame(oldGame: Game, oldGameId: string) {
+    const isAIGame = oldGame.aiDifficulty !== undefined;
+
+    const newGameId = generateGameId();
+    const newGame: Game = {
+      id: newGameId,
+      rounds: oldGame.rounds,
+      currentRound: 0,
+      players: oldGame.players.map((p) => ({
+        id: p.id,
+        name: p.name,
+        ready: p.id === "ai-bot",
+        move: null,
+        score: 0,
+      })),
+      roundResults: [],
+      status: "waiting",
+      ...(isAIGame && {
+        aiDifficulty: oldGame.aiDifficulty,
+        aiMoveHistory: oldGame.aiMoveHistory ?? [],
+      }),
+    };
+
+    setGame(newGameId, newGame);
+
+    for (const player of oldGame.players) {
+      if (player.id === "ai-bot") continue;
+      const playerSocket = io.sockets.sockets.get(player.id);
+      if (playerSocket) {
+        playerSocket.leave(oldGameId);
+        playerSocket.join(newGameId);
+        const pIdx = newGame.players.findIndex((p) => p.id === player.id);
+        setSocketMeta(player.id, { gameId: newGameId, playerIndex: pIdx });
+      }
+    }
+
+    deleteGame(oldGameId);
+
+    io.to(newGameId).emit(SocketEvents.REMATCH_GAME_CREATED, {
+      gameId: newGameId,
+      game: sanitizeGame(newGame),
+    });
+    console.log(`Rematch game ${newGameId} created from ${oldGameId}`);
+  }
+
   socket.on(SocketEvents.REQUEST_REMATCH, () => {
     try {
       const meta = getSocketMeta(socket.id);
       if (!meta) return;
       const game = getGame(meta.gameId);
       if (!game || game.status !== "finished") return;
+
+      if (game.aiDifficulty !== undefined) {
+        createRematchGame(game, meta.gameId);
+        return;
+      }
 
       game.rematchRequestedBy = meta.playerIndex;
       const playerName = game.players[meta.playerIndex]?.name || "Unknown";
@@ -400,41 +450,7 @@ export function registerSocketHandlers(io: Server, socket: Socket) {
       const oldGame = getGame(meta.gameId);
       if (!oldGame || oldGame.rematchRequestedBy === undefined) return;
 
-      const newGameId = generateGameId();
-      const newGame: Game = {
-        id: newGameId,
-        rounds: oldGame.rounds,
-        currentRound: 0,
-        players: oldGame.players.map((p) => ({
-          id: p.id,
-          name: p.name,
-          ready: false,
-          move: null,
-          score: 0,
-        })),
-        roundResults: [],
-        status: "waiting",
-      };
-
-      setGame(newGameId, newGame);
-
-      for (const player of oldGame.players) {
-        const playerSocket = io.sockets.sockets.get(player.id);
-        if (playerSocket) {
-          playerSocket.leave(meta.gameId);
-          playerSocket.join(newGameId);
-          const pIdx = newGame.players.findIndex((p) => p.id === player.id);
-          setSocketMeta(player.id, { gameId: newGameId, playerIndex: pIdx });
-        }
-      }
-
-      deleteGame(meta.gameId);
-
-      io.to(newGameId).emit(SocketEvents.REMATCH_GAME_CREATED, {
-        gameId: newGameId,
-        game: sanitizeGame(newGame),
-      });
-      console.log(`Rematch game ${newGameId} created from ${meta.gameId}`);
+      createRematchGame(oldGame, meta.gameId);
     } catch (error) {
       console.error("Error on rematch-accepted:", error);
       socket.emit(SocketEvents.ERROR_MSG, {
