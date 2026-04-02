@@ -1,3 +1,4 @@
+import { SocketEvents } from "@rps/shared";
 import { fireEvent, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 import {
@@ -5,6 +6,11 @@ import {
   renderWithGame,
 } from "../../testing/render-with-game";
 import { Lobby } from "./Lobby";
+
+const mockEmit = vi.fn();
+vi.mock("@/lib/socket", () => ({
+  getSocket: () => ({ emit: mockEmit }),
+}));
 
 describe("Lobby", () => {
   it("renders the game code", () => {
@@ -79,5 +85,49 @@ describe("Lobby", () => {
     renderWithGame(<Lobby />);
     fireEvent.click(screen.getByTitle("Click to copy"));
     expect(writeText).toHaveBeenCalledWith("ABC123");
+  });
+
+  it("shows AI button when waiting for opponent as creator", () => {
+    renderWithGame(<Lobby />, {
+      game: createGameState({
+        players: [
+          { name: "Player 1", ready: false, score: 0, hasChosen: false },
+        ],
+      }),
+      playerIndex: 0,
+    });
+    expect(screen.getByTestId("add-ai-button")).toBeInTheDocument();
+  });
+
+  it("does not show AI button for non-creator", () => {
+    renderWithGame(<Lobby />, {
+      game: createGameState({
+        players: [
+          { name: "Player 1", ready: false, score: 0, hasChosen: false },
+        ],
+      }),
+      playerIndex: 1,
+    });
+    expect(screen.queryByTestId("add-ai-button")).not.toBeInTheDocument();
+  });
+
+  it("opens AI difficulty modal and emits add-ai-player on selection", () => {
+    mockEmit.mockClear();
+    renderWithGame(<Lobby />, {
+      game: createGameState({
+        players: [
+          { name: "Player 1", ready: false, score: 0, hasChosen: false },
+        ],
+      }),
+      playerIndex: 0,
+    });
+
+    fireEvent.click(screen.getByTestId("add-ai-button"));
+    expect(screen.getByText("Choose Difficulty")).toBeInTheDocument();
+
+    fireEvent.click(screen.getByTestId("ai-difficulty-hard"));
+    expect(mockEmit).toHaveBeenCalledWith(SocketEvents.ADD_AI_PLAYER, {
+      difficulty: "hard",
+    });
   });
 });

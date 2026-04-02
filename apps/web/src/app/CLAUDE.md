@@ -7,7 +7,7 @@ Next.js 15 App Router pages. Pages are **server components by default** — only
 - `/` (`page.tsx`) — Landing page with Create/Join buttons
 - `/create` (`create/page.tsx`) — Enter name, select rounds (1/3/5), emits `create-game`
 - `/join` (`join/page.tsx`) — Enter name + 6-char game code, emits `join-game`
-- `/game/[gameId]` (`game/[gameId]/page.tsx`) — Main game page, renders different components based on `game.status`
+- `/game/[gameId]` (`game/[gameId]/page.tsx`) — Main game page, renders different components based on `game.status`. AI players are added from the lobby via the 🤖 button (no separate AI route).
 
 ## Server-first principle
 

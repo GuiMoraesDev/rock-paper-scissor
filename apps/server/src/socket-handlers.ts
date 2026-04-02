@@ -56,53 +56,37 @@ export function registerSocketHandlers(io: Server, socket: Socket) {
     }
   });
 
-  socket.on(
-    SocketEvents.CREATE_AI_GAME,
-    ({ playerName, rounds, difficulty }) => {
-      try {
-        const gameId = generateGameId();
-        const game: Game = {
-          id: gameId,
-          rounds,
-          currentRound: 1,
-          players: [
-            {
-              id: socket.id,
-              name: playerName,
-              ready: true,
-              move: null,
-              score: 0,
-            },
-            {
-              id: "ai-bot",
-              name: `AI (${difficulty})`,
-              ready: true,
-              move: null,
-              score: 0,
-            },
-          ],
-          roundResults: [],
-          status: "playing",
-          aiDifficulty: difficulty,
-        };
-        setGame(gameId, game);
-        socket.join(gameId);
-        setSocketMeta(socket.id, { gameId, playerIndex: 0 });
-        socket.emit(SocketEvents.GAME_CREATED, {
-          gameId,
-          game: sanitizeGame(game),
-        });
-        console.log(
-          `AI game ${gameId} created by ${playerName} (${difficulty})`,
-        );
-      } catch (error) {
-        console.error("Error creating AI game:", error);
-        socket.emit(SocketEvents.ERROR_MSG, {
-          message: "Failed to create AI game.",
-        });
-      }
-    },
-  );
+  socket.on(SocketEvents.ADD_AI_PLAYER, ({ difficulty }) => {
+    try {
+      const meta = getSocketMeta(socket.id);
+      if (!meta) return;
+      if (meta.playerIndex !== 0) return;
+
+      const game = getGame(meta.gameId);
+      if (!game) return;
+      if (game.players.length >= 2) return;
+      if (game.status !== "waiting") return;
+
+      game.players.push({
+        id: "ai-bot",
+        name: `AI (${difficulty})`,
+        ready: true,
+        move: null,
+        score: 0,
+      });
+      game.aiDifficulty = difficulty;
+
+      io.to(meta.gameId).emit(SocketEvents.GAME_UPDATED, {
+        game: sanitizeGame(game),
+      });
+      console.log(`AI (${difficulty}) added to game ${meta.gameId}`);
+    } catch (error) {
+      console.error("Error adding AI player:", error);
+      socket.emit(SocketEvents.ERROR_MSG, {
+        message: "Failed to add AI player.",
+      });
+    }
+  });
 
   socket.on(SocketEvents.JOIN_GAME, ({ gameId, playerName }) => {
     try {

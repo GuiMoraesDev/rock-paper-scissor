@@ -36,7 +36,7 @@ All state synchronization happens through Socket.IO events — no REST API, no e
 
 **Game phases:** Home → Create/Join → Lobby (waiting + ready) → Playing → Round Result → (repeat) → Finished
 
-**Key server events:** `create-game`, `join-game`, `player-ready`, `make-move`, `next-round`, `request-game-state`
+**Key server events:** `create-game`, `join-game`, `add-ai-player`, `player-ready`, `make-move`, `next-round`, `request-game-state`
 **Key client events:** `game-updated`, `round-result`, `game-finished`, `error-msg`, `player-disconnected`
 
 ### Animations (web)

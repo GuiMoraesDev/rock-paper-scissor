@@ -2,7 +2,7 @@
 
 Components follow **Atomic Design** methodology, organized into three layers:
 
-- **`atoms/`** — Generic, reusable building blocks (Button, Input, Toast). Keep them simple. Not domain-specific — name them generically.
+- **`atoms/`** — Generic, reusable building blocks (Button, Input, Toast, Modal). Keep them simple. Not domain-specific — name them generically.
 - **`molecules/`** — Combinations of atoms that form distinct UI units (e.g., PlayerCard, Scoreboard, MoveComparison).
 - **`organisms/`** — Full page sections composed of atoms and molecules (Lobby, GamePlay, RoundResultScreen, GameFinished).
 

@@ -1,14 +1,24 @@
 "use client";
 
+import { type AIDifficulty, SocketEvents } from "@rps/shared";
 import clsx from "clsx";
 import { motion } from "framer-motion";
+import { useCallback, useState } from "react";
 import { Button } from "@/components/atoms/Button";
 import { toast } from "@/components/atoms/Toaster";
+import { getSocket } from "@/lib/socket";
 import { useGame } from "../../../../../provider/GameProvider";
+import { AIDifficultyModal } from "./_src/components/AIDifficultyModal";
 
 export function Lobby() {
   const { game, playerIndex, handleReady, handleLeaveGame, handleKickPlayer } =
     useGame();
+  const [isAIModalOpen, setIsAIModalOpen] = useState(false);
+
+  const handleAddAI = useCallback((difficulty: AIDifficulty) => {
+    getSocket().emit(SocketEvents.ADD_AI_PLAYER, { difficulty });
+    setIsAIModalOpen(false);
+  }, []);
 
   if (!game) return null;
 
@@ -115,15 +125,19 @@ export function Lobby() {
               Waiting for opponent...
             </p>
 
-            <button
-              type="button"
-              className={clsx(
-                "absolute text-2xl right-0 top-1/2 -translate-y-1/2 translate-x-[calc(100%+0.5rem)]",
-                "hover:text-3xl transition-all",
-              )}
-            >
-              🤖
-            </button>
+            {playerIndex === 0 && (
+              <button
+                type="button"
+                data-testid="add-ai-button"
+                className={clsx(
+                  "absolute text-2xl right-0 top-1/2 -translate-y-1/2 translate-x-[calc(100%+0.5rem)]",
+                  "hover:text-3xl transition-all cursor-pointer",
+                )}
+                onClick={() => setIsAIModalOpen(true)}
+              >
+                🤖
+              </button>
+            )}
           </motion.span>
         )}
       </section>
@@ -159,6 +173,12 @@ export function Lobby() {
       >
         ← {playerIndex === 0 ? "Destroy & Leave" : "Leave Game"}
       </Button>
+
+      <AIDifficultyModal
+        open={isAIModalOpen}
+        onClose={() => setIsAIModalOpen(false)}
+        onSelect={handleAddAI}
+      />
     </section>
   );
 }

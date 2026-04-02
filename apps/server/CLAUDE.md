@@ -45,6 +45,7 @@ In-memory state layer wrapping two `Map` instances (`games` and `socketMeta`) be
 |---|---|
 | `create-game` | Creates game, joins room, emits `game-created` |
 | `join-game` | Validates + adds player 2, emits `game-updated` + `joined-game` |
+| `add-ai-player` | Creator adds AI bot to lobby with chosen difficulty, emits `game-updated` |
 | `player-ready` | Marks player ready; when both ready, transitions to `playing` |
 | `make-move` | Records move; when both moved, resolves round via `resolveRound` |
 | `next-round` | Resets moves, increments round, transitions back to `playing` |

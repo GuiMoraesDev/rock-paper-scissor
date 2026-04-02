@@ -4,6 +4,7 @@ import { tv, type VariantProps } from "tailwind-variants";
 
 export const buttonVariants = tv({
   base: [
+    "inline-flex items-center leading-none justify-center",
     "font-fun cursor-pointer",
     "transition-all duration-300",
     "transform hover:scale-105 active:scale-95",
@@ -25,7 +26,7 @@ export const buttonVariants = tv({
         "shadow-lg hover:shadow-xl",
       ],
       sm: ["text-xl", "px-4 py-2 rounded-xl"],
-      icon: "p-2 rounded-lg",
+      icon: "p-1 size-7 rounded-lg aspect-square",
     },
     glow: {
       true: "animate-pulse-glow",
