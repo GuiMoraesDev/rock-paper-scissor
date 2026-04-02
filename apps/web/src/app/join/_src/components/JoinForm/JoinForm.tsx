@@ -108,7 +108,7 @@ export function JoinForm() {
               asChild
               variant="ghost"
               size="sm"
-              className="animate-slide-in-left hover:text-rps-red"
+              className="whitespace-nowrap inline-flex items-center leading-none animate-slide-in-left hover:text-rps-red"
             >
               <Link href="/">← Back to home</Link>
             </Button>
@@ -117,7 +117,7 @@ export function JoinForm() {
               data-testid="next-button"
               variant="ghost"
               size="sm"
-              className="animate-slide-in-right hover:text-rps-red"
+              className="whitespace-nowrap inline-flex items-center leading-none animate-slide-in-right hover:text-rps-red"
               onClick={handleGoToSecondStep}
             >
               Next →
@@ -157,7 +157,7 @@ export function JoinForm() {
               variant="ghost"
               size="sm"
               onClick={handlePrevStep}
-              className="animate-slide-in-left hover:text-rps-red"
+              className="whitespace-nowrap inline-flex items-center leading-none animate-slide-in-left hover:text-rps-red"
             >
               ← Back to name
             </Button>
@@ -167,7 +167,7 @@ export function JoinForm() {
               variant="ghost"
               size="sm"
               type="submit"
-              className="animate-slide-in-right hover:text-rps-red"
+              className="whitespace-nowrap inline-flex items-center leading-none animate-slide-in-right hover:text-rps-red"
             >
               Join game →
             </Button>

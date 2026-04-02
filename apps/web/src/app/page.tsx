@@ -4,14 +4,14 @@ import { Button } from "@/components/atoms/Button";
 
 export default function Home() {
   return (
-    <main className="min-h-dvh flex flex-col items-center justify-center p-4 gap-8 text-center animate-bounce-in">
+    <main className="min-h-dvh flex flex-col items-center justify-center px-4 gap-8 text-center animate-bounce-in">
       <Image
         src="/assets/rock_paper-scissor-logo.png"
         alt="Rock Paper Scissors"
         width={220}
         height={220}
         priority
-        className="animate-float"
+        className="animate-float rounded-full"
       />
 
       <section className="flex flex-col gap-4">
@@ -25,10 +25,10 @@ export default function Home() {
       </section>
 
       <footer className="flex flex-col gap-6 items-center">
-        <Button asChild glow>
+        <Button asChild glow className="w-full">
           <Link href="/create">Create a New Game</Link>
         </Button>
-        <Button asChild variant="red">
+        <Button asChild variant="red" className="w-full">
           <Link href="/join">Join an Existing Game</Link>
         </Button>
       </footer>

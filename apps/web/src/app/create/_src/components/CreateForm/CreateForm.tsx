@@ -69,20 +69,6 @@ export function CreateForm() {
     socket.emit(SocketEvents.CREATE_GAME, values);
   };
 
-  /* const handleNameSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-
-    if (playerName.trim()) {
-      setStep("rounds");
-    }
-  };
-
-  const handleRoundsSelect = (rounds: number) => {
-    const socket = getSocket();
-    
-  }; */
-
-  console.log("currentStep", currentStep !== 1, currentStep !== 2);
   return (
     <form
       onSubmit={handleSubmit(onSubmit, (error) =>
@@ -117,7 +103,7 @@ export function CreateForm() {
             asChild
             variant="ghost"
             size="sm"
-            className="animate-slide-in-left hover:text-rps-blue"
+            className="whitespace-nowrap inline-flex items-center leading-none animate-slide-in-left hover:text-rps-blue"
           >
             <Link href="/">← Back to home</Link>
           </Button>
@@ -125,7 +111,7 @@ export function CreateForm() {
           <Button
             variant="ghost"
             size="sm"
-            className="animate-slide-in-right hover:text-rps-blue"
+            className="whitespace-nowrap inline-flex items-center leading-none animate-slide-in-right hover:text-rps-blue"
             onClick={handleGoToSecondStep}
           >
             Next →
@@ -184,7 +170,7 @@ export function CreateForm() {
             variant="ghost"
             size="sm"
             onClick={handlePrevStep}
-            className="animate-slide-in-left hover:text-rps-blue"
+            className="whitespace-nowrap inline-flex items-center leading-none animate-slide-in-left hover:text-rps-blue"
           >
             ← Back to name
           </Button>
@@ -193,16 +179,12 @@ export function CreateForm() {
             variant="ghost"
             size="sm"
             type="submit"
-            className="animate-slide-in-right hover:text-rps-blue"
+            className="whitespace-nowrap inline-flex items-center leading-none animate-slide-in-right hover:text-rps-blue"
           >
             Create game →
           </Button>
         </footer>
       </section>
-
-      {/* <Button data-testid="next-button" type="submit">
-        Next
-      </Button> */}
     </form>
   );
 }

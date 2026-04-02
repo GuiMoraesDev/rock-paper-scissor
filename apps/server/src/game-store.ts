@@ -31,6 +31,14 @@ export function deleteSocketMeta(socketId: string): void {
   socketMeta.delete(socketId);
 }
 
+export function getGameCount(): number {
+  return games.size;
+}
+
+export function getActiveConnectionCount(): number {
+  return socketMeta.size;
+}
+
 export function resetStore(): void {
   games.clear();
   socketMeta.clear();

@@ -2,9 +2,11 @@ import { createServer } from "node:http";
 import cors from "@fastify/cors";
 import Fastify from "fastify";
 import { Server } from "socket.io";
+import { getActiveConnectionCount, getGameCount } from "./game-store.js";
 import { registerSocketHandlers } from "./socket-handlers.js";
 
 const PORT = parseInt(process.env.PORT || "3001", 10);
+const HOST = "192.168.1.39";
 
 const fastify = Fastify({
   serverFactory: (handler) => {
@@ -15,11 +17,7 @@ const fastify = Fastify({
   },
 });
 
-const CORS = [
-  process.env.NODE_ENV === "development" ? "http://localhost:3000" : false,
-  "https://rock-paper-scissor.guimoraes.dev",
-  "https://rock-paper-scissor-web-steel.vercel.app",
-].filter((link) => !!link);
+const CORS = "*";
 
 await fastify.register(cors, {
   origin: CORS,
@@ -39,9 +37,21 @@ fastify.get("/health", async () => {
   return { status: "ok" };
 });
 
+fastify.get("/status", async () => {
+  return {
+    status: "ok",
+    uptime: process.uptime(),
+    activeConnections: getActiveConnectionCount(),
+    activeGames: getGameCount(),
+    socketEngineClientsCount: io.engine.clientsCount,
+    cors: CORS,
+    timestamp: Date.now(),
+  };
+});
+
 try {
-  await fastify.listen({ port: PORT, host: "0.0.0.0" });
-  console.log(`Server listening on http://localhost:${PORT}`);
+  await fastify.listen({ port: PORT, host: HOST });
+  console.log(`Server listening on http://${HOST}:${PORT}`);
 } catch (err) {
   fastify.log.error(err);
   process.exit(1);
