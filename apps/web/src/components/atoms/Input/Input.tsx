@@ -4,8 +4,8 @@ import { tv, type VariantProps } from "tailwind-variants";
 export const inputVariants = tv({
   base: [
     "font-fun text-center",
-    "bg-white border-3 border-gray-200 rounded-2xl",
-    "px-6 py-4",
+    "bg-white border-2 border-gray-200 rounded-xl",
+    "p-4",
     "text-gray-800 placeholder-gray-300",
     "focus:outline-none transition-colors",
     "shadow-md",
@@ -17,8 +17,8 @@ export const inputVariants = tv({
       yellow: "focus:border-rps-yellow",
     },
     size: {
-      md: "text-2xl md:text-3xl",
-      lg: "text-4xl md:text-5xl tracking-[0.5em] uppercase",
+      md: "text-xl md:text-2xl",
+      lg: "text-3xl md:text-4xl tracking-[0.5em] uppercase",
     },
   },
   defaultVariants: {

@@ -37,6 +37,10 @@ module.exports = {
           "0%": { transform: "translateX(-100%)", opacity: "0" },
           "100%": { transform: "translateX(0)", opacity: "1" },
         },
+        "slide-in-right": {
+          "0%": { transform: "translateX(100%)", opacity: "0" },
+          "100%": { transform: "translateX(0)", opacity: "1" },
+        },
         "gradient-shift": {
           "0%, 100%": { backgroundPosition: "0% 50%" },
           "50%": { backgroundPosition: "100% 50%" },
@@ -54,6 +58,7 @@ module.exports = {
       animation: {
         "bounce-in": "bounce-in 0.6s ease-out",
         "pulse-glow": "pulse-glow 2s ease-in-out infinite",
+        "slide-in-right": "slide-in-right 0.5s ease-out",
         "slide-in-left": "slide-in-left 0.5s ease-out",
         "gradient-shift": "gradient-shift 8s ease infinite",
         float: "float 3s ease-in-out infinite",

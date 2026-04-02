@@ -5,16 +5,16 @@ import { tv, type VariantProps } from "tailwind-variants";
 export const buttonVariants = tv({
   base: [
     "font-fun cursor-pointer",
-    "transition-all duration-200",
+    "transition-all duration-300",
     "transform hover:scale-105 active:scale-95",
     "disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:scale-100",
   ],
   variants: {
     variant: {
-      blue: "bg-rps-blue hover:bg-rps-blue-dark text-white",
-      red: "bg-rps-red hover:bg-rps-red-dark text-white",
-      yellow: "bg-rps-yellow hover:bg-rps-yellow-dark text-white",
-      green: "bg-green-500 hover:bg-green-600 text-white",
+      blue: "bg-rps-blue border-rps-blue-dark text-white",
+      red: "bg-rps-red border-rps-red-dark text-white",
+      yellow: "bg-rps-yellow border-rps-yellow-dark text-white",
+      green: "bg-green-500 border-green-600 hover:bg-green-600 text-white",
       ghost: "bg-transparent text-gray-400 hover:scale-100 active:scale-100",
     },
     size: {
@@ -61,6 +61,7 @@ export function Button({
 
   return (
     <Comp
+      type="button"
       className={buttonVariants({ variant, size, glow, className })}
       {...props}
     />
