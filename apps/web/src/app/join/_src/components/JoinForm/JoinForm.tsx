@@ -1,21 +1,35 @@
 "use client";
 
 import { SocketEvents } from "@rps/shared";
+import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { Button } from "@/components/atoms/Button";
 import { Input } from "@/components/atoms/Input";
 import { Toast } from "@/components/atoms/Toast";
 import { getSocket } from "@/lib/socket";
+import type { JoinGameSchemaProps } from "@/schemas/joinGame.schema";
+import { useJoinGameValidation } from "./hooks/useJoinGameValidation";
 
 export function JoinForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const prefilledCode = searchParams.get("code")?.toUpperCase() || "";
-  const [step, setStep] = useState<"name" | "code">("name");
-  const [playerName, setPlayerName] = useState("");
-  const [gameId, setGameId] = useState(prefilledCode);
+  const [currentStep, setCurrentStep] = useState<1 | 2>(1);
   const [error, setError] = useState("");
+
+  const {
+    register,
+    handleSubmit,
+    getValues,
+    trigger,
+    clearErrors,
+    formState: { errors },
+  } = useJoinGameValidation({
+    defaultValues: {
+      gameId: prefilledCode,
+    },
+  });
 
   useEffect(() => {
     const socket = getSocket();
@@ -35,93 +49,131 @@ export function JoinForm() {
     };
   }, [router]);
 
-  const handleNameSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (playerName.trim()) {
-      setStep("code");
-    }
+  const handleGoToSecondStep = async () => {
+    const isValid = await trigger("playerName");
+
+    if (!isValid) return;
+
+    setCurrentStep(2);
+    clearErrors();
   };
 
-  const handleJoin = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (gameId.trim()) {
-      const socket = getSocket();
-      socket.emit(SocketEvents.JOIN_GAME, {
-        gameId: gameId.trim().toUpperCase(),
-        playerName: playerName.trim(),
-      });
-    }
+  const handlePrevStep = () => {
+    setCurrentStep(1);
+  };
+
+  const onSubmit = (values: JoinGameSchemaProps) => {
+    const socket = getSocket();
+
+    socket.emit(SocketEvents.JOIN_GAME, {
+      gameId: values.gameId.trim().toUpperCase(),
+      playerName: values.playerName.trim(),
+    });
   };
 
   return (
     <>
       <Toast message={error} />
 
-      <section className="text-center animate-bounce-in w-full max-w-lg flex flex-col gap-8">
-        {step === "name" && (
-          <>
-            <h2 className="font-fun text-4xl md:text-5xl text-rps-red">
+      <form
+        onSubmit={handleSubmit(onSubmit, (formErrors) =>
+          console.error(formErrors, getValues()),
+        )}
+        className="text-center animate-bounce-in w-full max-w-lg py-12 px-8 h-full flex grow items-center justify-between"
+      >
+        <section
+          data-hidden={currentStep !== 1}
+          className="hidden flex-col gap-6 items-center justify-between w-full data-[hidden=false]:flex"
+        >
+          <div className="flex flex-col gap-4 justify-center w-full">
+            <h2 className="font-fun text-3xl md:text-4xl text-rps-red">
               What&apos;s your name?
             </h2>
 
-            <form onSubmit={handleNameSubmit} className="flex flex-col gap-6">
-              <Input
-                data-testid="name-input"
-                value={playerName}
-                onChange={(e) => setPlayerName(e.target.value)}
-                placeholder="Enter your name..."
-                maxLength={20}
-                autoFocus
-                focusColor="red"
-              />
+            <Input
+              data-testid="name-input"
+              placeholder="Enter your name..."
+              autoFocus
+              focusColor="red"
+              {...register("playerName")}
+            />
 
-              <Button
-                data-testid="next-button"
-                variant="red"
-                type="submit"
-                disabled={!playerName.trim()}
-              >
-                Next →
-              </Button>
-            </form>
-          </>
-        )}
+            <p className="text-red-600 text-sm w-full text-start">
+              {errors.playerName?.message}
+            </p>
+          </div>
 
-        {step === "code" && (
-          <>
-            <header className="flex flex-col gap-4">
-              <h2 className="font-fun text-4xl md:text-5xl text-rps-red">
-                Enter Game Code
-              </h2>
+          <footer className="flex gap-4">
+            <Button
+              asChild
+              variant="ghost"
+              size="sm"
+              className="animate-slide-in-left hover:text-rps-red"
+            >
+              <Link href="/">← Back to home</Link>
+            </Button>
 
-              <p className="font-fun text-xl text-gray-400">
-                Ask your friend for the code!
-              </p>
-            </header>
+            <Button
+              data-testid="next-button"
+              variant="ghost"
+              size="sm"
+              className="animate-slide-in-right hover:text-rps-red"
+              onClick={handleGoToSecondStep}
+            >
+              Next →
+            </Button>
+          </footer>
+        </section>
 
-            <form onSubmit={handleJoin} className="flex flex-col gap-6">
-              <Input
-                data-testid="game-code-input"
-                value={gameId}
-                onChange={(e) => setGameId(e.target.value.toUpperCase())}
-                placeholder="XXXXXX"
-                maxLength={6}
-                autoFocus
-                focusColor="red"
-                size="lg"
-              />
-              <Button
-                data-testid="join-game-button"
-                variant="red"
-                type="submit"
-                disabled={gameId.trim().length < 6}
-              >
-                Join Game
-              </Button>
-            </form>
-          </>
-        )}
-      </section>
+        <section
+          data-hidden={currentStep !== 2}
+          className="hidden flex-col gap-6 items-center justify-between w-full data-[hidden=false]:flex"
+        >
+          <div className="flex flex-col gap-4 justify-center w-full">
+            <h2 className="font-fun text-3xl md:text-4xl text-rps-red">
+              Enter Game Code
+            </h2>
+
+            <p className="font-fun text-xl text-gray-400">
+              Ask your friend for the code!
+            </p>
+
+            <Input
+              data-testid="game-code-input"
+              placeholder="XXXXXX"
+              autoFocus
+              focusColor="red"
+              size="lg"
+              {...register("gameId")}
+            />
+
+            <p className="text-red-600 text-sm w-full text-start">
+              {errors.gameId?.message}
+            </p>
+          </div>
+
+          <footer className="flex gap-4">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={handlePrevStep}
+              className="animate-slide-in-left hover:text-rps-red"
+            >
+              ← Back to name
+            </Button>
+
+            <Button
+              data-testid="join-game-button"
+              variant="ghost"
+              size="sm"
+              type="submit"
+              className="animate-slide-in-right hover:text-rps-red"
+            >
+              Join game →
+            </Button>
+          </footer>
+        </section>
+      </form>
     </>
   );
 }

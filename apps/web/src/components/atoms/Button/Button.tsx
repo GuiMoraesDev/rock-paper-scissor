@@ -37,6 +37,11 @@ export const buttonVariants = tv({
       variant: "ghost",
       class: "shadow-none hover:shadow-none",
     },
+    {
+      variant: "ghost",
+      size: "icon",
+      class: "text-2xl hover:text-3xl active:text-3xl",
+    },
   ],
   defaultVariants: {
     variant: "blue",

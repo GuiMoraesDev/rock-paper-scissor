@@ -26,6 +26,11 @@ export function Lobby() {
 
   const isReady = game.players[playerIndex]?.ready;
 
+  const handleCopyGameCode = () => {
+    navigator.clipboard.writeText(game.id);
+    toast.success("code copied to clipboard");
+  };
+
   return (
     <section className="flex flex-col items-center gap-8 text-center w-full max-w-lg">
       <header className="flex flex-col gap-2">
@@ -49,10 +54,7 @@ export function Lobby() {
             "bg-gray-50 rounded-2xl py-4 px-6 border-3 border-gray-200",
             "cursor-pointer hover:border-rps-blue transition-colors shadow-md",
           )}
-          onClick={() => {
-            navigator.clipboard.writeText(game.id);
-            toast.success("code copied to clipboard");
-          }}
+          onClick={handleCopyGameCode}
           title="Click to copy"
         >
           {game.id}
@@ -78,7 +80,7 @@ export function Lobby() {
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: idx * 0.15 }}
             className={clsx(
-              "flex items-center justify-between rounded-xl px-6 py-4",
+              "relative flex items-center justify-between rounded-xl px-6 py-4",
               "bg-white border-3 transition-colors shadow-sm",
               player.ready ? "border-green-400" : "border-gray-200",
             )}
@@ -88,28 +90,27 @@ export function Lobby() {
               {player.name}
             </span>
 
-            <div className="flex items-center gap-3">
-              <span
-                className={clsx(
-                  "font-fun text-lg",
-                  player.ready ? "text-green-500" : "text-gray-400",
-                )}
-              >
-                {player.ready ? "✅ Ready!" : "⏳ Waiting..."}
-              </span>
-
-              {playerIndex === 0 && idx === 1 && (
-                <Button
-                  variant="red"
-                  size="icon"
-                  data-testid="kick-player-button"
-                  onClick={handleKickPlayer}
-                  title="Kick player"
-                >
-                  ✕
-                </Button>
+            <span
+              className={clsx(
+                "font-fun text-lg",
+                player.ready ? "text-green-500" : "text-gray-400",
               )}
-            </div>
+            >
+              {player.ready ? "✅ Ready!" : "⏳ Waiting..."}
+            </span>
+
+            {playerIndex === 0 && idx === 1 && (
+              <Button
+                variant="red"
+                size="icon"
+                data-testid="kick-player-button"
+                onClick={handleKickPlayer}
+                className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-[calc(100%+0.5rem)]"
+                title="Kick player"
+              >
+                ✕
+              </Button>
+            )}
           </motion.article>
         ))}
 
@@ -128,17 +129,15 @@ export function Lobby() {
             </p>
 
             {playerIndex === 0 && (
-              <button
-                type="button"
+              <Button
+                size="icon"
+                variant="ghost"
                 data-testid="add-ai-button"
-                className={clsx(
-                  "absolute text-2xl right-0 top-1/2 -translate-y-1/2 translate-x-[calc(100%+0.5rem)]",
-                  "hover:text-3xl transition-all cursor-pointer",
-                )}
+                className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-[calc(100%+0.5rem)]"
                 onClick={() => setIsAIModalOpen(true)}
               >
                 🤖
-              </button>
+              </Button>
             )}
           </motion.span>
         )}

@@ -18,7 +18,7 @@ export const inputVariants = tv({
     },
     size: {
       md: "text-xl md:text-2xl",
-      lg: "text-3xl md:text-4xl tracking-[0.5em] uppercase",
+      lg: "text-3xl md:text-4xl tracking-[0.4em] indent-[0.4em] uppercase",
     },
   },
   defaultVariants: {

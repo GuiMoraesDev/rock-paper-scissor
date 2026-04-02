@@ -43,7 +43,7 @@ describe("Input", () => {
 
   it("applies large size classes", () => {
     render(<Input size="lg" />);
-    expect(screen.getByRole("textbox").className).toContain("tracking-[0.5em]");
+    expect(screen.getByRole("textbox").className).toContain("tracking-[0.4em]");
   });
 
   it("renders as text input by default", () => {
