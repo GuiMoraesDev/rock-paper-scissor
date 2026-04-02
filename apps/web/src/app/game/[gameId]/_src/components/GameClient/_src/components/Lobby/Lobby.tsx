@@ -42,8 +42,27 @@ export function Lobby() {
         </motion.button>
 
         <p className="font-fun text-sm text-gray-400">
-          Click to copy • Share with your friend!
+          Click code to copy • Share with your friend!
         </p>
+
+        <motion.button
+          type="button"
+          data-testid="copy-link-button"
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+          className={clsx(
+            "font-fun text-lg text-rps-blue",
+            "bg-blue-50 rounded-xl py-2 px-4 border-2 border-blue-200",
+            "cursor-pointer hover:border-rps-blue transition-colors",
+          )}
+          onClick={() =>
+            navigator.clipboard.writeText(
+              `${window.location.origin}/game/${game.id}`,
+            )
+          }
+        >
+          🔗 Copy Game Link
+        </motion.button>
       </header>
 
       <p className="font-fun text-xl text-gray-500">

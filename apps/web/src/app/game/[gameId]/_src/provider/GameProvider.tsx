@@ -95,9 +95,11 @@ export function GameProvider({ gameId, children }: GameProviderProps) {
     socket.on(
       SocketEvents.GAME_STATE_RESPONSE,
       ({ game, playerIndex: pIdx }) => {
-        if (game) {
+        if (game && pIdx >= 0) {
           setGame(game);
           setPlayerIndex(pIdx);
+        } else if (game && pIdx === -1) {
+          router.push(`/join?code=${gameId}`);
         } else {
           setGameNotFound(true);
         }
@@ -114,7 +116,7 @@ export function GameProvider({ gameId, children }: GameProviderProps) {
       socket.off(SocketEvents.PLAYER_DISCONNECTED);
       socket.off(SocketEvents.GAME_STATE_RESPONSE);
     };
-  }, [gameId]);
+  }, [gameId, router]);
 
   const handleReady = () => {
     getSocket().emit(SocketEvents.PLAYER_READY);

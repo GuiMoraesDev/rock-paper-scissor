@@ -1,7 +1,7 @@
 "use client";
 
 import { SocketEvents } from "@rps/shared";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { Button } from "@/components/atoms/Button";
 import { Input } from "@/components/atoms/Input";
@@ -10,9 +10,11 @@ import { getSocket } from "@/lib/socket";
 
 export function JoinForm() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const prefilledCode = searchParams.get("code")?.toUpperCase() || "";
   const [step, setStep] = useState<"name" | "code">("name");
   const [playerName, setPlayerName] = useState("");
-  const [gameId, setGameId] = useState("");
+  const [gameId, setGameId] = useState(prefilledCode);
   const [error, setError] = useState("");
 
   useEffect(() => {
