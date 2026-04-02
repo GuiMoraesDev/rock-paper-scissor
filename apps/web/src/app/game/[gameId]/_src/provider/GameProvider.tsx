@@ -16,17 +16,24 @@ import {
 } from "react";
 import { getSocket } from "@/lib/socket";
 
+type RematchState = "idle" | "requested" | "received";
+
 type GameContextValue = {
   game: GameState | null;
   playerIndex: number;
   lastRoundResult: RoundResult | null;
   error: string;
   gameNotFound: boolean;
+  rematchState: RematchState;
+  rematchRequesterName: string;
   handleReady: () => void;
   handleMove: (move: Move) => void;
   handleNextRound: () => void;
   handlePlayAgain: () => void;
   handleLeaveGame: () => void;
+  handleRequestRematch: () => void;
+  handleAcceptRematch: () => void;
+  handleDenyRematch: () => void;
 };
 
 const GameContext = createContext<GameContextValue | null>(null);
@@ -54,6 +61,8 @@ export function GameProvider({ gameId, children }: GameProviderProps) {
   );
   const [error, setError] = useState("");
   const [gameNotFound, setGameNotFound] = useState(false);
+  const [rematchState, setRematchState] = useState<RematchState>("idle");
+  const [rematchRequesterName, setRematchRequesterName] = useState("");
 
   useEffect(() => {
     const socket = getSocket();
@@ -106,6 +115,21 @@ export function GameProvider({ gameId, children }: GameProviderProps) {
       },
     );
 
+    socket.on(SocketEvents.REMATCH_REQUESTED, ({ playerName }) => {
+      setRematchState("received");
+      setRematchRequesterName(playerName);
+    });
+
+    socket.on(SocketEvents.REMATCH_DENIED, ({ playerName }) => {
+      setRematchState("idle");
+      setError(`${playerName} declined the rematch.`);
+    });
+
+    socket.on(SocketEvents.REMATCH_GAME_CREATED, ({ gameId: newGameId }) => {
+      setRematchState("idle");
+      router.push(`/game/${newGameId}`);
+    });
+
     return () => {
       socket.off(SocketEvents.GAME_CREATED);
       socket.off(SocketEvents.JOINED_GAME);
@@ -115,6 +139,9 @@ export function GameProvider({ gameId, children }: GameProviderProps) {
       socket.off(SocketEvents.ERROR_MSG);
       socket.off(SocketEvents.PLAYER_DISCONNECTED);
       socket.off(SocketEvents.GAME_STATE_RESPONSE);
+      socket.off(SocketEvents.REMATCH_REQUESTED);
+      socket.off(SocketEvents.REMATCH_DENIED);
+      socket.off(SocketEvents.REMATCH_GAME_CREATED);
     };
   }, [gameId, router]);
 
@@ -139,6 +166,20 @@ export function GameProvider({ gameId, children }: GameProviderProps) {
     router.push("/");
   };
 
+  const handleRequestRematch = () => {
+    getSocket().emit(SocketEvents.REQUEST_REMATCH);
+    setRematchState("requested");
+  };
+
+  const handleAcceptRematch = () => {
+    getSocket().emit(SocketEvents.REMATCH_ACCEPTED);
+  };
+
+  const handleDenyRematch = () => {
+    getSocket().emit(SocketEvents.REMATCH_DENIED);
+    setRematchState("idle");
+  };
+
   return (
     <GameContext.Provider
       value={{
@@ -147,11 +188,16 @@ export function GameProvider({ gameId, children }: GameProviderProps) {
         lastRoundResult,
         error,
         gameNotFound,
+        rematchState,
+        rematchRequesterName,
         handleReady,
         handleMove,
         handleNextRound,
         handlePlayAgain,
         handleLeaveGame,
+        handleRequestRematch,
+        handleAcceptRematch,
+        handleDenyRematch,
       }}
     >
       {children}

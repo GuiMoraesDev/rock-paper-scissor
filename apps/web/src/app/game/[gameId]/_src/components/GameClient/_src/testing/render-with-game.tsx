@@ -3,15 +3,24 @@ import { render } from "@testing-library/react";
 import type { ReactNode } from "react";
 import { vi } from "vitest";
 
+type RematchState = "idle" | "requested" | "received";
+
 type GameContextValue = {
   game: GameState | null;
   playerIndex: number;
   lastRoundResult: RoundResult | null;
   error: string;
+  gameNotFound: boolean;
+  rematchState: RematchState;
+  rematchRequesterName: string;
   handleReady: () => void;
   handleMove: (move: Move) => void;
   handleNextRound: () => void;
   handlePlayAgain: () => void;
+  handleLeaveGame: () => void;
+  handleRequestRematch: () => void;
+  handleAcceptRematch: () => void;
+  handleDenyRematch: () => void;
 };
 
 // Re-create a minimal context for testing without importing the real provider
@@ -60,6 +69,8 @@ type RenderOptions = {
   playerIndex?: number;
   lastRoundResult?: RoundResult | null;
   error?: string;
+  rematchState?: RematchState;
+  rematchRequesterName?: string;
 };
 
 export function renderWithGame(ui: ReactNode, options: RenderOptions = {}) {
@@ -68,10 +79,17 @@ export function renderWithGame(ui: ReactNode, options: RenderOptions = {}) {
     playerIndex: options.playerIndex ?? 0,
     lastRoundResult: options.lastRoundResult ?? null,
     error: options.error ?? "",
+    gameNotFound: false,
+    rematchState: options.rematchState ?? "idle",
+    rematchRequesterName: options.rematchRequesterName ?? "",
     handleReady: vi.fn(),
     handleMove: vi.fn(),
     handleNextRound: vi.fn(),
     handlePlayAgain: vi.fn(),
+    handleLeaveGame: vi.fn(),
+    handleRequestRematch: vi.fn(),
+    handleAcceptRematch: vi.fn(),
+    handleDenyRematch: vi.fn(),
   };
 
   const result = render(

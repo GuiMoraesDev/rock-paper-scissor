@@ -19,6 +19,7 @@ export type Game = {
   roundResults: RoundResult[];
   status: "waiting" | "ready" | "playing" | "round-result" | "finished";
   winner?: "player1" | "player2" | "draw";
+  rematchRequestedBy?: number;
 };
 
 export type RoundResult = {

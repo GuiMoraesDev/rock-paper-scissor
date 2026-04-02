@@ -7,7 +7,16 @@ import { useGame } from "../../../../../provider/GameProvider";
 import { moveEmojiMap } from "../../constants/gameplay";
 
 export function GameFinished() {
-  const { game, playerIndex, handlePlayAgain } = useGame();
+  const {
+    game,
+    playerIndex,
+    handlePlayAgain,
+    rematchState,
+    rematchRequesterName,
+    handleRequestRematch,
+    handleAcceptRematch,
+    handleDenyRematch,
+  } = useGame();
 
   if (!game) return null;
 
@@ -142,20 +151,67 @@ export function GameFinished() {
         })}
       </motion.section>
 
-      <Button asChild variant="blue">
-        <motion.button
-          type="button"
-          data-testid="play-again-button"
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 1 }}
+        className="flex flex-col items-center gap-4 w-full"
+      >
+        {rematchState === "idle" && (
+          <Button
+            data-testid="rematch-button"
+            variant="green"
+            onClick={handleRequestRematch}
+          >
+            🔄 Rematch
+          </Button>
+        )}
+
+        {rematchState === "requested" && (
+          <motion.p
+            animate={{ opacity: [0.5, 1, 0.5] }}
+            transition={{ duration: 2, repeat: Infinity }}
+            className="font-fun text-2xl text-rps-blue"
+          >
+            Waiting for opponent to accept...
+          </motion.p>
+        )}
+
+        {rematchState === "received" && (
+          <section className="flex flex-col items-center gap-3">
+            <p className="font-fun text-xl text-gray-600">
+              {rematchRequesterName} wants a rematch!
+            </p>
+            <div className="flex gap-4">
+              <Button
+                data-testid="accept-rematch-button"
+                variant="green"
+                size="sm"
+                onClick={handleAcceptRematch}
+              >
+                Accept
+              </Button>
+              <Button
+                data-testid="deny-rematch-button"
+                variant="red"
+                size="sm"
+                onClick={handleDenyRematch}
+              >
+                Decline
+              </Button>
+            </div>
+          </section>
+        )}
+
+        <Button
+          data-testid="back-home-button"
+          variant="ghost"
+          size="sm"
           onClick={handlePlayAgain}
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 1 }}
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
         >
-          Play Again
-        </motion.button>
-      </Button>
+          ← Back to Home
+        </Button>
+      </motion.div>
     </section>
   );
 }

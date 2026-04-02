@@ -14,6 +14,11 @@ export const SocketEvents = {
   GAME_STATE_RESPONSE: "game-state-response",
   ERROR_MSG: "error-msg",
   PLAYER_DISCONNECTED: "player-disconnected",
+  REQUEST_REMATCH: "request-rematch",
+  REMATCH_REQUESTED: "rematch-requested",
+  REMATCH_ACCEPTED: "rematch-accepted",
+  REMATCH_DENIED: "rematch-denied",
+  REMATCH_GAME_CREATED: "rematch-game-created",
 } as const;
 
 export type Move = "rock" | "paper" | "scissors";

@@ -88,11 +88,47 @@ describe("GameFinished", () => {
     expect(screen.getAllByText("📄").length).toBeGreaterThanOrEqual(1);
   });
 
-  it("calls handlePlayAgain when button is clicked", () => {
+  it("calls handlePlayAgain when back to home is clicked", () => {
     const { context } = renderWithGame(<GameFinished />, {
       game: finishedGame(2, 1),
     });
-    fireEvent.click(screen.getByRole("button", { name: "Play Again" }));
+    fireEvent.click(screen.getByTestId("back-home-button"));
     expect(context.handlePlayAgain).toHaveBeenCalledOnce();
+  });
+
+  it("shows rematch button in idle state", () => {
+    renderWithGame(<GameFinished />, {
+      game: finishedGame(2, 1),
+    });
+    expect(screen.getByTestId("rematch-button")).toBeInTheDocument();
+  });
+
+  it("calls handleRequestRematch when rematch is clicked", () => {
+    const { context } = renderWithGame(<GameFinished />, {
+      game: finishedGame(2, 1),
+    });
+    fireEvent.click(screen.getByTestId("rematch-button"));
+    expect(context.handleRequestRematch).toHaveBeenCalledOnce();
+  });
+
+  it("shows waiting message when rematch is requested", () => {
+    renderWithGame(<GameFinished />, {
+      game: finishedGame(2, 1),
+      rematchState: "requested",
+    });
+    expect(
+      screen.getByText("Waiting for opponent to accept..."),
+    ).toBeInTheDocument();
+  });
+
+  it("shows accept/deny buttons when rematch is received", () => {
+    renderWithGame(<GameFinished />, {
+      game: finishedGame(2, 1),
+      rematchState: "received",
+      rematchRequesterName: "Alice",
+    });
+    expect(screen.getByText("Alice wants a rematch!")).toBeInTheDocument();
+    expect(screen.getByTestId("accept-rematch-button")).toBeInTheDocument();
+    expect(screen.getByTestId("deny-rematch-button")).toBeInTheDocument();
   });
 });

@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Suspense } from "react";
 import { Button } from "@/components/atoms/Button";
 import { JoinForm } from "./_src/components/JoinForm";
 
@@ -11,7 +12,9 @@ export default function JoinPage() {
         </Link>
       </Button>
 
-      <JoinForm />
+      <Suspense>
+        <JoinForm />
+      </Suspense>
     </main>
   );
 }
