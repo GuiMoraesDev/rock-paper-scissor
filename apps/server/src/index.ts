@@ -1,5 +1,5 @@
 // biome-ignore assist/source/organizeImports: Instrumentation must be the first import
-import "./instrument.js";
+import "@/src/config/instrument-logs";
 import { createServer } from "node:http";
 import cors from "@fastify/cors";
 import Fastify from "fastify";
