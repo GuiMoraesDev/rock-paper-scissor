@@ -3,6 +3,7 @@
 import clsx from "clsx";
 import { motion } from "framer-motion";
 import { Button } from "@/components/atoms/Button";
+import { toast } from "@/components/atoms/Toaster";
 import { useGame } from "../../../../../provider/GameProvider";
 
 export function Lobby() {
@@ -32,11 +33,14 @@ export function Lobby() {
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
           className={clsx(
-            "font-fun text-4xl md:text-5xl tracking-[0.4em] text-gray-800",
+            "font-fun text-4xl text-center md:text-5xl tracking-[0.4em] indent-[0.4em] text-gray-800",
             "bg-gray-50 rounded-2xl py-4 px-6 border-3 border-gray-200",
             "cursor-pointer hover:border-rps-blue transition-colors shadow-md",
           )}
-          onClick={() => navigator.clipboard.writeText(game.id)}
+          onClick={() => {
+            navigator.clipboard.writeText(game.id);
+            toast.success("code copied to clipboard");
+          }}
           title="Click to copy"
         >
           {game.id}
@@ -45,25 +49,6 @@ export function Lobby() {
         <p className="font-fun text-sm text-gray-400">
           Click code to copy • Share with your friend!
         </p>
-
-        <motion.button
-          type="button"
-          data-testid="copy-link-button"
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
-          className={clsx(
-            "font-fun text-lg text-rps-blue",
-            "bg-blue-50 rounded-xl py-2 px-4 border-2 border-blue-200",
-            "cursor-pointer hover:border-rps-blue transition-colors",
-          )}
-          onClick={() =>
-            navigator.clipboard.writeText(
-              `${window.location.origin}/game/${game.id}`,
-            )
-          }
-        >
-          🔗 Copy Game Link
-        </motion.button>
       </header>
 
       <p className="font-fun text-xl text-gray-500">
@@ -90,6 +75,7 @@ export function Lobby() {
               {idx === playerIndex ? "👉 " : ""}
               {player.name}
             </span>
+
             <div className="flex items-center gap-3">
               <span
                 className={clsx(
@@ -116,17 +102,29 @@ export function Lobby() {
         ))}
 
         {game.players.length < 2 && (
-          <motion.p
+          <motion.span
             data-testid="waiting-opponent"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             className={clsx(
-              "flex items-center justify-center font-fun text-xl text-gray-300",
+              "relative flex items-center justify-center w-full",
               "bg-gray-50 rounded-xl px-6 py-4 border-3 border-dashed border-gray-200",
             )}
           >
-            Waiting for opponent...
-          </motion.p>
+            <p className="font-fun text-xl text-gray-300">
+              Waiting for opponent...
+            </p>
+
+            <button
+              type="button"
+              className={clsx(
+                "absolute text-2xl right-0 top-1/2 -translate-y-1/2 translate-x-[calc(100%+0.5rem)]",
+                "hover:text-3xl transition-all",
+              )}
+            >
+              🤖
+            </button>
+          </motion.span>
         )}
       </section>
 
