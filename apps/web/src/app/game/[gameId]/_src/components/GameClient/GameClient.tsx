@@ -44,9 +44,14 @@ export function GameClient() {
       <>
         <Toast message={error} />
 
-        <p className="text-center font-fun text-2xl text-gray-400 animate-pulse">
-          Error while connecting to game...
-        </p>
+        <section className="flex flex-col items-center gap-6 text-center">
+          <p className="font-fun text-2xl text-gray-400 animate-pulse">
+            Error while connecting to game...
+          </p>
+          <Button asChild>
+            <Link href="/">Back to Home</Link>
+          </Button>
+        </section>
       </>
     );
   }
