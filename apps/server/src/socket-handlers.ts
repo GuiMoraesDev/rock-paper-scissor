@@ -236,7 +236,11 @@ export function registerSocketHandlers(io: Server, socket: Socket) {
 
         if (game.aiDifficulty) {
           const history = getAIMoveHistory(game);
-          game.players[1].move = generateAIMove(game.aiDifficulty, history);
+          game.players[1].move = generateAIMove(
+            game.aiDifficulty,
+            history,
+            game.roundResults,
+          );
         }
       }
 
@@ -322,7 +326,11 @@ export function registerSocketHandlers(io: Server, socket: Socket) {
 
       if (game.aiDifficulty) {
         const history = getAIMoveHistory(game);
-        game.players[1].move = generateAIMove(game.aiDifficulty, history);
+        game.players[1].move = generateAIMove(
+          game.aiDifficulty,
+          history,
+          game.roundResults,
+        );
       }
 
       io.to(meta.gameId).emit(SocketEvents.GAME_UPDATED, {
