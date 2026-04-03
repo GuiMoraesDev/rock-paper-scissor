@@ -1,29 +1,3 @@
-import type { Game } from "./types.js";
-
-export function generateGameId(): string {
-  const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
-  let id = "";
-  for (let i = 0; i < 6; i++) {
-    id += chars[Math.floor(Math.random() * chars.length)];
-  }
-  return id;
-}
-
-export function resolveRound(
-  move1: string,
-  move2: string,
-): "player1" | "player2" | "draw" {
-  if (move1 === move2) return "draw";
-  if (
-    (move1 === "rock" && move2 === "scissors") ||
-    (move1 === "scissors" && move2 === "paper") ||
-    (move1 === "paper" && move2 === "rock")
-  ) {
-    return "player1";
-  }
-  return "player2";
-}
-
 const MOVES = ["rock", "paper", "scissors"] as const;
 
 const COUNTER_MOVE: Record<string, string> = {
@@ -116,7 +90,6 @@ export function predictBySequence(history: string[]): Prediction | null {
     }
 
     if (matchCount >= 2) {
-      // The move that follows the matching sequence
       for (let i = history.length - seqLen - 1; i >= 0; i--) {
         const candidate = history.slice(i, i + seqLen);
         if (
@@ -193,45 +166,8 @@ export function generateAIMove(
   const depth = detectCounterStrategy(roundResults ?? []);
 
   if (depth === 2) {
-    // Player is counter-strategizing: counter(counter(counter(X))) === X
-    // So we play the predicted move itself to outplay their counter
     return best.move;
   }
 
   return COUNTER_MOVE[best.move];
-}
-
-export function sanitizeGame(game: Game) {
-  return {
-    id: game.id,
-    rounds: game.rounds,
-    currentRound: game.currentRound,
-    status: game.status,
-    roundResults: game.roundResults,
-    winner: game.winner,
-    players: game.players.map((p) => ({
-      name: p.name,
-      ready: p.ready,
-      score: p.score,
-      hasChosen: !!p.move,
-    })),
-  };
-}
-
-export function sanitizeGameFull(game: Game) {
-  return {
-    id: game.id,
-    rounds: game.rounds,
-    currentRound: game.currentRound,
-    status: game.status,
-    roundResults: game.roundResults,
-    winner: game.winner,
-    players: game.players.map((p) => ({
-      name: p.name,
-      ready: p.ready,
-      score: p.score,
-      move: p.move,
-      hasChosen: !!p.move,
-    })),
-  };
 }

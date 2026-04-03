@@ -5,8 +5,8 @@ import cors from "@fastify/cors";
 import Fastify from "fastify";
 import { Server } from "socket.io";
 import * as Sentry from "@sentry/node";
-import { getActiveConnectionCount, getGameCount } from "./game-store.js";
 import { registerSocketHandlers } from "./socket-handlers.js";
+import { registerRoutes } from "./routes/health.routes.js";
 
 const PORT = parseInt(process.env.PORT || "3001", 10);
 const HOST = "0.0.0.0";
@@ -38,25 +38,7 @@ io.on("connection", (socket) => {
   registerSocketHandlers(io, socket);
 });
 
-fastify.get("/health", async () => {
-  return { status: "ok" };
-});
-
-fastify.get("/status", async () => {
-  return {
-    status: "ok",
-    uptime: process.uptime(),
-    activeConnections: getActiveConnectionCount(),
-    activeGames: getGameCount(),
-    socketEngineClientsCount: io.engine.clientsCount,
-    cors: CORS,
-    timestamp: Date.now(),
-  };
-});
-
-fastify.get("/debug-sentry", () => {
-  throw new Error("My first Sentry error!");
-});
+registerRoutes(fastify, io);
 
 try {
   await fastify.listen({ port: PORT, host: HOST });

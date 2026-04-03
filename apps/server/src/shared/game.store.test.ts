@@ -8,7 +8,7 @@ import {
   resetStore,
   setGame,
   setSocketMeta,
-} from "./game-store.js";
+} from "./game.store.js";
 import type { Game } from "./types.js";
 
 function makeGame(id = "GAME01"): Game {
