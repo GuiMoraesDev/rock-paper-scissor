@@ -1,4 +1,3 @@
-import { SocketEvents } from "@rps/shared";
 import { fireEvent, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 import {
@@ -7,9 +6,9 @@ import {
 } from "../../testing/render-with-game";
 import { Lobby } from "./Lobby";
 
-const mockEmit = vi.fn();
-vi.mock("@/lib/socket", () => ({
-  getSocket: () => ({ emit: mockEmit }),
+const mockAddAIPlayer = vi.fn();
+vi.mock("@/lib/game-api", () => ({
+  addAIPlayer: (...args: unknown[]) => mockAddAIPlayer(...args),
 }));
 
 describe("Lobby", () => {
@@ -111,8 +110,8 @@ describe("Lobby", () => {
     expect(screen.queryByTestId("add-ai-button")).not.toBeInTheDocument();
   });
 
-  it("opens AI difficulty modal and emits add-ai-player on selection", () => {
-    mockEmit.mockClear();
+  it("opens AI difficulty modal and calls addAIPlayer on selection", () => {
+    mockAddAIPlayer.mockClear();
     renderWithGame(<Lobby />, {
       game: createGameState({
         players: [
@@ -126,9 +125,6 @@ describe("Lobby", () => {
     expect(screen.getByText("Choose Difficulty")).toBeInTheDocument();
 
     fireEvent.click(screen.getByTestId("ai-difficulty-hard"));
-    expect(mockEmit).toHaveBeenCalledWith(SocketEvents.ADD_AI_PLAYER, {
-      difficulty: "hard",
-      moveHistory: [],
-    });
+    expect(mockAddAIPlayer).toHaveBeenCalledWith("ABC123", "hard", []);
   });
 });

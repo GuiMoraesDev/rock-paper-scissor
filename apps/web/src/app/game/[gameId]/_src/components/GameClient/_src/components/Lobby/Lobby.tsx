@@ -1,12 +1,12 @@
 "use client";
 
-import { type AIDifficulty, SocketEvents } from "@rps/shared";
+import type { AIDifficulty } from "@rps/shared";
 import clsx from "clsx";
 import { motion } from "framer-motion";
 import { useCallback, useState } from "react";
 import { Button } from "@/components/atoms/Button";
 import { toast } from "@/components/atoms/Toaster";
-import { getSocket } from "@/lib/socket";
+import { addAIPlayer } from "@/lib/game-api";
 import { getAIMoveHistory } from "../../../../../lib/ai-move-history";
 import { useGame } from "../../../../../provider/GameProvider";
 import { AIDifficultyModal } from "./_src/components/AIDifficultyModal";
@@ -16,11 +16,14 @@ export function Lobby() {
     useGame();
   const [isAIModalOpen, setIsAIModalOpen] = useState(false);
 
-  const handleAddAI = useCallback((difficulty: AIDifficulty) => {
-    const moveHistory = difficulty === "hard" ? getAIMoveHistory() : [];
-    getSocket().emit(SocketEvents.ADD_AI_PLAYER, { difficulty, moveHistory });
-    setIsAIModalOpen(false);
-  }, []);
+  const handleAddAI = useCallback(
+    (difficulty: AIDifficulty) => {
+      const moveHistory = difficulty === "hard" ? getAIMoveHistory() : [];
+      addAIPlayer(game?.id ?? "", difficulty, moveHistory);
+      setIsAIModalOpen(false);
+    },
+    [game?.id],
+  );
 
   if (!game) return null;
 

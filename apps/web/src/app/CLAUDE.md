@@ -5,8 +5,8 @@ Next.js 15 App Router pages. Pages are **server components by default** — only
 ## Routes
 
 - `/` (`page.tsx`) — Landing page with Create/Join buttons
-- `/create` (`create/page.tsx`) — Enter name, select rounds (1/3/5), emits `create-game`
-- `/join` (`join/page.tsx`) — Enter name + 6-char game code, emits `join-game`
+- `/create` (`create/page.tsx`) — Enter name, select rounds (1/3/5), POSTs to `/api/game/create`
+- `/join` (`join/page.tsx`) — Enter name + 6-char game code, POSTs to `/api/game/join`
 - `/game/[gameId]` (`game/[gameId]/page.tsx`) — Main game page, renders different components based on `game.status`. AI players are added from the lobby via the 🤖 button (no separate AI route).
 
 ## Server-first principle
@@ -22,6 +22,6 @@ Each page can have a `_src/` directory for page-specific client components, hook
 ## Conventions
 
 - Keep `page.tsx` thin and server-side — delegate interactivity to `_src/` client components.
-- Client components in `_src/` set up socket listeners in `useEffect` and clean up on unmount.
+- Client components in `_src/` set up SSE listeners via `EventSource` in `useEffect` and close on unmount.
 - Pages compose atoms and organisms from `@/components/` alongside page-specific `_src/` components.
-- Navigation uses `useRouter().push()` after receiving socket confirmation events (inside client components).
+- Navigation uses `useRouter().push()` after receiving API responses or SSE events (inside client components).

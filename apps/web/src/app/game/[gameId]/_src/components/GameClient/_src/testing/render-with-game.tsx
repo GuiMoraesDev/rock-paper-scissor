@@ -25,7 +25,7 @@ type GameContextValue = {
 };
 
 // Re-create a minimal context for testing without importing the real provider
-// (avoids pulling in socket.io and router dependencies)
+// (avoids pulling in SSE and router dependencies)
 import { createContext, useContext } from "react";
 
 const GameContext = createContext<GameContextValue | null>(null);

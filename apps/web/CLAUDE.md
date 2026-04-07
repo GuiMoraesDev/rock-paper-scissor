@@ -1,6 +1,6 @@
 # Web App
 
-Next.js 15 App Router frontend with Tailwind CSS. All game state comes from Socket.IO — no REST calls, no client-side state management library.
+Next.js 15 App Router frontend with Tailwind CSS. Game state flows via SSE (server→client) and HTTP POST (client→server) through Next.js API routes. No external server or state management library.
 
 ## Commands
 
@@ -8,12 +8,23 @@ Next.js 15 App Router frontend with Tailwind CSS. All game state comes from Sock
 npm run dev      # Next.js dev server on port 3000
 npm run build    # Production build
 npm run test     # Run unit tests (Vitest + Testing Library)
-npm run test:e2e # Run e2e tests (Playwright, auto-starts both servers)
+npm run test:e2e # Run e2e tests (Playwright)
 ```
 
-## Socket connection
+## Game API
 
-`src/lib/socket.ts` — singleton Socket.IO client connecting to `NEXT_PUBLIC_SERVER_URL` (defaults to `http://localhost:3001`). Use `getSocket()` to access the shared instance.
+`src/lib/game-api.ts` — Client-side API module providing:
+- **Token management**: `getPlayerToken()`, `setPlayerToken()`, `clearPlayerToken()` — persists HMAC-signed player tokens in sessionStorage
+- **SSE connection**: `connectToGame(gameId, token)` — returns an `EventSource` for real-time game updates
+- **Action helpers**: `createGame()`, `joinGame()`, `makeMove()`, `playerReady()`, `nextRound()`, `leaveGame()`, `kickPlayer()`, `addAIPlayer()`, `requestRematch()`, `acceptRematch()`, `denyRematch()` — all POST to `/api/game/...` with `X-Player-Token` header
+
+## API Routes
+
+Game logic lives in `src/app/api/`:
+- `api/_lib/` — Server-side infrastructure: game store, game logic, AI strategy, SSE connection management, HMAC auth
+- `api/game/create/` and `api/game/join/` — Public routes (no token needed)
+- `api/game/[gameId]/events/` — SSE stream (GET, requires token as query param)
+- `api/game/[gameId]/{action}/` — Game actions (POST, requires `X-Player-Token` header)
 
 ## Components
 
@@ -81,4 +92,4 @@ type Props = ComponentProps<"button"> & {
 
 ## Types
 
-Shared types from `@rps/shared`: `Move`, `Player`, `GameState`, `RoundResult`.
+Shared types from `@rps/shared`: `Move`, `Player`, `GameState`, `RoundResult`, `SSEEvents`, `AIDifficulty`.

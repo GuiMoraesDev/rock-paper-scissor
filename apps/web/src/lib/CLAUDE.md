@@ -4,9 +4,9 @@ Shared utilities and infrastructure for the web app.
 
 ## Modules
 
-- **`socket.ts`** — Singleton Socket.IO client. Provides `getSocket()` (lazy-initializes and returns the shared socket instance) and `disconnectSocket()` (disconnects and clears the instance). Connects to `NEXT_PUBLIC_SERVER_URL` (defaults to `http://localhost:3001`).
+- **`game-api.ts`** — Client-side API module for game interactions. Provides token management (`getPlayerToken`, `setPlayerToken`, `clearPlayerToken`), SSE connection via `connectToGame()`, and typed POST action helpers (`createGame`, `joinGame`, `makeMove`, `playerReady`, etc.). All game actions use `X-Player-Token` header for authentication.
 
 ## Conventions
 
 - Utilities here are app-wide infrastructure, not UI-related. Keep them generic and dependency-light.
-- Socket.IO is the only external connection layer — no REST clients or state management libraries.
+- Game communication uses SSE (server→client) and HTTP POST (client→server) via Next.js API routes — no external server.

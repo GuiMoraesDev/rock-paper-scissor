@@ -1,48 +1,35 @@
-export const SocketEvents = {
-  CREATE_GAME: "create-game",
-  JOIN_GAME: "join-game",
-  PLAYER_READY: "player-ready",
-  MAKE_MOVE: "make-move",
-  NEXT_ROUND: "next-round",
-  ADD_AI_PLAYER: "add-ai-player",
-  LEAVE_GAME: "leave-game",
-  REQUEST_GAME_STATE: "request-game-state",
-  GAME_CREATED: "game-created",
-  JOINED_GAME: "joined-game",
+export const SSEEvents = {
+  GAME_STATE: "game-state",
   GAME_UPDATED: "game-updated",
   ROUND_RESULT: "round-result",
   GAME_FINISHED: "game-finished",
-  GAME_STATE_RESPONSE: "game-state-response",
   ERROR_MSG: "error-msg",
   PLAYER_DISCONNECTED: "player-disconnected",
-  REQUEST_REMATCH: "request-rematch",
+  PLAYER_KICKED: "player-kicked",
   REMATCH_REQUESTED: "rematch-requested",
-  REMATCH_ACCEPTED: "rematch-accepted",
   REMATCH_DENIED: "rematch-denied",
   REMATCH_GAME_CREATED: "rematch-game-created",
-  KICK_PLAYER: "kick-player",
-  PLAYER_KICKED: "player-kicked",
 } as const;
 
 export type Move = "rock" | "paper" | "scissors";
 
 export type AIDifficulty = "easy" | "normal" | "hard";
 
-export interface Player {
+export type Player = {
   name: string;
   ready: boolean;
   score: number;
   hasChosen: boolean;
   move?: Move;
-}
+};
 
-export interface RoundResult {
+export type RoundResult = {
   round: number;
   moves: [Move, Move];
   winner: "player1" | "player2" | "draw";
-}
+};
 
-export interface GameState {
+export type GameState = {
   id: string;
   rounds: number;
   currentRound: number;
@@ -50,4 +37,4 @@ export interface GameState {
   players: Player[];
   roundResults: RoundResult[];
   winner?: "player1" | "player2" | "draw";
-}
+};

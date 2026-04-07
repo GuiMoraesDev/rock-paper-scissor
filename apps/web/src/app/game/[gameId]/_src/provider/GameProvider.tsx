@@ -1,20 +1,30 @@
 "use client";
 
-import {
-  type GameState,
-  type Move,
-  type RoundResult,
-  SocketEvents,
-} from "@rps/shared";
+import type { GameState, Move, RoundResult } from "@rps/shared";
 import { useRouter } from "next/navigation";
 import {
   createContext,
   type ReactNode,
+  useCallback,
   useContext,
   useEffect,
+  useRef,
   useState,
 } from "react";
-import { getSocket } from "@/lib/socket";
+import {
+  acceptRematch as acceptRematchApi,
+  clearPlayerToken,
+  connectToGame,
+  denyRematch as denyRematchApi,
+  getPlayerToken,
+  kickPlayer as kickPlayerApi,
+  leaveGame as leaveGameApi,
+  makeMove as makeMoveApi,
+  nextRound as nextRoundApi,
+  playerReady as playerReadyApi,
+  requestRematch as requestRematchApi,
+  setPlayerToken,
+} from "@/lib/game-api";
 import { appendAIMoveHistory } from "../lib/ai-move-history";
 
 type RematchState = "idle" | "requested" | "received";
@@ -65,29 +75,40 @@ export function GameProvider({ gameId, children }: GameProviderProps) {
   const [gameNotFound, setGameNotFound] = useState(false);
   const [rematchState, setRematchState] = useState<RematchState>("idle");
   const [rematchRequesterName, setRematchRequesterName] = useState("");
+  const eventSourceRef = useRef<EventSource | null>(null);
 
   useEffect(() => {
-    const socket = getSocket();
+    const token = getPlayerToken();
+    if (!token) {
+      // No token means user hasn't created/joined — redirect to join
+      router.push(`/join?code=${gameId}`);
+      return;
+    }
 
-    socket.on(SocketEvents.GAME_CREATED, ({ game }) => {
-      setGame(game);
-      setPlayerIndex(0);
+    const eventSource = connectToGame(gameId, token);
+    eventSourceRef.current = eventSource;
+
+    eventSource.addEventListener("game-state", (e) => {
+      const { game: gameState, playerIndex: pIdx } = JSON.parse(e.data);
+      if (gameState && pIdx >= 0) {
+        setGame(gameState);
+        setPlayerIndex(pIdx);
+      } else {
+        setGameNotFound(true);
+      }
     });
 
-    socket.on(SocketEvents.JOINED_GAME, ({ game }) => {
-      setGame(game);
-      setPlayerIndex(1);
+    eventSource.addEventListener("game-updated", (e) => {
+      const { game: gameState } = JSON.parse(e.data);
+      setGame(gameState);
     });
 
-    socket.on(SocketEvents.GAME_UPDATED, ({ game }) => {
-      setGame(game);
-    });
-
-    socket.on(SocketEvents.ROUND_RESULT, ({ game, roundResult }) => {
-      setGame(game);
+    eventSource.addEventListener("round-result", (e) => {
+      const { game: gameState, roundResult } = JSON.parse(e.data);
+      setGame(gameState);
       setLastRoundResult(roundResult);
 
-      const isAIGame = game.players.some((p: { name: string }) =>
+      const isAIGame = gameState.players.some((p: { name: string }) =>
         p.name.startsWith("AI ("),
       );
       if (isAIGame) {
@@ -95,108 +116,108 @@ export function GameProvider({ gameId, children }: GameProviderProps) {
       }
     });
 
-    socket.on(SocketEvents.GAME_FINISHED, ({ game }) => {
-      setGame(game);
+    eventSource.addEventListener("game-finished", (e) => {
+      const { game: gameState } = JSON.parse(e.data);
+      setGame(gameState);
     });
 
-    socket.on(SocketEvents.ERROR_MSG, ({ message }) => {
+    eventSource.addEventListener("error-msg", (e) => {
+      const { message } = JSON.parse(e.data);
       setError(message);
       setTimeout(() => setError(""), 3000);
     });
 
-    socket.on(SocketEvents.PLAYER_DISCONNECTED, ({ playerName }) => {
+    eventSource.addEventListener("player-disconnected", (e) => {
+      const { playerName } = JSON.parse(e.data);
       setError(`${playerName} disconnected!`);
     });
 
-    socket.emit(SocketEvents.REQUEST_GAME_STATE, { gameId });
+    eventSource.addEventListener("player-kicked", () => {
+      clearPlayerToken();
+      router.push("/");
+    });
 
-    socket.on(
-      SocketEvents.GAME_STATE_RESPONSE,
-      ({ game, playerIndex: pIdx }) => {
-        if (game && pIdx >= 0) {
-          setGame(game);
-          setPlayerIndex(pIdx);
-        } else if (game && pIdx === -1) {
-          router.push(`/join?code=${gameId}`);
-        } else {
-          setGameNotFound(true);
-        }
-      },
-    );
-
-    socket.on(SocketEvents.REMATCH_REQUESTED, ({ playerName }) => {
+    eventSource.addEventListener("rematch-requested", (e) => {
+      const { playerName } = JSON.parse(e.data);
       setRematchState("received");
       setRematchRequesterName(playerName);
     });
 
-    socket.on(SocketEvents.REMATCH_DENIED, ({ playerName }) => {
+    eventSource.addEventListener("rematch-denied", (e) => {
+      const { playerName } = JSON.parse(e.data);
       setRematchState("idle");
       setError(`${playerName} declined the rematch.`);
     });
 
-    socket.on(SocketEvents.REMATCH_GAME_CREATED, ({ gameId: newGameId }) => {
+    eventSource.addEventListener("rematch-game-created", (e) => {
+      const { gameId: newGameId, playerToken: newToken } = JSON.parse(e.data);
+
+      // Store the new token for the new game
+      if (newToken) {
+        setPlayerToken(newToken, newGameId);
+      }
+
       setRematchState("idle");
+      eventSource.close();
       router.push(`/game/${newGameId}`);
     });
 
-    socket.on(SocketEvents.PLAYER_KICKED, () => {
-      router.push("/");
-    });
+    eventSource.onerror = () => {
+      // EventSource auto-reconnects on error
+      // Only set error if connection is fully closed
+      if (eventSource.readyState === EventSource.CLOSED) {
+        setError("Connection lost. Please refresh the page.");
+      }
+    };
 
     return () => {
-      socket.off(SocketEvents.GAME_CREATED);
-      socket.off(SocketEvents.JOINED_GAME);
-      socket.off(SocketEvents.GAME_UPDATED);
-      socket.off(SocketEvents.ROUND_RESULT);
-      socket.off(SocketEvents.GAME_FINISHED);
-      socket.off(SocketEvents.ERROR_MSG);
-      socket.off(SocketEvents.PLAYER_DISCONNECTED);
-      socket.off(SocketEvents.GAME_STATE_RESPONSE);
-      socket.off(SocketEvents.REMATCH_REQUESTED);
-      socket.off(SocketEvents.REMATCH_DENIED);
-      socket.off(SocketEvents.REMATCH_GAME_CREATED);
-      socket.off(SocketEvents.PLAYER_KICKED);
+      eventSource.close();
+      eventSourceRef.current = null;
     };
   }, [gameId, router]);
 
-  const handleReady = () => {
-    getSocket().emit(SocketEvents.PLAYER_READY);
-  };
+  const handleReady = useCallback(() => {
+    playerReadyApi(gameId);
+  }, [gameId]);
 
-  const handleMove = (move: Move) => {
-    getSocket().emit(SocketEvents.MAKE_MOVE, { move });
-  };
+  const handleMove = useCallback(
+    (move: Move) => {
+      makeMoveApi(gameId, move);
+    },
+    [gameId],
+  );
 
-  const handleNextRound = () => {
-    getSocket().emit(SocketEvents.NEXT_ROUND);
-  };
+  const handleNextRound = useCallback(() => {
+    nextRoundApi(gameId);
+  }, [gameId]);
 
-  const handlePlayAgain = () => {
+  const handlePlayAgain = useCallback(() => {
     router.push("/");
-  };
+  }, [router]);
 
-  const handleLeaveGame = () => {
-    getSocket().emit(SocketEvents.LEAVE_GAME);
+  const handleLeaveGame = useCallback(() => {
+    leaveGameApi(gameId);
+    clearPlayerToken();
     router.push("/");
-  };
+  }, [gameId, router]);
 
-  const handleRequestRematch = () => {
-    getSocket().emit(SocketEvents.REQUEST_REMATCH);
+  const handleRequestRematch = useCallback(() => {
+    requestRematchApi(gameId);
     setRematchState("requested");
-  };
+  }, [gameId]);
 
-  const handleAcceptRematch = () => {
-    getSocket().emit(SocketEvents.REMATCH_ACCEPTED);
-  };
+  const handleAcceptRematch = useCallback(() => {
+    acceptRematchApi(gameId);
+  }, [gameId]);
 
-  const handleDenyRematch = () => {
-    getSocket().emit(SocketEvents.REMATCH_DENIED);
+  const handleDenyRematch = useCallback(() => {
+    denyRematchApi(gameId);
     setRematchState("idle");
-  };
+  }, [gameId]);
 
-  const handleKickPlayer = () => {
-    getSocket().emit(SocketEvents.KICK_PLAYER);
-  };
+  const handleKickPlayer = useCallback(() => {
+    kickPlayerApi(gameId);
+  }, [gameId]);
 
   return (
     <GameContext.Provider

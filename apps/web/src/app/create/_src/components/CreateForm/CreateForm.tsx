@@ -1,12 +1,11 @@
 "use client";
 
-import { SocketEvents } from "@rps/shared";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Button } from "@/components/atoms/Button";
 import { Input } from "@/components/atoms/Input";
-import { getSocket } from "@/lib/socket";
+import { createGame, setPlayerToken } from "@/lib/game-api";
 import type { CreateGameSchemaProps } from "@/schemas/createGame.schema";
 import { useCreateGameValidation } from "./hooks/useCreateGameValidation";
 
@@ -24,18 +23,6 @@ export function CreateForm() {
     clearErrors,
     formState: { errors },
   } = useCreateGameValidation();
-
-  useEffect(() => {
-    const socket = getSocket();
-
-    socket.on(SocketEvents.GAME_CREATED, ({ gameId }) => {
-      router.push(`/game/${gameId}`);
-    });
-
-    return () => {
-      socket.off(SocketEvents.GAME_CREATED);
-    };
-  }, [router]);
 
   const handlePrevStep = () => {
     setCurrentStep((step) => {
@@ -63,10 +50,17 @@ export function CreateForm() {
     clearErrors();
   };
 
-  const onSubmit = (values: CreateGameSchemaProps) => {
-    const socket = getSocket();
-
-    socket.emit(SocketEvents.CREATE_GAME, values);
+  const onSubmit = async (values: CreateGameSchemaProps) => {
+    try {
+      const { gameId, playerToken } = await createGame(
+        values.playerName,
+        Number(values.rounds),
+      );
+      setPlayerToken(playerToken, gameId);
+      router.push(`/game/${gameId}`);
+    } catch (error) {
+      console.error("Failed to create game:", error);
+    }
   };
 
   return (

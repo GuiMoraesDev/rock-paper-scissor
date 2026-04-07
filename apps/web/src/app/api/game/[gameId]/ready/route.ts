@@ -1,0 +1,70 @@
+import { NextResponse } from "next/server";
+import { generateAIMove } from "../../../_lib/ai-strategy";
+import { authenticatePlayer } from "../../../_lib/auth";
+import { sanitizeGame } from "../../../_lib/game.logic";
+import { getGame } from "../../../_lib/game.store";
+import type { Game } from "../../../_lib/game.types";
+import { broadcastToGame } from "../../../_lib/sse-connections";
+
+function getAIMoveHistory(game: Game): string[] {
+  const currentGameMoves = game.roundResults.map((r) => r.moves[0]);
+  const pastMoves = game.aiMoveHistory ?? [];
+
+  if (game.aiDifficulty === "normal") {
+    return currentGameMoves;
+  }
+
+  return [...pastMoves, ...currentGameMoves];
+}
+
+type RouteContext = { params: Promise<{ gameId: string }> };
+
+export async function POST(request: Request, context: RouteContext) {
+  const { gameId } = await context.params;
+
+  const auth = authenticatePlayer(request, gameId, ["OWNER", "GUEST"]);
+  if (!auth.success) return auth.response;
+
+  const { meta } = auth;
+
+  try {
+    const game = getGame(gameId);
+    if (!game) {
+      return NextResponse.json({ error: "Game not found" }, { status: 404 });
+    }
+
+    game.players[meta.playerIndex].ready = true;
+
+    const allReady =
+      game.players.length === 2 && game.players.every((p) => p.ready);
+
+    if (allReady) {
+      game.status = "playing";
+      game.currentRound = 1;
+      game.players.forEach((p) => {
+        p.move = null;
+      });
+
+      if (game.aiDifficulty) {
+        const history = getAIMoveHistory(game);
+        game.players[1].move = generateAIMove(
+          game.aiDifficulty,
+          history,
+          game.roundResults,
+        );
+      }
+    }
+
+    broadcastToGame(gameId, "game-updated", {
+      game: sanitizeGame(game),
+    });
+
+    return NextResponse.json({ success: true });
+  } catch (error) {
+    console.error("Error on player-ready:", error);
+    return NextResponse.json(
+      { error: "Something went wrong" },
+      { status: 500 },
+    );
+  }
+}

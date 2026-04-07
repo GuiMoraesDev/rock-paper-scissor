@@ -1,0 +1,66 @@
+import { NextResponse } from "next/server";
+import { createPlayerToken } from "../../_lib/auth";
+import { generateGameId, sanitizeGame } from "../../_lib/game.logic";
+import { setGame, setPlayerToken } from "../../_lib/game.store";
+import type { Game } from "../../_lib/game.types";
+
+export async function POST(request: Request) {
+  try {
+    const { playerName, rounds } = await request.json();
+
+    if (!playerName || typeof playerName !== "string") {
+      return NextResponse.json(
+        { error: "Player name is required" },
+        { status: 400 },
+      );
+    }
+
+    if (![1, 3, 5].includes(rounds)) {
+      return NextResponse.json(
+        { error: "Rounds must be 1, 3, or 5" },
+        { status: 400 },
+      );
+    }
+
+    const gameId = generateGameId();
+    const playerToken = createPlayerToken(gameId, 0);
+
+    const game: Game = {
+      id: gameId,
+      rounds,
+      currentRound: 0,
+      players: [
+        {
+          id: playerToken,
+          name: playerName,
+          ready: false,
+          move: null,
+          score: 0,
+        },
+      ],
+      roundResults: [],
+      status: "waiting",
+    };
+
+    setGame(gameId, game);
+    setPlayerToken(playerToken, {
+      gameId,
+      playerIndex: 0,
+      role: "OWNER",
+    });
+
+    console.log(`Game ${gameId} created by ${playerName}`);
+
+    return NextResponse.json({
+      gameId,
+      playerToken,
+      game: sanitizeGame(game),
+    });
+  } catch (error) {
+    console.error("Error creating game:", error);
+    return NextResponse.json(
+      { error: "Failed to create game" },
+      { status: 500 },
+    );
+  }
+}

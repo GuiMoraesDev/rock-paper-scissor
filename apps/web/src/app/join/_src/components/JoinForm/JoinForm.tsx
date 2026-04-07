@@ -1,13 +1,12 @@
 "use client";
 
-import { SocketEvents } from "@rps/shared";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Button } from "@/components/atoms/Button";
 import { Input } from "@/components/atoms/Input";
 import { Toast } from "@/components/atoms/Toast";
-import { getSocket } from "@/lib/socket";
+import { joinGame, setPlayerToken } from "@/lib/game-api";
 import type { JoinGameSchemaProps } from "@/schemas/joinGame.schema";
 import { useJoinGameValidation } from "./hooks/useJoinGameValidation";
 
@@ -31,24 +30,6 @@ export function JoinForm() {
     },
   });
 
-  useEffect(() => {
-    const socket = getSocket();
-
-    socket.on(SocketEvents.JOINED_GAME, ({ gameId }) => {
-      router.push(`/game/${gameId}`);
-    });
-
-    socket.on(SocketEvents.ERROR_MSG, ({ message }) => {
-      setError(message);
-      setTimeout(() => setError(""), 3000);
-    });
-
-    return () => {
-      socket.off(SocketEvents.JOINED_GAME);
-      socket.off(SocketEvents.ERROR_MSG);
-    };
-  }, [router]);
-
   const handleGoToSecondStep = async () => {
     const isValid = await trigger("playerName");
 
@@ -62,13 +43,20 @@ export function JoinForm() {
     setCurrentStep(1);
   };
 
-  const onSubmit = (values: JoinGameSchemaProps) => {
-    const socket = getSocket();
-
-    socket.emit(SocketEvents.JOIN_GAME, {
-      gameId: values.gameId.trim().toUpperCase(),
-      playerName: values.playerName.trim(),
-    });
+  const onSubmit = async (values: JoinGameSchemaProps) => {
+    try {
+      const { gameId, playerToken } = await joinGame(
+        values.gameId,
+        values.playerName,
+      );
+      setPlayerToken(playerToken, gameId);
+      router.push(`/game/${gameId}`);
+    } catch (err) {
+      const message =
+        err instanceof Error ? err.message : "Failed to join game";
+      setError(message);
+      setTimeout(() => setError(""), 3000);
+    }
   };
 
   return (

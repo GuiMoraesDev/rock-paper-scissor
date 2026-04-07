@@ -5,7 +5,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## Commands
 
 ```bash
-# Development (runs both web and server concurrently via Turborepo)
+# Development (Next.js only, via Turborepo)
 npm run dev
 
 # Build all apps
@@ -17,27 +17,30 @@ npm run test
 # Run e2e tests (Playwright, web only)
 npm run test:e2e --filter=@rps/web
 
-# Run individual apps
+# Run the app
 npm run dev -- --filter=@rps/web    # Next.js on port 3000
-npm run dev -- --filter=@rps/server # Fastify on port 3001 (tsx watch)
 ```
 
 ## Architecture
 
-Turborepo monorepo with three workspaces:
+Turborepo monorepo with two workspaces:
 
-- **`apps/web`** — Next.js 15 frontend (App Router) with Tailwind CSS, Framer Motion, and Socket.IO client
-- **`apps/server`** — Fastify backend with Socket.IO server, holds all game logic in-memory
-- **`packages/shared`** — Shared TypeScript types (`Move`, `Player`, `GameState`, `RoundResult`) imported as `@rps/shared`
+- **`apps/web`** — Next.js 15 frontend (App Router) with Tailwind CSS, Framer Motion, SSE for real-time updates, and API routes for game logic
+- **`packages/shared`** — Shared TypeScript types (`Move`, `Player`, `GameState`, `RoundResult`, `SSEEvents`) imported as `@rps/shared`
 
 ### Real-time game flow
 
-All state synchronization happens through Socket.IO events — no REST API, no external database. The server maintains a `Map<gameId, Game>` in memory.
+All state synchronization uses **SSE (Server-Sent Events)** for server→client and **HTTP POST** for client→server. Game logic runs in Next.js API route handlers. The server maintains a `Map<gameId, Game>` in memory.
 
 **Game phases:** Home → Create/Join → Lobby (waiting + ready) → Playing → Round Result → (repeat) → Finished
 
-**Key server events:** `create-game`, `join-game`, `add-ai-player`, `player-ready`, `make-move`, `next-round`, `request-game-state`
-**Key client events:** `game-updated`, `round-result`, `game-finished`, `error-msg`, `player-disconnected`
+**API routes (client→server):** `POST /api/game/create`, `/api/game/join`, `/api/game/[gameId]/ready`, `/api/game/[gameId]/move`, `/api/game/[gameId]/next-round`, etc.
+**SSE events (server→client):** `game-state`, `game-updated`, `round-result`, `game-finished`, `error-msg`, `player-disconnected`, `rematch-requested`, `rematch-game-created`
+**SSE stream:** `GET /api/game/[gameId]/events?token=<signed>`
+
+### Player Authentication
+
+Players are identified by **HMAC-signed tokens** that bind `gameId + playerIndex + nonce`. Tokens are generated on game creation/join and sent as `X-Player-Token` header (POST) or query param (SSE). Each API route validates the token signature, game membership, and player role (`OWNER` = creator, `GUEST` = joiner).
 
 ### Animations (web)
 
