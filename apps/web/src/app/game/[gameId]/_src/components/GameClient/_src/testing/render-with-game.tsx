@@ -1,4 +1,5 @@
 import type { GameState, Move, RoundResult } from "@rps/shared";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { render } from "@testing-library/react";
 import type { ReactNode } from "react";
 import { vi } from "vitest";
@@ -13,6 +14,13 @@ type GameContextValue = {
   gameNotFound: boolean;
   rematchState: RematchState;
   rematchRequesterName: string;
+  isReadyPending: boolean;
+  isMovePending: boolean;
+  isNextRoundPending: boolean;
+  isRequestRematchPending: boolean;
+  isAcceptRematchPending: boolean;
+  isDenyRematchPending: boolean;
+  isKickPending: boolean;
   handleReady: () => void;
   handleMove: (move: Move) => void;
   handleNextRound: () => void;
@@ -75,6 +83,9 @@ type RenderOptions = {
 };
 
 export function renderWithGame(ui: ReactNode, options: RenderOptions = {}) {
+  const testQueryClient = new QueryClient({
+    defaultOptions: { mutations: { retry: false } },
+  });
   const context: GameContextValue = {
     game: options.game ?? createGameState(),
     playerIndex: options.playerIndex ?? 0,
@@ -83,6 +94,13 @@ export function renderWithGame(ui: ReactNode, options: RenderOptions = {}) {
     gameNotFound: false,
     rematchState: options.rematchState ?? "idle",
     rematchRequesterName: options.rematchRequesterName ?? "",
+    isReadyPending: false,
+    isMovePending: false,
+    isNextRoundPending: false,
+    isRequestRematchPending: false,
+    isAcceptRematchPending: false,
+    isDenyRematchPending: false,
+    isKickPending: false,
     handleReady: vi.fn(),
     handleMove: vi.fn(),
     handleNextRound: vi.fn(),
@@ -95,7 +113,9 @@ export function renderWithGame(ui: ReactNode, options: RenderOptions = {}) {
   };
 
   const result = render(
-    <GameContext.Provider value={context}>{ui}</GameContext.Provider>,
+    <QueryClientProvider client={testQueryClient}>
+      <GameContext.Provider value={context}>{ui}</GameContext.Provider>
+    </QueryClientProvider>,
   );
 
   return { ...result, context };

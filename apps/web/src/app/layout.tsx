@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "@/styles/globals.css";
 import { Toaster } from "@/components/atoms/Toaster";
+import { QueryProvider } from "@/providers/QueryProvider";
 
 export const metadata: Metadata = {
   title: "Rock Paper Scissors - Multiplayer",
@@ -15,7 +16,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className="h-dvh font-fun">
-        {children}
+        <QueryProvider>{children}</QueryProvider>
 
         <Toaster />
       </body>

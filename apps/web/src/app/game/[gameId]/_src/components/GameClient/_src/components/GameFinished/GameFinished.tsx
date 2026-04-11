@@ -16,6 +16,9 @@ export function GameFinished() {
     handleRequestRematch,
     handleAcceptRematch,
     handleDenyRematch,
+    isRequestRematchPending,
+    isAcceptRematchPending,
+    isDenyRematchPending,
   } = useGame();
 
   if (!game) return null;
@@ -161,9 +164,10 @@ export function GameFinished() {
           <Button
             data-testid="rematch-button"
             variant="green"
+            disabled={isRequestRematchPending}
             onClick={handleRequestRematch}
           >
-            🔄 Rematch
+            {isRequestRematchPending ? "..." : "🔄 Rematch"}
           </Button>
         )}
 
@@ -187,17 +191,19 @@ export function GameFinished() {
                 data-testid="accept-rematch-button"
                 variant="green"
                 size="sm"
+                disabled={isAcceptRematchPending || isDenyRematchPending}
                 onClick={handleAcceptRematch}
               >
-                Accept
+                {isAcceptRematchPending ? "..." : "Accept"}
               </Button>
               <Button
                 data-testid="deny-rematch-button"
                 variant="red"
                 size="sm"
+                disabled={isDenyRematchPending || isAcceptRematchPending}
                 onClick={handleDenyRematch}
               >
-                Decline
+                {isDenyRematchPending ? "..." : "Decline"}
               </Button>
             </div>
           </section>

@@ -1,4 +1,4 @@
-import { fireEvent, screen } from "@testing-library/react";
+import { act, fireEvent, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 import {
   createGameState,
@@ -6,8 +6,8 @@ import {
 } from "../../testing/render-with-game";
 import { Lobby } from "./Lobby";
 
-const mockAddAIPlayer = vi.fn();
-vi.mock("@/lib/game-api", () => ({
+const mockAddAIPlayer = vi.fn().mockResolvedValue(undefined);
+vi.mock("@/services/game.service", () => ({
   addAIPlayer: (...args: unknown[]) => mockAddAIPlayer(...args),
 }));
 
@@ -110,7 +110,7 @@ describe("Lobby", () => {
     expect(screen.queryByTestId("add-ai-button")).not.toBeInTheDocument();
   });
 
-  it("opens AI difficulty modal and calls addAIPlayer on selection", () => {
+  it("opens AI difficulty modal and calls addAIPlayer on selection", async () => {
     mockAddAIPlayer.mockClear();
     renderWithGame(<Lobby />, {
       game: createGameState({
@@ -124,7 +124,13 @@ describe("Lobby", () => {
     fireEvent.click(screen.getByTestId("add-ai-button"));
     expect(screen.getByText("Choose Difficulty")).toBeInTheDocument();
 
-    fireEvent.click(screen.getByTestId("ai-difficulty-hard"));
-    expect(mockAddAIPlayer).toHaveBeenCalledWith("ABC123", "hard", []);
+    await act(async () => {
+      fireEvent.click(screen.getByTestId("ai-difficulty-hard"));
+    });
+
+    expect(mockAddAIPlayer).toHaveBeenCalledWith(
+      { gameId: "ABC123", difficulty: "hard", moveHistory: [] },
+      expect.anything(),
+    );
   });
 });

@@ -1,12 +1,15 @@
 "use client";
 
+import { useMutation } from "@tanstack/react-query";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { Button } from "@/components/atoms/Button";
 import { Input } from "@/components/atoms/Input";
-import { createGame, setPlayerToken } from "@/lib/game-api";
+import { toast } from "@/components/atoms/Toaster";
+import { setPlayerToken } from "@/lib/game-api";
 import type { CreateGameSchemaProps } from "@/schemas/createGame.schema";
+import { createGame } from "@/services/game.service";
 import { useCreateGameValidation } from "./hooks/useCreateGameValidation";
 
 const ROUNDS_OPTIONS = [1, 3, 5];
@@ -23,6 +26,15 @@ export function CreateForm() {
     clearErrors,
     formState: { errors },
   } = useCreateGameValidation();
+
+  const createGameMutation = useMutation({
+    mutationFn: createGame,
+    onSuccess: ({ gameId, playerToken }) => {
+      setPlayerToken(playerToken, gameId);
+      router.push(`/game/${gameId}`);
+    },
+    onError: (err: Error) => toast.error(err.message),
+  });
 
   const handlePrevStep = () => {
     setCurrentStep((step) => {
@@ -50,17 +62,11 @@ export function CreateForm() {
     clearErrors();
   };
 
-  const onSubmit = async (values: CreateGameSchemaProps) => {
-    try {
-      const { gameId, playerToken } = await createGame(
-        values.playerName,
-        Number(values.rounds),
-      );
-      setPlayerToken(playerToken, gameId);
-      router.push(`/game/${gameId}`);
-    } catch (error) {
-      console.error("Failed to create game:", error);
-    }
+  const onSubmit = (values: CreateGameSchemaProps) => {
+    createGameMutation.mutate({
+      playerName: values.playerName,
+      rounds: Number(values.rounds),
+    });
   };
 
   return (
@@ -175,9 +181,10 @@ export function CreateForm() {
             size="sm"
             data-testid="create-game-button"
             type="submit"
+            disabled={createGameMutation.isPending}
             className="whitespace-nowrap inline-flex items-center leading-none animate-slide-in-right hover:text-rps-blue"
           >
-            Create game →
+            {createGameMutation.isPending ? "Creating..." : "Create game →"}
           </Button>
         </footer>
       </section>

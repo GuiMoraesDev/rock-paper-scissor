@@ -1,29 +1,39 @@
 "use client";
 
 import type { AIDifficulty } from "@rps/shared";
+import { useMutation } from "@tanstack/react-query";
 import clsx from "clsx";
 import { motion } from "framer-motion";
-import { useCallback, useState } from "react";
+import { useState } from "react";
 import { Button } from "@/components/atoms/Button";
 import { toast } from "@/components/atoms/Toaster";
-import { addAIPlayer } from "@/lib/game-api";
+import { addAIPlayer } from "@/services/game.service";
 import { getAIMoveHistory } from "../../../../../lib/ai-move-history";
 import { useGame } from "../../../../../provider/GameProvider";
 import { AIDifficultyModal } from "./_src/components/AIDifficultyModal";
 
 export function Lobby() {
-  const { game, playerIndex, handleReady, handleLeaveGame, handleKickPlayer } =
-    useGame();
+  const {
+    game,
+    playerIndex,
+    handleReady,
+    handleLeaveGame,
+    handleKickPlayer,
+    isReadyPending,
+    isKickPending,
+  } = useGame();
   const [isAIModalOpen, setIsAIModalOpen] = useState(false);
 
-  const handleAddAI = useCallback(
-    (difficulty: AIDifficulty) => {
-      const moveHistory = difficulty === "hard" ? getAIMoveHistory() : [];
-      addAIPlayer(game?.id ?? "", difficulty, moveHistory);
-      setIsAIModalOpen(false);
-    },
-    [game?.id],
-  );
+  const addAIMutation = useMutation({
+    mutationFn: addAIPlayer,
+    onSuccess: () => setIsAIModalOpen(false),
+    onError: (err: Error) => toast.error(err.message),
+  });
+
+  const handleAddAI = (difficulty: AIDifficulty) => {
+    const moveHistory = difficulty === "hard" ? getAIMoveHistory() : [];
+    addAIMutation.mutate({ gameId: game?.id ?? "", difficulty, moveHistory });
+  };
 
   if (!game) return null;
 
@@ -108,6 +118,7 @@ export function Lobby() {
                 size="icon"
                 data-testid="kick-player-button"
                 onClick={handleKickPlayer}
+                disabled={isKickPending}
                 className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-[calc(100%+0.5rem)]"
                 title="Kick player"
               >
@@ -136,10 +147,11 @@ export function Lobby() {
                 size="icon"
                 variant="ghost"
                 data-testid="add-ai-button"
+                disabled={addAIMutation.isPending}
                 className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-[calc(100%+0.5rem)]"
                 onClick={() => setIsAIModalOpen(true)}
               >
-                🤖
+                {addAIMutation.isPending ? "⏳" : "🤖"}
               </Button>
             )}
           </motion.span>
@@ -160,11 +172,11 @@ export function Lobby() {
             type="button"
             data-testid="ready-button"
             onClick={handleReady}
-            disabled={game.players.length < 2}
+            disabled={game.players.length < 2 || isReadyPending}
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
           >
-            ✊ I&apos;m Ready!
+            {isReadyPending ? "..." : "✊ I'm Ready!"}
           </motion.button>
         </Button>
       )}

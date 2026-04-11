@@ -8,7 +8,7 @@ import { useGame } from "../../../../../provider/GameProvider";
 import { MOVES_OPTIONS, moveEmojiMap } from "../../constants/gameplay";
 
 export function GamePlay() {
-  const { game, playerIndex, handleMove } = useGame();
+  const { game, playerIndex, handleMove, isMovePending } = useGame();
   const [selectedMove, setSelectedMove] = useState<Move | null>(null);
 
   if (!game) return null;
@@ -18,7 +18,7 @@ export function GamePlay() {
   const opponentHasChosen = game.players[opponentIndex]?.hasChosen;
 
   const onMove = (move: Move) => {
-    if (hasChosen) return;
+    if (hasChosen || isMovePending) return;
 
     setSelectedMove(move);
     handleMove(move);
@@ -109,7 +109,7 @@ export function GamePlay() {
             type="button"
             key={move}
             data-testid={`move-${move}`}
-            disabled={hasChosen}
+            disabled={hasChosen || isMovePending}
             onClick={() => onMove(move)}
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}

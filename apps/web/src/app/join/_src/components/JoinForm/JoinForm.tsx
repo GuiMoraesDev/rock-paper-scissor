@@ -1,13 +1,15 @@
 "use client";
 
+import { useMutation } from "@tanstack/react-query";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
 import { Button } from "@/components/atoms/Button";
 import { Input } from "@/components/atoms/Input";
 import { Toast } from "@/components/atoms/Toast";
-import { joinGame, setPlayerToken } from "@/lib/game-api";
+import { setPlayerToken } from "@/lib/game-api";
 import type { JoinGameSchemaProps } from "@/schemas/joinGame.schema";
+import { joinGame } from "@/services/game.service";
 import { useJoinGameValidation } from "./hooks/useJoinGameValidation";
 
 export function JoinForm() {
@@ -30,6 +32,18 @@ export function JoinForm() {
     },
   });
 
+  const joinGameMutation = useMutation({
+    mutationFn: joinGame,
+    onSuccess: ({ gameId, playerToken }) => {
+      setPlayerToken(playerToken, gameId);
+      router.push(`/game/${gameId}`);
+    },
+    onError: (err: Error) => {
+      setError(err.message);
+      setTimeout(() => setError(""), 3000);
+    },
+  });
+
   const handleGoToSecondStep = async () => {
     const isValid = await trigger("playerName");
 
@@ -43,20 +57,11 @@ export function JoinForm() {
     setCurrentStep(1);
   };
 
-  const onSubmit = async (values: JoinGameSchemaProps) => {
-    try {
-      const { gameId, playerToken } = await joinGame(
-        values.gameId,
-        values.playerName,
-      );
-      setPlayerToken(playerToken, gameId);
-      router.push(`/game/${gameId}`);
-    } catch (err) {
-      const message =
-        err instanceof Error ? err.message : "Failed to join game";
-      setError(message);
-      setTimeout(() => setError(""), 3000);
-    }
+  const onSubmit = (values: JoinGameSchemaProps) => {
+    joinGameMutation.mutate({
+      gameId: values.gameId,
+      playerName: values.playerName,
+    });
   };
 
   return (
@@ -155,9 +160,10 @@ export function JoinForm() {
               variant="ghost"
               size="sm"
               type="submit"
+              disabled={joinGameMutation.isPending}
               className="whitespace-nowrap inline-flex items-center leading-none animate-slide-in-right hover:text-rps-red"
             >
-              Join game →
+              {joinGameMutation.isPending ? "Joining..." : "Join game →"}
             </Button>
           </footer>
         </section>

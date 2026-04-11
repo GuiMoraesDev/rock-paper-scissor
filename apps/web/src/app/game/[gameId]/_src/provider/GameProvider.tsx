@@ -1,6 +1,7 @@
 "use client";
 
 import type { GameState, Move, RoundResult } from "@rps/shared";
+import { useMutation } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import {
   createContext,
@@ -11,20 +12,23 @@ import {
   useRef,
   useState,
 } from "react";
+import { toast } from "@/components/atoms/Toaster";
 import {
-  acceptRematch as acceptRematchApi,
   clearPlayerToken,
   connectToGame,
-  denyRematch as denyRematchApi,
   getPlayerToken,
-  kickPlayer as kickPlayerApi,
-  leaveGame as leaveGameApi,
-  makeMove as makeMoveApi,
-  nextRound as nextRoundApi,
-  playerReady as playerReadyApi,
-  requestRematch as requestRematchApi,
   setPlayerToken,
 } from "@/lib/game-api";
+import {
+  acceptRematch as acceptRematchService,
+  denyRematch as denyRematchService,
+  kickPlayer as kickPlayerService,
+  leaveGame as leaveGameService,
+  makeMove as makeMoveService,
+  nextRound as nextRoundService,
+  playerReady as playerReadyService,
+  requestRematch as requestRematchService,
+} from "@/services/game.service";
 import { appendAIMoveHistory } from "../lib/ai-move-history";
 
 type RematchState = "idle" | "requested" | "received";
@@ -37,6 +41,13 @@ type GameContextValue = {
   gameNotFound: boolean;
   rematchState: RematchState;
   rematchRequesterName: string;
+  isReadyPending: boolean;
+  isMovePending: boolean;
+  isNextRoundPending: boolean;
+  isRequestRematchPending: boolean;
+  isAcceptRematchPending: boolean;
+  isDenyRematchPending: boolean;
+  isKickPending: boolean;
   handleReady: () => void;
   handleMove: (move: Move) => void;
   handleNextRound: () => void;
@@ -80,7 +91,6 @@ export function GameProvider({ gameId, children }: GameProviderProps) {
   useEffect(() => {
     const token = getPlayerToken();
     if (!token) {
-      // No token means user hasn't created/joined — redirect to join
       router.push(`/join?code=${gameId}`);
       return;
     }
@@ -151,20 +161,15 @@ export function GameProvider({ gameId, children }: GameProviderProps) {
 
     eventSource.addEventListener("rematch-game-created", (e) => {
       const { gameId: newGameId, playerToken: newToken } = JSON.parse(e.data);
-
-      // Store the new token for the new game
       if (newToken) {
         setPlayerToken(newToken, newGameId);
       }
-
       setRematchState("idle");
       eventSource.close();
       router.push(`/game/${newGameId}`);
     });
 
     eventSource.onerror = () => {
-      // EventSource auto-reconnects on error
-      // Only set error if connection is fully closed
       if (eventSource.readyState === EventSource.CLOSED) {
         setError("Connection lost. Please refresh the page.");
       }
@@ -176,48 +181,52 @@ export function GameProvider({ gameId, children }: GameProviderProps) {
     };
   }, [gameId, router]);
 
-  const handleReady = useCallback(() => {
-    playerReadyApi(gameId);
-  }, [gameId]);
+  const readyMutation = useMutation({
+    mutationFn: () => playerReadyService(gameId),
+    onError: (err: Error) => toast.error(err.message),
+  });
 
-  const handleMove = useCallback(
-    (move: Move) => {
-      makeMoveApi(gameId, move);
-    },
-    [gameId],
-  );
+  const moveMutation = useMutation({
+    mutationFn: (move: Move) => makeMoveService(gameId, move),
+    onError: (err: Error) => toast.error(err.message),
+  });
 
-  const handleNextRound = useCallback(() => {
-    nextRoundApi(gameId);
-  }, [gameId]);
+  const nextRoundMutation = useMutation({
+    mutationFn: () => nextRoundService(gameId),
+    onError: (err: Error) => toast.error(err.message),
+  });
 
-  const handlePlayAgain = useCallback(() => {
-    router.push("/");
-  }, [router]);
+  const requestRematchMutation = useMutation({
+    mutationFn: () => requestRematchService(gameId),
+    onSuccess: () => setRematchState("requested"),
+    onError: (err: Error) => toast.error(err.message),
+  });
+
+  const acceptRematchMutation = useMutation({
+    mutationFn: () => acceptRematchService(gameId),
+    onError: (err: Error) => toast.error(err.message),
+  });
+
+  const denyRematchMutation = useMutation({
+    mutationFn: () => denyRematchService(gameId),
+    onSuccess: () => setRematchState("idle"),
+    onError: (err: Error) => toast.error(err.message),
+  });
+
+  const kickMutation = useMutation({
+    mutationFn: () => kickPlayerService(gameId),
+    onError: (err: Error) => toast.error(err.message),
+  });
 
   const handleLeaveGame = useCallback(() => {
-    leaveGameApi(gameId);
+    leaveGameService(gameId);
     clearPlayerToken();
     router.push("/");
   }, [gameId, router]);
 
-  const handleRequestRematch = useCallback(() => {
-    requestRematchApi(gameId);
-    setRematchState("requested");
-  }, [gameId]);
-
-  const handleAcceptRematch = useCallback(() => {
-    acceptRematchApi(gameId);
-  }, [gameId]);
-
-  const handleDenyRematch = useCallback(() => {
-    denyRematchApi(gameId);
-    setRematchState("idle");
-  }, [gameId]);
-
-  const handleKickPlayer = useCallback(() => {
-    kickPlayerApi(gameId);
-  }, [gameId]);
+  const handlePlayAgain = useCallback(() => {
+    router.push("/");
+  }, [router]);
 
   return (
     <GameContext.Provider
@@ -229,15 +238,22 @@ export function GameProvider({ gameId, children }: GameProviderProps) {
         gameNotFound,
         rematchState,
         rematchRequesterName,
-        handleReady,
-        handleMove,
-        handleNextRound,
+        isReadyPending: readyMutation.isPending,
+        isMovePending: moveMutation.isPending,
+        isNextRoundPending: nextRoundMutation.isPending,
+        isRequestRematchPending: requestRematchMutation.isPending,
+        isAcceptRematchPending: acceptRematchMutation.isPending,
+        isDenyRematchPending: denyRematchMutation.isPending,
+        isKickPending: kickMutation.isPending,
+        handleReady: readyMutation.mutate,
+        handleMove: moveMutation.mutate,
+        handleNextRound: nextRoundMutation.mutate,
         handlePlayAgain,
         handleLeaveGame,
-        handleRequestRematch,
-        handleAcceptRematch,
-        handleDenyRematch,
-        handleKickPlayer,
+        handleRequestRematch: requestRematchMutation.mutate,
+        handleAcceptRematch: acceptRematchMutation.mutate,
+        handleDenyRematch: denyRematchMutation.mutate,
+        handleKickPlayer: kickMutation.mutate,
       }}
     >
       {children}

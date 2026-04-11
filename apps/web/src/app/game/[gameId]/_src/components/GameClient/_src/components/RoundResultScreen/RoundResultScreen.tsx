@@ -16,7 +16,13 @@ function getRandomMessage(messages: string[]) {
 }
 
 export function RoundResultScreen() {
-  const { game, playerIndex, lastRoundResult, handleNextRound } = useGame();
+  const {
+    game,
+    playerIndex,
+    lastRoundResult,
+    handleNextRound,
+    isNextRoundPending,
+  } = useGame();
 
   const message = useMemo(() => {
     if (!lastRoundResult) return "";
@@ -140,13 +146,14 @@ export function RoundResultScreen() {
             type="button"
             data-testid="next-round-button"
             onClick={handleNextRound}
+            disabled={isNextRoundPending}
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.7 }}
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
           >
-            Next Round →
+            {isNextRoundPending ? "..." : "Next Round →"}
           </motion.button>
         </Button>
       )}
