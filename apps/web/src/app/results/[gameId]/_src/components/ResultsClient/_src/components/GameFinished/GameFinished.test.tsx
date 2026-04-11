@@ -3,8 +3,8 @@ import { describe, expect, it } from "vitest";
 import {
   createGameState,
   createRoundResult,
-  renderWithGame,
-} from "../../testing/render-with-game";
+  renderWithResults,
+} from "../../testing/render-with-results";
 import { GameFinished } from "./GameFinished";
 
 const finishedGame = (
@@ -44,12 +44,12 @@ const finishedGame = (
 
 describe("GameFinished", () => {
   it("renders Game Over heading", () => {
-    renderWithGame(<GameFinished />, { game: finishedGame(2, 1) });
+    renderWithResults(<GameFinished />, { game: finishedGame(2, 1) });
     expect(screen.getByText("Game Over!")).toBeInTheDocument();
   });
 
   it("shows You Win when player wins", () => {
-    renderWithGame(<GameFinished />, {
+    renderWithResults(<GameFinished />, {
       game: finishedGame(2, 1),
       playerIndex: 0,
     });
@@ -57,7 +57,7 @@ describe("GameFinished", () => {
   });
 
   it("shows You Lose when player loses", () => {
-    renderWithGame(<GameFinished />, {
+    renderWithResults(<GameFinished />, {
       game: finishedGame(2, 1),
       playerIndex: 1,
     });
@@ -65,31 +65,31 @@ describe("GameFinished", () => {
   });
 
   it("shows tie when scores are equal", () => {
-    renderWithGame(<GameFinished />, { game: finishedGame(1, 1) });
+    renderWithResults(<GameFinished />, { game: finishedGame(1, 1) });
     expect(screen.getByText(/Tie/)).toBeInTheDocument();
   });
 
   it("displays final scores", () => {
-    renderWithGame(<GameFinished />, { game: finishedGame(2, 1) });
+    renderWithResults(<GameFinished />, { game: finishedGame(2, 1) });
     expect(screen.getByText("Alice: 2")).toBeInTheDocument();
     expect(screen.getByText("Bob: 1")).toBeInTheDocument();
   });
 
   it("renders round-by-round results", () => {
-    renderWithGame(<GameFinished />, { game: finishedGame(2, 1) });
+    renderWithResults(<GameFinished />, { game: finishedGame(2, 1) });
     expect(screen.getByText("Round 1")).toBeInTheDocument();
     expect(screen.getByText("Round 2")).toBeInTheDocument();
     expect(screen.getByText("Round 3")).toBeInTheDocument();
   });
 
   it("shows move emojis in round results", () => {
-    renderWithGame(<GameFinished />, { game: finishedGame(2, 1) });
+    renderWithResults(<GameFinished />, { game: finishedGame(2, 1) });
     expect(screen.getAllByText("🪨").length).toBeGreaterThanOrEqual(1);
     expect(screen.getAllByText("📄").length).toBeGreaterThanOrEqual(1);
   });
 
   it("calls handlePlayAgain when back to home is clicked", () => {
-    const { context } = renderWithGame(<GameFinished />, {
+    const { context } = renderWithResults(<GameFinished />, {
       game: finishedGame(2, 1),
     });
     fireEvent.click(screen.getByTestId("back-home-button"));
@@ -97,14 +97,14 @@ describe("GameFinished", () => {
   });
 
   it("shows rematch button in idle state", () => {
-    renderWithGame(<GameFinished />, {
+    renderWithResults(<GameFinished />, {
       game: finishedGame(2, 1),
     });
     expect(screen.getByTestId("rematch-button")).toBeInTheDocument();
   });
 
   it("calls handleRequestRematch when rematch is clicked", () => {
-    const { context } = renderWithGame(<GameFinished />, {
+    const { context } = renderWithResults(<GameFinished />, {
       game: finishedGame(2, 1),
     });
     fireEvent.click(screen.getByTestId("rematch-button"));
@@ -112,7 +112,7 @@ describe("GameFinished", () => {
   });
 
   it("shows waiting message when rematch is requested", () => {
-    renderWithGame(<GameFinished />, {
+    renderWithResults(<GameFinished />, {
       game: finishedGame(2, 1),
       rematchState: "requested",
     });
@@ -122,7 +122,7 @@ describe("GameFinished", () => {
   });
 
   it("shows accept/deny buttons when rematch is received", () => {
-    renderWithGame(<GameFinished />, {
+    renderWithResults(<GameFinished />, {
       game: finishedGame(2, 1),
       rematchState: "received",
       rematchRequesterName: "Alice",

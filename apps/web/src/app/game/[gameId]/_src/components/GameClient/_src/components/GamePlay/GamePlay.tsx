@@ -4,8 +4,9 @@ import type { Move } from "@rps/shared";
 import clsx from "clsx";
 import { motion } from "framer-motion";
 import { useState } from "react";
+import { moveEmojiMap } from "@/lib/gameplay";
 import { useGame } from "../../../../../provider/GameProvider";
-import { MOVES_OPTIONS, moveEmojiMap } from "../../constants/gameplay";
+import { MOVES_OPTIONS } from "../../constants/gameplay";
 
 export function GamePlay() {
   const { game, playerIndex, handleMove, isMovePending } = useGame();

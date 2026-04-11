@@ -1,6 +1,6 @@
 "use client";
 
-import type { GameState, Move, RoundResult } from "@rps/shared";
+import type { GameState } from "@rps/shared";
 import { useMutation } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import {
@@ -14,7 +14,6 @@ import {
 } from "react";
 import { toast } from "@/components/atoms/Toaster";
 import {
-  appendAIMoveHistory,
   clearPlayerToken,
   connectToGame,
   getPlayerToken,
@@ -23,59 +22,47 @@ import {
 import {
   acceptRematch as acceptRematchService,
   denyRematch as denyRematchService,
-  leaveGame as leaveGameService,
-  makeMove as makeMoveService,
-  startNextRound as nextRoundService,
   requestRematch as requestRematchService,
 } from "@/services/game.api";
 
 type RematchState = "idle" | "requested" | "received";
 
-type GameContextValue = {
+type ResultsContextValue = {
   game: GameState | null;
   playerIndex: number;
-  lastRoundResult: RoundResult | null;
   error: string;
   gameNotFound: boolean;
   rematchState: RematchState;
   rematchRequesterName: string;
-  isMovePending: boolean;
-  isNextRoundPending: boolean;
   isRequestRematchPending: boolean;
   isAcceptRematchPending: boolean;
   isDenyRematchPending: boolean;
-  handleMove: (move: Move) => void;
-  handleNextRound: () => void;
   handlePlayAgain: () => void;
-  handleLeaveGame: () => void;
   handleRequestRematch: () => void;
   handleAcceptRematch: () => void;
   handleDenyRematch: () => void;
 };
 
-const GameContext = createContext<GameContextValue | null>(null);
+const ResultsContext = createContext<ResultsContextValue | null>(null);
 
-export function useGame() {
-  const context = useContext(GameContext);
+export const useResults = () => {
+  const context = useContext(ResultsContext);
   if (!context) {
-    throw new Error("useGame must be used within a GameProvider");
+    throw new Error("useResults must be used within a ResultsProvider");
   }
   return context;
-}
+};
 
-type GameProviderProps = {
+type ResultsProviderProps = {
   gameId: string;
   children: ReactNode;
 };
 
-export function GameProvider({ gameId, children }: GameProviderProps) {
+export const ResultsProvider = ({ gameId, children }: ResultsProviderProps) => {
   const router = useRouter();
 
   const [game, setGame] = useState<GameState | null>(null);
   const [playerIndex, setPlayerIndex] = useState<number>(-1);
-  const [lastRoundResult, setLastRoundResult] = useState<RoundResult | null>(
-    null,
-  );
   const [error, setError] = useState("");
   const [gameNotFound, setGameNotFound] = useState(false);
   const [rematchState, setRematchState] = useState<RematchState>("idle");
@@ -100,9 +87,12 @@ export function GameProvider({ gameId, children }: GameProviderProps) {
           router.push(`/lobby/${gameId}`);
           return;
         }
-        if (gameState.status === "finished") {
+        if (
+          gameState.status === "playing" ||
+          gameState.status === "round-result"
+        ) {
           eventSource.close();
-          router.push(`/results/${gameId}`);
+          router.push(`/game/${gameId}`);
           return;
         }
         setGame(gameState);
@@ -117,22 +107,9 @@ export function GameProvider({ gameId, children }: GameProviderProps) {
       setGame(gameState);
     });
 
-    eventSource.addEventListener("round-result", (e) => {
-      const { game: gameState, roundResult } = JSON.parse(e.data);
+    eventSource.addEventListener("game-finished", (e) => {
+      const { game: gameState } = JSON.parse(e.data);
       setGame(gameState);
-      setLastRoundResult(roundResult);
-
-      const isAIGame = gameState.players.some((p: { name: string }) =>
-        p.name.startsWith("AI ("),
-      );
-      if (isAIGame) {
-        appendAIMoveHistory(roundResult.moves[0]);
-      }
-    });
-
-    eventSource.addEventListener("game-finished", () => {
-      eventSource.close();
-      router.push(`/results/${gameId}`);
     });
 
     eventSource.addEventListener("error-msg", (e) => {
@@ -180,16 +157,6 @@ export function GameProvider({ gameId, children }: GameProviderProps) {
     };
   }, [gameId, router]);
 
-  const moveMutation = useMutation({
-    mutationFn: (move: Move) => makeMoveService({ gameId, move }),
-    onError: (err: Error) => toast.error(err.message),
-  });
-
-  const nextRoundMutation = useMutation({
-    mutationFn: () => nextRoundService({ gameId }),
-    onError: (err: Error) => toast.error(err.message),
-  });
-
   const requestRematchMutation = useMutation({
     mutationFn: () => requestRematchService({ gameId }),
     onSuccess: () => setRematchState("requested"),
@@ -207,41 +174,30 @@ export function GameProvider({ gameId, children }: GameProviderProps) {
     onError: (err: Error) => toast.error(err.message),
   });
 
-  const handleLeaveGame = useCallback(() => {
-    leaveGameService({ gameId });
-    clearPlayerToken();
-    router.push("/");
-  }, [gameId, router]);
-
   const handlePlayAgain = useCallback(() => {
+    clearPlayerToken();
     router.push("/");
   }, [router]);
 
   return (
-    <GameContext.Provider
+    <ResultsContext.Provider
       value={{
         game,
         playerIndex,
-        lastRoundResult,
         error,
         gameNotFound,
         rematchState,
         rematchRequesterName,
-        isMovePending: moveMutation.isPending,
-        isNextRoundPending: nextRoundMutation.isPending,
         isRequestRematchPending: requestRematchMutation.isPending,
         isAcceptRematchPending: acceptRematchMutation.isPending,
         isDenyRematchPending: denyRematchMutation.isPending,
-        handleMove: moveMutation.mutate,
-        handleNextRound: nextRoundMutation.mutate,
         handlePlayAgain,
-        handleLeaveGame,
         handleRequestRematch: requestRematchMutation.mutate,
         handleAcceptRematch: acceptRematchMutation.mutate,
         handleDenyRematch: denyRematchMutation.mutate,
       }}
     >
       {children}
-    </GameContext.Provider>
+    </ResultsContext.Provider>
   );
-}
+};

@@ -1,22 +1,19 @@
 "use client";
 
-import { AnimatePresence, motion } from "framer-motion";
+import { motion } from "framer-motion";
 import Link from "next/link";
 import { useEffect } from "react";
 import { Button } from "@/components/atoms/Button";
 import { toast } from "@/components/atoms/Toaster";
-import { useGame } from "../../provider/GameProvider";
-import { GamePlay } from "./_src/components/GamePlay";
-import { RoundResultScreen } from "./_src/components/RoundResultScreen";
+import { useResults } from "../../provider/ResultsProvider";
+import { GameFinished } from "./_src/components/GameFinished";
 
-export function GameClient() {
-  const { game, playerIndex, error, gameNotFound } = useGame();
+export const ResultsClient = () => {
+  const { game, playerIndex, error, gameNotFound } = useResults();
 
   useEffect(() => {
     if (error) toast.error(error);
   }, [error]);
-
-  const status = game?.status;
 
   if (gameNotFound) {
     return (
@@ -64,36 +61,20 @@ export function GameClient() {
         animate={{ opacity: 1 }}
         className="text-center font-fun text-2xl text-gray-400 animate-pulse"
       >
-        Connecting to game...
+        Loading results...
       </motion.p>
     );
   }
 
   return (
-    <AnimatePresence mode="wait">
-      {status === "playing" && (
-        <motion.div
-          key="playing"
-          initial={{ opacity: 0, scale: 0.95 }}
-          animate={{ opacity: 1, scale: 1 }}
-          exit={{ opacity: 0, scale: 0.95 }}
-          transition={{ duration: 0.3 }}
-        >
-          <GamePlay />
-        </motion.div>
-      )}
-
-      {status === "round-result" && (
-        <motion.div
-          key="round-result"
-          initial={{ opacity: 0, scale: 0.9 }}
-          animate={{ opacity: 1, scale: 1 }}
-          exit={{ opacity: 0, scale: 1.1 }}
-          transition={{ duration: 0.4 }}
-        >
-          <RoundResultScreen />
-        </motion.div>
-      )}
-    </AnimatePresence>
+    <motion.div
+      key="finished"
+      initial={{ opacity: 0, scale: 0.8 }}
+      animate={{ opacity: 1, scale: 1 }}
+      exit={{ opacity: 0 }}
+      transition={{ duration: 0.5, type: "spring" }}
+    >
+      <GameFinished />
+    </motion.div>
   );
-}
+};

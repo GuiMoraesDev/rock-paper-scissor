@@ -3,10 +3,10 @@
 import clsx from "clsx";
 import { motion } from "framer-motion";
 import { Button } from "@/components/atoms/Button";
-import { useGame } from "../../../../../provider/GameProvider";
-import { moveEmojiMap } from "../../constants/gameplay";
+import { moveEmojiMap } from "@/lib/gameplay";
+import { useResults } from "../../../../../provider/ResultsProvider";
 
-export function GameFinished() {
+export const GameFinished = () => {
   const {
     game,
     playerIndex,
@@ -19,7 +19,7 @@ export function GameFinished() {
     isRequestRematchPending,
     isAcceptRematchPending,
     isDenyRematchPending,
-  } = useGame();
+  } = useResults();
 
   if (!game) return null;
 
@@ -220,4 +220,4 @@ export function GameFinished() {
       </motion.div>
     </section>
   );
-}
+};

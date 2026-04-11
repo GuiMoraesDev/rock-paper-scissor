@@ -4,8 +4,8 @@ import clsx from "clsx";
 import { motion } from "framer-motion";
 import { useMemo } from "react";
 import { Button } from "@/components/atoms/Button";
+import { moveEmojiMap } from "@/lib/gameplay";
 import { useGame } from "../../../../../provider/GameProvider";
-import { moveEmojiMap } from "../../constants/gameplay";
 
 const WIN_MESSAGES = ["CRUSHED IT 💥", "LET'S GO 🔥", "TOO EASY 😎", "BOOM 💣"];
 const LOSE_MESSAGES = ["Ouch 😅", "Try again 👀", "Not this time 💀", "Oof 😬"];
