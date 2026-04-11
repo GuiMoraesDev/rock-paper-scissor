@@ -8,6 +8,7 @@ Next.js 15 App Router pages. Pages are **server components by default** — only
 - `/create` (`create/page.tsx`) — Enter name, select rounds (1/3/5), POSTs to `/api/game/create`
 - `/join` (`join/page.tsx`) — Enter name + 6-char game code, POSTs to `/api/game/join`
 - `/game/[gameId]` (`game/[gameId]/page.tsx`) — Main game page, renders different components based on `game.status`. AI players are added from the lobby via the 🤖 button (no separate AI route).
+- `/status` (`(status)/status/page.tsx`) — Internal status dashboard (`StatusDashboard` component), grouped under the `(status)` route group (no layout impact).
 
 ## Server-first principle
 
@@ -22,6 +23,6 @@ Each page can have a `_src/` directory for page-specific client components, hook
 ## Conventions
 
 - Keep `page.tsx` thin and server-side — delegate interactivity to `_src/` client components.
-- Client components in `_src/` set up SSE listeners via `EventSource` in `useEffect` and close on unmount.
-- Pages compose atoms and organisms from `@/components/` alongside page-specific `_src/` components.
+- SSE is managed by `GameProvider` (`game/[gameId]/_src/provider/GameProvider.tsx`), which opens an `EventSource` in `useEffect`, manages all game state, and exposes `useGame()` hook. Page-scoped `_src/` components consume state via `useGame()` instead of setting up SSE directly.
+- Pages compose atoms from `@/components/` alongside page-specific `_src/` components.
 - Navigation uses `useRouter().push()` after receiving API responses or SSE events (inside client components).

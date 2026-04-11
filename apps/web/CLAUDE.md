@@ -11,12 +11,17 @@ npm run test     # Run unit tests (Vitest + Testing Library)
 npm run test:e2e # Run e2e tests (Playwright)
 ```
 
-## Game API
+## Client-side API
 
-`src/lib/game-api.ts` — Client-side API module providing:
-- **Token management**: `getPlayerToken()`, `setPlayerToken()`, `clearPlayerToken()` — persists HMAC-signed player tokens in sessionStorage
+`src/lib/game-api.ts` — Token management and SSE:
+- **Token management**: `getPlayerToken()`, `setPlayerToken()`, `clearPlayerToken()`, `getStoredGameId()` — persists HMAC-signed tokens and game ID in `sessionStorage`
 - **SSE connection**: `connectToGame(gameId, token)` — returns an `EventSource` for real-time game updates
-- **Action helpers**: `createGame()`, `joinGame()`, `makeMove()`, `playerReady()`, `nextRound()`, `leaveGame()`, `kickPlayer()`, `addAIPlayer()`, `requestRematch()`, `acceptRematch()`, `denyRematch()` — all POST to `/api/game/...` with `X-Player-Token` header
+
+`src/services/` — HTTP action helpers (one file per domain). Components never call `fetch` or axios directly.
+- `lobby.api.ts` — `createGame`, `joinGame`, `markPlayerReady`, `addAIPlayer`, `kickPlayer`
+- `game.api.ts` — `makeMove`, `startNextRound`, `leaveGame`, `requestRematch`, `acceptRematch`, `denyRematch`
+
+`src/providers/QueryProvider.tsx` — Wraps the app with `QueryClientProvider` from TanStack React Query (mutations retry disabled by default).
 
 ## API Routes
 
@@ -30,11 +35,9 @@ Game logic lives in `src/app/api/`:
 
 Organized using **Atomic Design** — see `src/components/CLAUDE.md` for full conventions.
 
-- `atoms/` — Generic reusable primitives (Button, Input, Toast)
-- `molecules/` — Composed UI units
-- `organisms/` — Full page sections (Lobby, GamePlay, RoundResultScreen, GameFinished)
+- `atoms/` — Generic reusable primitives (Button, Input, Toast, Toaster, Modal)
 
-Each component has its own folder with barrel file and co-located unit test. Interactive elements should have `data-testid` attributes for e2e test targeting.
+Page-specific components (Lobby, GamePlay, RoundResultScreen, GameFinished) live inside each page's `_src/` directory, not in the shared `src/components/` tree. Each component has its own folder with barrel file and co-located unit test. Interactive elements should have `data-testid` attributes for e2e test targeting.
 
 ## Styling
 

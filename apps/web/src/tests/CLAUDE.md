@@ -6,7 +6,7 @@
 npm run test:e2e   # Run all e2e tests
 ```
 
-E2E tests live in `e2e/` and use Playwright with Chromium. The Playwright config (`playwright.config.ts` at the web app root) automatically starts both the Next.js dev server (port 3000) and the Fastify server (port 3001) before running tests.
+E2E tests live in `e2e/` and use Playwright with Chromium. The Playwright config (`playwright.config.ts` at the web app root) automatically starts the Next.js dev server (port 3000) before running tests.
 
 ### Conventions
 

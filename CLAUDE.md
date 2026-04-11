@@ -35,7 +35,7 @@ All state synchronization uses **SSE (Server-Sent Events)** for server→client 
 **Game phases:** Home → Create/Join → Lobby (waiting + ready) → Playing → Round Result → (repeat) → Finished
 
 **API routes (client→server):** `POST /api/game/create`, `/api/game/join`, `/api/game/[gameId]/ready`, `/api/game/[gameId]/move`, `/api/game/[gameId]/next-round`, etc.
-**SSE events (server→client):** `game-state`, `game-updated`, `round-result`, `game-finished`, `error-msg`, `player-disconnected`, `rematch-requested`, `rematch-game-created`
+**SSE events (server→client):** `game-state`, `game-updated`, `round-result`, `game-finished`, `error-msg`, `player-disconnected`, `player-kicked`, `rematch-requested`, `rematch-denied`, `rematch-game-created`
 **SSE stream:** `GET /api/game/[gameId]/events?token=<signed>`
 
 ### Player Authentication

@@ -2,9 +2,9 @@
 
 Components follow **Atomic Design** methodology, organized into three layers:
 
-- **`atoms/`** — Generic, reusable building blocks (Button, Input, Toast, Modal). Keep them simple. Not domain-specific — name them generically.
-- **`molecules/`** — Combinations of atoms that form distinct UI units (e.g., PlayerCard, Scoreboard, MoveComparison).
-- **`organisms/`** — Full page sections composed of atoms and molecules (Lobby, GamePlay, RoundResultScreen, GameFinished).
+- **`atoms/`** — Generic, reusable building blocks (Button, Input, Toast, Toaster, Modal). Keep them simple. Not domain-specific — name them generically.
+
+Molecules and organisms are not used in the shared `src/components/` tree. Page-specific compound components (Lobby, GamePlay, RoundResultScreen, GameFinished, etc.) live inside each page's `_src/` directory.
 
 ## Component folder structure
 
