@@ -20,6 +20,11 @@ Next.js 15 App Router pages. Pages are **server components by default** — only
 
 Each page can have a `_src/` directory for page-specific client components, hooks, and utilities (e.g., `create/_src/components/CreateForm.tsx`). This keeps interactive code co-located with its page without polluting shared components.
 
+Client components that grow in complexity should extract hooks into a `hooks/` subdirectory co-located with the component. Follow these naming conventions:
+
+- `use<Entity>Mutation` — wraps a TanStack `useMutation` call, including side effects (token storage, navigation, error toasts). Example: `useCreateGameMutation`.
+- `use<Form>Validation` — wraps `useForm` with a Zod resolver for that form's schema. Example: `useCreateGameValidation`.
+
 ## Conventions
 
 - Keep `page.tsx` thin and server-side — delegate interactivity to `_src/` client components.

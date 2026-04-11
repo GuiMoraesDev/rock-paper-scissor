@@ -1,21 +1,16 @@
 "use client";
 
-import { useMutation } from "@tanstack/react-query";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { Button } from "@/components/atoms/Button";
 import { Input } from "@/components/atoms/Input";
-import { toast } from "@/components/atoms/Toaster";
-import { setPlayerToken } from "@/lib/game-api";
 import type { CreateGameSchemaProps } from "@/schemas/createGame/schema";
-import { createGame } from "@/services/lobby.api";
+import { useCreateGameMutation } from "./hooks/useCreateGameMutation";
 import { useCreateGameValidation } from "./hooks/useCreateGameValidation";
 
 const ROUNDS_OPTIONS = [1, 3, 5];
 
 export function CreateForm() {
-  const router = useRouter();
   const [currentStep, setCurrentStep] = useState<1 | 2>(1);
 
   const {
@@ -27,14 +22,8 @@ export function CreateForm() {
     formState: { errors },
   } = useCreateGameValidation();
 
-  const createGameMutation = useMutation({
-    mutationFn: createGame,
-    onSuccess: ({ gameId, playerToken }) => {
-      setPlayerToken(playerToken, gameId);
-      router.push(`/game/${gameId}`);
-    },
-    onError: (err: Error) => toast.error(err.message),
-  });
+  const { mutate: createGame, isPending: isCreatingGame } =
+    useCreateGameMutation();
 
   const handlePrevStep = () => {
     setCurrentStep((step) => {
@@ -63,7 +52,7 @@ export function CreateForm() {
   };
 
   const onSubmit = (values: CreateGameSchemaProps) => {
-    createGameMutation.mutate({
+    createGame({
       playerName: values.playerName,
       rounds: Number(values.rounds),
     });
@@ -181,10 +170,10 @@ export function CreateForm() {
             size="sm"
             data-testid="create-game-button"
             type="submit"
-            disabled={createGameMutation.isPending}
+            disabled={isCreatingGame}
             className="whitespace-nowrap inline-flex items-center leading-none animate-slide-in-right hover:text-rps-blue"
           >
-            {createGameMutation.isPending ? "Creating..." : "Create game →"}
+            {isCreatingGame ? "Creating..." : "Create game →"}
           </Button>
         </footer>
       </section>
