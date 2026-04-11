@@ -3,7 +3,7 @@ import { type UseFormProps, useForm } from "react-hook-form";
 import {
   type CreateGameSchemaProps,
   createGameSchema,
-} from "@/schemas/createGame.schema";
+} from "@/schemas/createGame/schema";
 
 type UseCreateGameValidationProps = UseFormProps<CreateGameSchemaProps>;
 

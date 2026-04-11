@@ -3,7 +3,7 @@ import { type UseFormProps, useForm } from "react-hook-form";
 import {
   type JoinGameSchemaProps,
   joinGameSchema,
-} from "@/schemas/joinGame.schema";
+} from "@/schemas/joinGame/schema";
 
 type UseJoinGameValidationProps = UseFormProps<JoinGameSchemaProps>;
 
