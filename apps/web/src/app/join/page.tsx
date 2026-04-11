@@ -1,12 +1,15 @@
-import { Suspense } from "react";
 import { JoinForm } from "./_src/components/JoinForm";
 
-export default function JoinPage() {
+type JoinPageProps = {
+  searchParams: Promise<{ code?: string }>;
+};
+
+export default async function JoinPage({ searchParams }: JoinPageProps) {
+  const { code } = await searchParams;
+
   return (
     <main className="min-h-dvh flex flex-col items-center justify-center">
-      <Suspense>
-        <JoinForm />
-      </Suspense>
+      <JoinForm code={code} />
     </main>
   );
 }

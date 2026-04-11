@@ -1,7 +1,6 @@
 "use client";
 
 import Link from "next/link";
-import { useSearchParams } from "next/navigation";
 import { Button } from "@/components/atoms/Button";
 import { Input } from "@/components/atoms/Input";
 import type { JoinGameSchemaProps } from "@/schemas/joinGame/schema";
@@ -9,10 +8,11 @@ import { useJoinFormSteps } from "./hooks/useJoinFormSteps";
 import { useJoinGameMutation } from "./hooks/useJoinGameMutation";
 import { useJoinGameValidation } from "./hooks/useJoinGameValidation";
 
-export function JoinForm() {
-  const searchParams = useSearchParams();
-  const prefilledCode = searchParams.get("code")?.toUpperCase() || "";
+type JoinFormProps = {
+  code?: string;
+};
 
+export const JoinForm = ({ code }: JoinFormProps) => {
   const {
     register,
     handleSubmit,
@@ -22,7 +22,7 @@ export function JoinForm() {
     formState: { errors },
   } = useJoinGameValidation({
     defaultValues: {
-      gameId: prefilledCode,
+      gameId: code,
     },
   });
 
@@ -33,11 +33,8 @@ export function JoinForm() {
 
   const { mutate: joinGame, isPending: isJoiningGame } = useJoinGameMutation();
 
-  const onSubmit = (values: JoinGameSchemaProps) => {
-    joinGame({
-      gameId: values.gameId,
-      playerName: values.playerName,
-    });
+  const onSubmit = ({ gameId, playerName }: JoinGameSchemaProps) => {
+    joinGame({ gameId, playerName });
   };
 
   return (
@@ -142,4 +139,4 @@ export function JoinForm() {
       </section>
     </form>
   );
-}
+};
