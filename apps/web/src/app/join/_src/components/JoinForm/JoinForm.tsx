@@ -1,23 +1,18 @@
 "use client";
 
-import { useMutation } from "@tanstack/react-query";
 import Link from "next/link";
-import { useRouter, useSearchParams } from "next/navigation";
-import { useState } from "react";
+import { useSearchParams } from "next/navigation";
 import { Button } from "@/components/atoms/Button";
 import { Input } from "@/components/atoms/Input";
 import { Toast } from "@/components/atoms/Toast";
-import { setPlayerToken } from "@/lib/game-api";
 import type { JoinGameSchemaProps } from "@/schemas/joinGame/schema";
-import { joinGame } from "@/services/lobby.api";
+import { useJoinFormSteps } from "./hooks/useJoinFormSteps";
+import { useJoinGameMutation } from "./hooks/useJoinGameMutation";
 import { useJoinGameValidation } from "./hooks/useJoinGameValidation";
 
 export function JoinForm() {
-  const router = useRouter();
   const searchParams = useSearchParams();
   const prefilledCode = searchParams.get("code")?.toUpperCase() || "";
-  const [currentStep, setCurrentStep] = useState<1 | 2>(1);
-  const [error, setError] = useState("");
 
   const {
     register,
@@ -32,33 +27,19 @@ export function JoinForm() {
     },
   });
 
-  const joinGameMutation = useMutation({
-    mutationFn: joinGame,
-    onSuccess: ({ gameId, playerToken }) => {
-      setPlayerToken(playerToken, gameId);
-      router.push(`/game/${gameId}`);
-    },
-    onError: (err: Error) => {
-      setError(err.message);
-      setTimeout(() => setError(""), 3000);
-    },
+  const { currentStep, goToPrevStep, goToNextStep } = useJoinFormSteps({
+    trigger,
+    clearErrors,
   });
 
-  const handleGoToSecondStep = async () => {
-    const isValid = await trigger("playerName");
-
-    if (!isValid) return;
-
-    setCurrentStep(2);
-    clearErrors();
-  };
-
-  const handlePrevStep = () => {
-    setCurrentStep(1);
-  };
+  const {
+    mutate: joinGame,
+    isPending: isJoiningGame,
+    errorMessage,
+  } = useJoinGameMutation();
 
   const onSubmit = (values: JoinGameSchemaProps) => {
-    joinGameMutation.mutate({
+    joinGame({
       gameId: values.gameId,
       playerName: values.playerName,
     });
@@ -66,7 +47,7 @@ export function JoinForm() {
 
   return (
     <>
-      <Toast message={error} />
+      <Toast message={errorMessage} />
 
       <form
         onSubmit={handleSubmit(onSubmit, (formErrors) =>
@@ -111,7 +92,7 @@ export function JoinForm() {
               variant="ghost"
               size="sm"
               className="whitespace-nowrap inline-flex items-center leading-none animate-slide-in-right hover:text-rps-red"
-              onClick={handleGoToSecondStep}
+              onClick={goToNextStep}
             >
               Next →
             </Button>
@@ -149,7 +130,7 @@ export function JoinForm() {
             <Button
               variant="ghost"
               size="sm"
-              onClick={handlePrevStep}
+              onClick={goToPrevStep}
               className="whitespace-nowrap inline-flex items-center leading-none animate-slide-in-left hover:text-rps-red"
             >
               ← Back to name
@@ -160,10 +141,10 @@ export function JoinForm() {
               variant="ghost"
               size="sm"
               type="submit"
-              disabled={joinGameMutation.isPending}
+              disabled={isJoiningGame}
               className="whitespace-nowrap inline-flex items-center leading-none animate-slide-in-right hover:text-rps-red"
             >
-              {joinGameMutation.isPending ? "Joining..." : "Join game →"}
+              {isJoiningGame ? "Joining..." : "Join game →"}
             </Button>
           </footer>
         </section>
