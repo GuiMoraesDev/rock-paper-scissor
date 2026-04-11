@@ -14,6 +14,7 @@ import {
 } from "react";
 import { toast } from "@/components/atoms/Toaster";
 import {
+  appendAIMoveHistory,
   clearPlayerToken,
   connectToGame,
   getPlayerToken,
@@ -31,7 +32,6 @@ import {
   kickPlayer as kickPlayerService,
   markPlayerReady as playerReadyService,
 } from "@/services/lobby.api";
-import { appendAIMoveHistory } from "../lib/ai-move-history";
 
 type RematchState = "idle" | "requested" | "received";
 

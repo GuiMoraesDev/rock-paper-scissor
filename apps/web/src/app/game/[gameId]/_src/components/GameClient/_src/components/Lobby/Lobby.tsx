@@ -7,8 +7,8 @@ import { motion } from "framer-motion";
 import { useState } from "react";
 import { Button } from "@/components/atoms/Button";
 import { toast } from "@/components/atoms/Toaster";
+import { getAIMoveHistory } from "@/lib/game-api";
 import { addAIPlayer } from "@/services/lobby.api";
-import { getAIMoveHistory } from "../../../../../lib/ai-move-history";
 import { useGame } from "../../../../../provider/GameProvider";
 import { AIDifficultyModal } from "./_src/components/AIDifficultyModal";
 
