@@ -3,23 +3,9 @@
 import type { GameState, Move, RoundResult } from "@rps/shared";
 import { useMutation } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
-import {
-  createContext,
-  type ReactNode,
-  useCallback,
-  useContext,
-  useEffect,
-  useRef,
-  useState,
-} from "react";
+import { createContext, type ReactNode, useCallback, useContext } from "react";
 import { toast } from "@/components/atoms/Toaster";
-import {
-  appendAIMoveHistory,
-  clearPlayerToken,
-  connectToGame,
-  getPlayerToken,
-  setPlayerToken,
-} from "@/lib/game-api";
+import { clearPlayerToken } from "@/lib/game-api";
 import {
   acceptRematch as acceptRematchService,
   denyRematch as denyRematchService,
@@ -28,7 +14,7 @@ import {
   startNextRound as nextRoundService,
   requestRematch as requestRematchService,
 } from "@/services/game.api";
-import { useGameNotFound } from "../../../_src/providers/GameNotFoundProvider";
+import { useGameSSE } from "../../../_src/providers/GameSSEProvider";
 
 type RematchState = "idle" | "requested" | "received";
 
@@ -55,130 +41,31 @@ type GameContextValue = {
 
 const GameContext = createContext<GameContextValue | null>(null);
 
-export function useGame() {
+export const useGame = () => {
   const context = useContext(GameContext);
   if (!context) {
     throw new Error("useGame must be used within a GameProvider");
   }
   return context;
-}
+};
 
 type GameProviderProps = {
   gameId: string;
   children: ReactNode;
 };
 
-export function GameProvider({ gameId, children }: GameProviderProps) {
+export const GameProvider = ({ gameId, children }: GameProviderProps) => {
   const router = useRouter();
-  const { setGameNotFound } = useGameNotFound();
-
-  const [game, setGame] = useState<GameState | null>(null);
-  const [playerIndex, setPlayerIndex] = useState<number>(-1);
-  const [lastRoundResult, setLastRoundResult] = useState<RoundResult | null>(
-    null,
-  );
-  const [error, setError] = useState("");
-  const [rematchState, setRematchState] = useState<RematchState>("idle");
-  const [rematchRequesterName, setRematchRequesterName] = useState("");
-  const eventSourceRef = useRef<EventSource | null>(null);
-
-  useEffect(() => {
-    const token = getPlayerToken();
-    if (!token) {
-      router.push(`/join?code=${gameId}`);
-      return;
-    }
-
-    const eventSource = connectToGame(gameId, token);
-    eventSourceRef.current = eventSource;
-
-    eventSource.addEventListener("game-state", (e) => {
-      const { game: gameState, playerIndex: pIdx } = JSON.parse(e.data);
-      if (gameState && pIdx >= 0) {
-        if (gameState.status === "waiting" || gameState.status === "ready") {
-          eventSource.close();
-          router.push(`/${gameId}/lobby`);
-          return;
-        }
-        if (gameState.status === "finished") {
-          eventSource.close();
-          router.push(`/${gameId}/results`);
-          return;
-        }
-        setGame(gameState);
-        setPlayerIndex(pIdx);
-      } else {
-        setGameNotFound(true);
-      }
-    });
-
-    eventSource.addEventListener("game-updated", (e) => {
-      const { game: gameState } = JSON.parse(e.data);
-      setGame(gameState);
-    });
-
-    eventSource.addEventListener("round-result", (e) => {
-      const { game: gameState, roundResult } = JSON.parse(e.data);
-      setGame(gameState);
-      setLastRoundResult(roundResult);
-
-      const isAIGame = gameState.players.some((p: { name: string }) =>
-        p.name.startsWith("AI ("),
-      );
-      if (isAIGame) {
-        appendAIMoveHistory(roundResult.moves[0]);
-      }
-    });
-
-    eventSource.addEventListener("game-finished", () => {
-      eventSource.close();
-      router.push(`/${gameId}/results`);
-    });
-
-    eventSource.addEventListener("error-msg", (e) => {
-      const { message } = JSON.parse(e.data);
-      setError(message);
-      setTimeout(() => setError(""), 3000);
-    });
-
-    eventSource.addEventListener("player-disconnected", (e) => {
-      const { playerName } = JSON.parse(e.data);
-      setError(`${playerName} disconnected!`);
-    });
-
-    eventSource.addEventListener("rematch-requested", (e) => {
-      const { playerName } = JSON.parse(e.data);
-      setRematchState("received");
-      setRematchRequesterName(playerName);
-    });
-
-    eventSource.addEventListener("rematch-denied", (e) => {
-      const { playerName } = JSON.parse(e.data);
-      setRematchState("idle");
-      setError(`${playerName} declined the rematch.`);
-    });
-
-    eventSource.addEventListener("rematch-game-created", (e) => {
-      const { gameId: newGameId, playerToken: newToken } = JSON.parse(e.data);
-      if (newToken) {
-        setPlayerToken(newToken, newGameId);
-      }
-      setRematchState("idle");
-      eventSource.close();
-      router.push(`/${newGameId}/lobby`);
-    });
-
-    eventSource.onerror = () => {
-      if (eventSource.readyState === EventSource.CLOSED) {
-        setError("Connection lost. Please refresh the page.");
-      }
-    };
-
-    return () => {
-      eventSource.close();
-      eventSourceRef.current = null;
-    };
-  }, [gameId, router, setGameNotFound]);
+  const {
+    game,
+    playerIndex,
+    error,
+    lastRoundResult,
+    rematchState,
+    rematchRequesterName,
+    markRematchSent,
+    markRematchCancelled,
+  } = useGameSSE();
 
   const moveMutation = useMutation({
     mutationFn: (move: Move) => makeMoveService({ gameId, move }),
@@ -192,7 +79,7 @@ export function GameProvider({ gameId, children }: GameProviderProps) {
 
   const requestRematchMutation = useMutation({
     mutationFn: () => requestRematchService({ gameId }),
-    onSuccess: () => setRematchState("requested"),
+    onSuccess: markRematchSent,
     onError: (err: Error) => toast.error(err.message),
   });
 
@@ -203,7 +90,7 @@ export function GameProvider({ gameId, children }: GameProviderProps) {
 
   const denyRematchMutation = useMutation({
     mutationFn: () => denyRematchService({ gameId }),
-    onSuccess: () => setRematchState("idle"),
+    onSuccess: markRematchCancelled,
     onError: (err: Error) => toast.error(err.message),
   });
 
@@ -243,4 +130,4 @@ export function GameProvider({ gameId, children }: GameProviderProps) {
       {children}
     </GameContext.Provider>
   );
-}
+};

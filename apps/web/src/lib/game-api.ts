@@ -35,11 +35,6 @@ export function getStoredGameId(): string | null {
   }
 }
 
-export function connectToGame(gameId: string, token: string): EventSource {
-  const url = `/api/game/${gameId}/events?token=${encodeURIComponent(token)}`;
-  return new EventSource(url);
-}
-
 import type { Move } from "@rps/shared";
 
 const STORAGE_KEY = "rps-ai-move-history";
@@ -50,15 +45,5 @@ export function getAIMoveHistory(): Move[] {
     return stored ? JSON.parse(stored) : [];
   } catch {
     return [];
-  }
-}
-
-export function appendAIMoveHistory(move: Move): void {
-  try {
-    const history = getAIMoveHistory();
-    history.push(move);
-    sessionStorage.setItem(STORAGE_KEY, JSON.stringify(history));
-  } catch {
-    // sessionStorage unavailable (SSR, private browsing)
   }
 }

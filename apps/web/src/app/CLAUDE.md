@@ -31,7 +31,7 @@ Client components that grow in complexity should extract hooks into a `hooks/` s
 ## Conventions
 
 - Keep `page.tsx` thin and server-side — delegate interactivity to `_src/` client components.
-- SSE is managed by phase-specific providers (`LobbyProvider`, `GameProvider`, `ResultsProvider`) under `[gameId]/*/`_src/provider/`. Each opens an `EventSource` in `useEffect`, manages phase state, and exposes a typed hook (`useLobby`, `useGame`, `useResults`). When the server signals that the game doesn't exist, the provider calls `setGameNotFound` from `useGameNotFound()` — the layout intercepts and renders the error screen.
-- "Game not found" is centralized in `[gameId]/layout.tsx` via `GameNotFoundContext`. Individual providers call `setGameNotFound(true)`; the layout renders the error UI instead of children.
+- SSE is managed by a single shared `GameSSEProvider` at `[gameId]/_src/providers/GameSSEProvider.tsx`, mounted in `[gameId]/layout.tsx`. It maintains ONE persistent `EventSource` for the entire game session (across all phase transitions), handles all routing between phases using `usePathname()` to avoid re-pushing the current route, and exposes shared state via `useGameSSE()`: `game`, `playerIndex`, `error`, `lastRoundResult`, `rematchState`, `rematchRequesterName`, `markRematchSent`, `markRematchCancelled`. Phase providers (`LobbyProvider`, `GameProvider`, `ResultsProvider`) consume `useGameSSE()` and own only their mutations.
+- "Game not found" is centralized in `[gameId]/layout.tsx` via `GameNotFoundContext`. `GameSSEProvider` calls `setGameNotFound(true)` on a 404 response; the layout renders the error UI instead of children.
 - Pages compose atoms from `@/components/` alongside page-specific `_src/` components.
 - Navigation uses `useRouter().push()` after receiving API responses or SSE events (inside client components).

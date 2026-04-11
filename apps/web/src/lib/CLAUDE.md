@@ -4,7 +4,7 @@ Shared utilities and infrastructure for the web app.
 
 ## Modules
 
-- **`game-api.ts`** — Client-side infrastructure for SSE and token management. Provides token helpers (`getPlayerToken`, `setPlayerToken`, `clearPlayerToken`, `getStoredGameId`) that persist HMAC-signed tokens and game IDs in `sessionStorage`, plus `connectToGame(gameId, token)` which returns an `EventSource` for real-time game updates. Does **not** contain HTTP action helpers — those live in `src/services/`.
+- **`game-api.ts`** — Client-side infrastructure for token and AI move history management. Provides token helpers (`getPlayerToken`, `setPlayerToken`, `clearPlayerToken`, `getStoredGameId`) that persist HMAC-signed tokens and game IDs in `sessionStorage`, plus `getAIMoveHistory()` for reading the AI opponent's move history. Does **not** contain HTTP action helpers — those live in `src/services/`. SSE connection logic lives in `[gameId]/_src/providers/GameSSEProvider.tsx`.
 
 ## Conventions
 

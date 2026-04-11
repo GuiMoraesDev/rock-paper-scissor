@@ -13,11 +13,14 @@ npm run test:e2e # Run e2e tests (Playwright)
 
 ## Client-side API
 
-`src/lib/game-api.ts` — Token management and SSE:
+`src/lib/game-api.ts` — Token management and AI move history:
+
 - **Token management**: `getPlayerToken()`, `setPlayerToken()`, `clearPlayerToken()`, `getStoredGameId()` — persists HMAC-signed tokens and game ID in `sessionStorage`
-- **SSE connection**: `connectToGame(gameId, token)` — returns an `EventSource` for real-time game updates
+- **AI move history**: `getAIMoveHistory()` — reads the stored AI opponent move list from `sessionStorage`
+- SSE connection logic lives in `[gameId]/_src/providers/GameSSEProvider.tsx`
 
 `src/services/` — HTTP action helpers (one file per domain). Components never call `fetch` or axios directly.
+
 - `lobby.api.ts` — `createGame`, `joinGame`, `markPlayerReady`, `addAIPlayer`, `kickPlayer`
 - `game.api.ts` — `makeMove`, `startNextRound`, `leaveGame`, `requestRematch`, `acceptRematch`, `denyRematch`
 
@@ -26,6 +29,7 @@ npm run test:e2e # Run e2e tests (Playwright)
 ## API Routes
 
 Game logic lives in `src/app/api/`:
+
 - `api/_lib/` — Server-side infrastructure: game store, game logic, AI strategy, SSE connection management, HMAC auth
 - `api/game/create/` and `api/game/join/` — Public routes (no token needed)
 - `api/game/[gameId]/events/` — SSE stream (GET, requires token as query param)
@@ -54,6 +58,7 @@ Page-specific components (Lobby, GamePlay, RoundResultScreen, GameFinished) live
   )}
   ```
 - Use `tailwind-variants` (`tv`) for component variants. Export the variants function so styles can be reused independently:
+
   ```ts
   import { tv, type VariantProps } from "tailwind-variants";
 
@@ -86,6 +91,10 @@ type Props = ComponentProps<"button"> & {
   variant?: "blue" | "red";
 };
 ```
+
+## Providers conventions
+
+When exposing state through context, wrap state transitions in **named functions** (verb-based, e.g. `markRematchSent`) instead of exposing raw setter functions. Named functions communicate intent and prevent callers from setting arbitrary values.
 
 ## Testing
 

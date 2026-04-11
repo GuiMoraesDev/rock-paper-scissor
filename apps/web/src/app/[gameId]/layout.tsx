@@ -1,11 +1,13 @@
 "use client";
 
 import type { ReactNode } from "react";
+import { use } from "react";
 import { GameNotFound } from "./_src/components/GameNotFound";
 import {
   GameNotFoundProvider,
   useGameNotFound,
 } from "./_src/providers/GameNotFoundProvider";
+import { GameSSEProvider } from "./_src/providers/GameSSEProvider";
 
 type GameLayoutInnerProps = {
   children: ReactNode;
@@ -23,12 +25,17 @@ const GameLayoutInner = ({ children }: GameLayoutInnerProps) => {
 
 type LayoutProps = {
   children: ReactNode;
+  params: Promise<{ gameId: string }>;
 };
 
-export default function GameIdLayout({ children }: LayoutProps) {
+export default function GameIdLayout({ children, params }: LayoutProps) {
+  const { gameId } = use(params);
+
   return (
     <GameNotFoundProvider>
-      <GameLayoutInner>{children}</GameLayoutInner>
+      <GameSSEProvider gameId={gameId}>
+        <GameLayoutInner>{children}</GameLayoutInner>
+      </GameSSEProvider>
     </GameNotFoundProvider>
   );
 }
