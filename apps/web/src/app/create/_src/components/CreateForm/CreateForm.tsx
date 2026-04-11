@@ -1,18 +1,16 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
 import { Button } from "@/components/atoms/Button";
 import { Input } from "@/components/atoms/Input";
 import type { CreateGameSchemaProps } from "@/schemas/createGame/schema";
+import { useCreateFormSteps } from "./hooks/useCreateFormSteps";
 import { useCreateGameMutation } from "./hooks/useCreateGameMutation";
 import { useCreateGameValidation } from "./hooks/useCreateGameValidation";
 
 const ROUNDS_OPTIONS = [1, 3, 5];
 
 export function CreateForm() {
-  const [currentStep, setCurrentStep] = useState<1 | 2>(1);
-
   const {
     register,
     handleSubmit,
@@ -22,34 +20,13 @@ export function CreateForm() {
     formState: { errors },
   } = useCreateGameValidation();
 
+  const { currentStep, goToPrevStep, goToNextStep } = useCreateFormSteps({
+    trigger,
+    clearErrors,
+  });
+
   const { mutate: createGame, isPending: isCreatingGame } =
     useCreateGameMutation();
-
-  const handlePrevStep = () => {
-    setCurrentStep((step) => {
-      if (step === 2) {
-        return 1;
-      }
-
-      return 2;
-    });
-  };
-
-  const handleGoToSecondStep = async () => {
-    const isValid = await trigger("playerName");
-
-    if (!isValid) return;
-
-    setCurrentStep((step) => {
-      if (step === 1) {
-        return 2;
-      }
-
-      return 1;
-    });
-
-    clearErrors();
-  };
 
   const onSubmit = (values: CreateGameSchemaProps) => {
     createGame({
@@ -102,7 +79,7 @@ export function CreateForm() {
             size="sm"
             data-testid="next-step-button"
             className="whitespace-nowrap inline-flex items-center leading-none animate-slide-in-right hover:text-rps-blue"
-            onClick={handleGoToSecondStep}
+            onClick={goToNextStep}
           >
             Next →
           </Button>
@@ -159,7 +136,7 @@ export function CreateForm() {
           <Button
             variant="ghost"
             size="sm"
-            onClick={handlePrevStep}
+            onClick={goToPrevStep}
             className="whitespace-nowrap inline-flex items-center leading-none animate-slide-in-left hover:text-rps-blue"
           >
             ← Back to name
