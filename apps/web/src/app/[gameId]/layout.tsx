@@ -3,6 +3,7 @@
 import type { ReactNode } from "react";
 import { use } from "react";
 import { GameErrorScreen } from "./_src/components/GameErrorScreen";
+import { GameLoadingScreen } from "./_src/components/GameLoadingScreen";
 import { GameNotFound } from "./_src/components/GameNotFound";
 import {
   GameNotFoundProvider,
@@ -16,7 +17,7 @@ type GameLayoutInnerProps = {
 
 const GameLayoutInner = ({ children }: GameLayoutInnerProps) => {
   const { gameNotFound } = useGameNotFound();
-  const { error } = useGameSSE();
+  const { game, playerIndex, error } = useGameSSE();
 
   if (gameNotFound) {
     return <GameNotFound />;
@@ -24,6 +25,10 @@ const GameLayoutInner = ({ children }: GameLayoutInnerProps) => {
 
   if (error) {
     return <GameErrorScreen error={error} />;
+  }
+
+  if (!game && playerIndex === -1) {
+    return <GameLoadingScreen />;
   }
 
   return children;
