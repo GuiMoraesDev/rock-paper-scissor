@@ -9,7 +9,7 @@ import { Input } from "@/components/atoms/Input";
 import { toast } from "@/components/atoms/Toaster";
 import { setPlayerToken } from "@/lib/game-api";
 import type { CreateGameSchemaProps } from "@/schemas/createGame.schema";
-import { createGame } from "@/services/game.service";
+import { createGame } from "@/services/lobby.api";
 import { useCreateGameValidation } from "./hooks/useCreateGameValidation";
 
 const ROUNDS_OPTIONS = [1, 3, 5];

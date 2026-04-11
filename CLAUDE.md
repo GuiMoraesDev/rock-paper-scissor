@@ -58,4 +58,10 @@ Players are identified by **HMAC-signed tokens** that bind `gameId + playerIndex
 
 - Prefer `type` over `interface` for all type definitions.
 - Import types directly (e.g., `type ReactNode`, `type ComponentProps`).
-- Always use named exports (`export function`, `export const`). Never use `export default`.
+- Always use named exports (`export const`). Never use `export default`.
+- All functions must be **arrow functions**: `export const foo = async (...) => { ... }`.
+- All function parameters must use a **single destructured object** — no positional arguments.
+- **No inline types** on function signatures — always declare a named `type` for params and non-primitive returns.
+- Each type must be declared **immediately before its first usage**, not grouped at the top of the file.
+- All function names must start with a **verb** (e.g. `createGame`, `markPlayerReady`, `startNextRound`).
+- Never export anything that is not used outside the file.

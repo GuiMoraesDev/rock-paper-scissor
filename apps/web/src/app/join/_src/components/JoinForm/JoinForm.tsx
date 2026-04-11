@@ -9,7 +9,7 @@ import { Input } from "@/components/atoms/Input";
 import { Toast } from "@/components/atoms/Toast";
 import { setPlayerToken } from "@/lib/game-api";
 import type { JoinGameSchemaProps } from "@/schemas/joinGame.schema";
-import { joinGame } from "@/services/game.service";
+import { joinGame } from "@/services/lobby.api";
 import { useJoinGameValidation } from "./hooks/useJoinGameValidation";
 
 export function JoinForm() {

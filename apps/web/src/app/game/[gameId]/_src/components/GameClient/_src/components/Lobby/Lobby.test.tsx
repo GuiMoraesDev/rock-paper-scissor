@@ -7,7 +7,7 @@ import {
 import { Lobby } from "./Lobby";
 
 const mockAddAIPlayer = vi.fn().mockResolvedValue(undefined);
-vi.mock("@/services/game.service", () => ({
+vi.mock("@/services/lobby.api", () => ({
   addAIPlayer: (...args: unknown[]) => mockAddAIPlayer(...args),
 }));
 

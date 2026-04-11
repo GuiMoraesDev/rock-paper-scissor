@@ -22,13 +22,15 @@ import {
 import {
   acceptRematch as acceptRematchService,
   denyRematch as denyRematchService,
-  kickPlayer as kickPlayerService,
   leaveGame as leaveGameService,
   makeMove as makeMoveService,
-  nextRound as nextRoundService,
-  playerReady as playerReadyService,
+  startNextRound as nextRoundService,
   requestRematch as requestRematchService,
-} from "@/services/game.service";
+} from "@/services/game.api";
+import {
+  kickPlayer as kickPlayerService,
+  markPlayerReady as playerReadyService,
+} from "@/services/lobby.api";
 import { appendAIMoveHistory } from "../lib/ai-move-history";
 
 type RematchState = "idle" | "requested" | "received";
@@ -182,44 +184,44 @@ export function GameProvider({ gameId, children }: GameProviderProps) {
   }, [gameId, router]);
 
   const readyMutation = useMutation({
-    mutationFn: () => playerReadyService(gameId),
+    mutationFn: () => playerReadyService({ gameId }),
     onError: (err: Error) => toast.error(err.message),
   });
 
   const moveMutation = useMutation({
-    mutationFn: (move: Move) => makeMoveService(gameId, move),
+    mutationFn: (move: Move) => makeMoveService({ gameId, move }),
     onError: (err: Error) => toast.error(err.message),
   });
 
   const nextRoundMutation = useMutation({
-    mutationFn: () => nextRoundService(gameId),
+    mutationFn: () => nextRoundService({ gameId }),
     onError: (err: Error) => toast.error(err.message),
   });
 
   const requestRematchMutation = useMutation({
-    mutationFn: () => requestRematchService(gameId),
+    mutationFn: () => requestRematchService({ gameId }),
     onSuccess: () => setRematchState("requested"),
     onError: (err: Error) => toast.error(err.message),
   });
 
   const acceptRematchMutation = useMutation({
-    mutationFn: () => acceptRematchService(gameId),
+    mutationFn: () => acceptRematchService({ gameId }),
     onError: (err: Error) => toast.error(err.message),
   });
 
   const denyRematchMutation = useMutation({
-    mutationFn: () => denyRematchService(gameId),
+    mutationFn: () => denyRematchService({ gameId }),
     onSuccess: () => setRematchState("idle"),
     onError: (err: Error) => toast.error(err.message),
   });
 
   const kickMutation = useMutation({
-    mutationFn: () => kickPlayerService(gameId),
+    mutationFn: () => kickPlayerService({ gameId }),
     onError: (err: Error) => toast.error(err.message),
   });
 
   const handleLeaveGame = useCallback(() => {
-    leaveGameService(gameId);
+    leaveGameService({ gameId });
     clearPlayerToken();
     router.push("/");
   }, [gameId, router]);
