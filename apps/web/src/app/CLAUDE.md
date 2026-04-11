@@ -7,7 +7,10 @@ Next.js 15 App Router pages. Pages are **server components by default** — only
 - `/` (`page.tsx`) — Landing page with Create/Join buttons
 - `/create` (`create/page.tsx`) — Enter name, select rounds (1/3/5), POSTs to `/api/game/create`
 - `/join` (`join/page.tsx`) — Enter name + 6-char game code, POSTs to `/api/game/join`
-- `/game/[gameId]` (`game/[gameId]/page.tsx`) — Main game page, renders different components based on `game.status`. AI players are added from the lobby via the 🤖 button (no separate AI route).
+- `/[gameId]/layout.tsx` — Shared layout for all game phases. Provides `GameNotFoundContext` and renders the "Game not found" screen when any provider signals it. Also wraps children in the shared `<main>` layout.
+- `/[gameId]/lobby` (`[gameId]/lobby/page.tsx`) — Waiting room. Players ready up; owner can add AI or kick.
+- `/[gameId]/game` (`[gameId]/game/page.tsx`) — Active gameplay: move selection and round result screen.
+- `/[gameId]/results` (`[gameId]/results/page.tsx`) — Final scoreboard with rematch options.
 - `/status` (`(status)/status/page.tsx`) — Internal status dashboard (`StatusDashboard` component), grouped under the `(status)` route group (no layout impact).
 
 ## Server-first principle
@@ -28,6 +31,7 @@ Client components that grow in complexity should extract hooks into a `hooks/` s
 ## Conventions
 
 - Keep `page.tsx` thin and server-side — delegate interactivity to `_src/` client components.
-- SSE is managed by `GameProvider` (`game/[gameId]/_src/provider/GameProvider.tsx`), which opens an `EventSource` in `useEffect`, manages all game state, and exposes `useGame()` hook. Page-scoped `_src/` components consume state via `useGame()` instead of setting up SSE directly.
+- SSE is managed by phase-specific providers (`LobbyProvider`, `GameProvider`, `ResultsProvider`) under `[gameId]/*/`_src/provider/`. Each opens an `EventSource` in `useEffect`, manages phase state, and exposes a typed hook (`useLobby`, `useGame`, `useResults`). When the server signals that the game doesn't exist, the provider calls `setGameNotFound` from `useGameNotFound()` — the layout intercepts and renders the error screen.
+- "Game not found" is centralized in `[gameId]/layout.tsx` via `GameNotFoundContext`. Individual providers call `setGameNotFound(true)`; the layout renders the error UI instead of children.
 - Pages compose atoms from `@/components/` alongside page-specific `_src/` components.
 - Navigation uses `useRouter().push()` after receiving API responses or SSE events (inside client components).

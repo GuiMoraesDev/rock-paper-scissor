@@ -169,7 +169,7 @@ test.describe("Rock Paper Scissors - Full Game", () => {
   });
 
   test("game not found screen for invalid game code", async ({ page }) => {
-    await page.goto("/game/ZZZZZZ");
+    await page.goto("/ZZZZZZ/game");
     await expect(page.getByTestId("game-not-found")).toBeVisible();
   });
 
@@ -194,7 +194,7 @@ test.describe("Rock Paper Scissors - Full Game", () => {
     await expect(player1.getByTestId("rematch-button")).toBeVisible();
 
     // Should navigate to home
-    await expect(player1).toHaveURL(`/game/${gameCode}`);
+    await expect(player1).toHaveURL(`/${gameCode}/game`);
 
     await player1Context.close();
     await player2Context.close();
