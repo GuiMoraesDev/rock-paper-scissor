@@ -18,7 +18,6 @@ type RematchState = "idle" | "requested" | "received";
 type ResultsContextValue = {
   game: GameState | null;
   playerIndex: number;
-  error: string;
   rematchState: RematchState;
   rematchRequesterName: string;
   isRequestRematchPending: boolean;
@@ -50,7 +49,6 @@ export const ResultsProvider = ({ gameId, children }: ResultsProviderProps) => {
   const {
     game,
     playerIndex,
-    error,
     rematchState,
     rematchRequesterName,
     markRematchSent,
@@ -84,7 +82,6 @@ export const ResultsProvider = ({ gameId, children }: ResultsProviderProps) => {
       value={{
         game,
         playerIndex,
-        error,
         rematchState,
         rematchRequesterName,
         isRequestRematchPending: requestRematchMutation.isPending,

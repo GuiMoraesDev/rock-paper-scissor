@@ -9,7 +9,6 @@ type RematchState = "idle" | "requested" | "received";
 type ResultsContextValue = {
   game: GameState | null;
   playerIndex: number;
-  error: string;
   rematchState: RematchState;
   rematchRequesterName: string;
   isRequestRematchPending: boolean;
@@ -61,7 +60,6 @@ export const createRoundResult = (
 type RenderOptions = {
   game?: GameState;
   playerIndex?: number;
-  error?: string;
   rematchState?: RematchState;
   rematchRequesterName?: string;
 };
@@ -76,7 +74,6 @@ export const renderWithResults = (
   const context: ResultsContextValue = {
     game: options.game ?? createGameState(),
     playerIndex: options.playerIndex ?? 0,
-    error: options.error ?? "",
     rematchState: options.rematchState ?? "idle",
     rematchRequesterName: options.rematchRequesterName ?? "",
     isRequestRematchPending: false,

@@ -22,7 +22,6 @@ type GameContextValue = {
   game: GameState | null;
   playerIndex: number;
   lastRoundResult: RoundResult | null;
-  error: string;
   rematchState: RematchState;
   rematchRequesterName: string;
   isMovePending: boolean;
@@ -59,7 +58,6 @@ export const GameProvider = ({ gameId, children }: GameProviderProps) => {
   const {
     game,
     playerIndex,
-    error,
     lastRoundResult,
     rematchState,
     rematchRequesterName,
@@ -110,7 +108,6 @@ export const GameProvider = ({ gameId, children }: GameProviderProps) => {
         game,
         playerIndex,
         lastRoundResult,
-        error,
         rematchState,
         rematchRequesterName,
         isMovePending: moveMutation.isPending,

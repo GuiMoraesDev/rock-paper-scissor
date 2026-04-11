@@ -1,32 +1,11 @@
 "use client";
 
 import { motion } from "framer-motion";
-import Link from "next/link";
-import { useEffect } from "react";
-import { Button } from "@/components/atoms/Button";
-import { toast } from "@/components/atoms/Toaster";
 import { useResults } from "../../provider/ResultsProvider";
 import { GameFinished } from "./_src/components/GameFinished";
 
 export const ResultsClient = () => {
-  const { game, playerIndex, error } = useResults();
-
-  useEffect(() => {
-    if (error) toast.error(error);
-  }, [error]);
-
-  if (error) {
-    return (
-      <section className="flex flex-col items-center gap-6 text-center">
-        <p className="font-fun text-2xl text-gray-400 animate-pulse">
-          Error while connecting to game...
-        </p>
-        <Button asChild>
-          <Link href="/">Back to Home</Link>
-        </Button>
-      </section>
-    );
-  }
+  const { game, playerIndex } = useResults();
 
   const isLoading = !game && playerIndex === -1;
 

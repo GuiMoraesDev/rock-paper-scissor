@@ -16,7 +16,6 @@ import { useGameSSE } from "../../../_src/providers/GameSSEProvider";
 type LobbyContextValue = {
   game: GameState | null;
   playerIndex: number;
-  error: string;
   isReadyPending: boolean;
   isKickPending: boolean;
   handleReady: () => void;
@@ -41,7 +40,7 @@ type LobbyProviderProps = {
 
 export const LobbyProvider = ({ gameId, children }: LobbyProviderProps) => {
   const router = useRouter();
-  const { game, playerIndex, error } = useGameSSE();
+  const { game, playerIndex } = useGameSSE();
 
   const readyMutation = useMutation({
     mutationFn: () => playerReadyService({ gameId }),
@@ -64,7 +63,6 @@ export const LobbyProvider = ({ gameId, children }: LobbyProviderProps) => {
       value={{
         game,
         playerIndex,
-        error,
         isReadyPending: readyMutation.isPending,
         isKickPending: kickMutation.isPending,
         handleReady: readyMutation.mutate,

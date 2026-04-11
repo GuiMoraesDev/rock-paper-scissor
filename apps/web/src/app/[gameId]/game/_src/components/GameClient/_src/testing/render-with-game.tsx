@@ -10,7 +10,6 @@ type GameContextValue = {
   game: GameState | null;
   playerIndex: number;
   lastRoundResult: RoundResult | null;
-  error: string;
   rematchState: RematchState;
   rematchRequesterName: string;
   isMovePending: boolean;
@@ -72,7 +71,6 @@ type RenderOptions = {
   game?: GameState;
   playerIndex?: number;
   lastRoundResult?: RoundResult | null;
-  error?: string;
   rematchState?: RematchState;
   rematchRequesterName?: string;
 };
@@ -85,7 +83,6 @@ export function renderWithGame(ui: ReactNode, options: RenderOptions = {}) {
     game: options.game ?? createGameState(),
     playerIndex: options.playerIndex ?? 0,
     lastRoundResult: options.lastRoundResult ?? null,
-    error: options.error ?? "",
     rematchState: options.rematchState ?? "idle",
     rematchRequesterName: options.rematchRequesterName ?? "",
     isMovePending: false,

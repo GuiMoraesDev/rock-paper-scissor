@@ -11,6 +11,7 @@ import {
   useRef,
   useState,
 } from "react";
+import { toast } from "@/components/atoms/Toaster";
 import {
   clearPlayerToken,
   getAIMoveHistory,
@@ -20,6 +21,13 @@ import {
 import { useGameNotFound } from "./GameNotFoundProvider";
 
 const STORAGE_KEY = "rps-ai-move-history";
+
+const REMATCH_DENIED_TOAST_DURATION = 4000;
+
+export type GameError =
+  | { type: "player-disconnected"; playerName: string }
+  | { type: "connection-lost" }
+  | null;
 
 const connectToGame = ({
   gameId,
@@ -47,7 +55,7 @@ type RematchState = "idle" | "requested" | "received";
 type GameSSEContextValue = {
   game: GameState | null;
   playerIndex: number;
-  error: string;
+  error: GameError;
   lastRoundResult: RoundResult | null;
   rematchState: RematchState;
   rematchRequesterName: string;
@@ -77,7 +85,7 @@ export const GameSSEProvider = ({ gameId, children }: GameSSEProviderProps) => {
 
   const [game, setGame] = useState<GameState | null>(null);
   const [playerIndex, setPlayerIndex] = useState<number>(-1);
-  const [error, setError] = useState("");
+  const [error, setError] = useState<GameError>(null);
   const [lastRoundResult, setLastRoundResult] = useState<RoundResult | null>(
     null,
   );
@@ -181,7 +189,10 @@ export const GameSSEProvider = ({ gameId, children }: GameSSEProviderProps) => {
       const { playerName } = JSON.parse(e.data);
 
       setRematchState("idle");
-      setError(`${playerName} declined the rematch.`);
+      toast.info(`${playerName} declined the rematch.`, {
+        duration: REMATCH_DENIED_TOAST_DURATION,
+      });
+      setTimeout(() => router.push("/"), REMATCH_DENIED_TOAST_DURATION);
     });
 
     eventSource.addEventListener("rematch-game-created", (e) => {
@@ -199,20 +210,18 @@ export const GameSSEProvider = ({ gameId, children }: GameSSEProviderProps) => {
     eventSource.addEventListener("error-msg", (e) => {
       const { message } = JSON.parse(e.data);
 
-      setError(message);
-
-      setTimeout(() => setError(""), 3000);
+      toast.error(message);
     });
 
     eventSource.addEventListener("player-disconnected", (e) => {
       const { playerName } = JSON.parse(e.data);
 
-      setError(`${playerName} disconnected!`);
+      setError({ type: "player-disconnected", playerName });
     });
 
     eventSource.onerror = () => {
       if (eventSource.readyState === EventSource.CLOSED) {
-        setError("Connection lost. Please refresh the page.");
+        setError({ type: "connection-lost" });
       }
     };
 

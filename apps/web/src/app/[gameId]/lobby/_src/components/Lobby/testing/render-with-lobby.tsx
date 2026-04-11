@@ -23,7 +23,6 @@ export function createGameState(overrides: Partial<GameState> = {}): GameState {
 type RenderOptions = {
   game?: GameState;
   playerIndex?: number;
-  error?: string;
 };
 
 export function renderWithLobby(ui: ReactNode, options: RenderOptions = {}) {
@@ -34,7 +33,6 @@ export function renderWithLobby(ui: ReactNode, options: RenderOptions = {}) {
   const context = {
     game: options.game ?? createGameState(),
     playerIndex: options.playerIndex ?? 0,
-    error: options.error ?? "",
     isReadyPending: false,
     isKickPending: false,
     handleReady: vi.fn(),
