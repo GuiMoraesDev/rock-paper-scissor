@@ -1,10 +1,11 @@
 import { act, fireEvent, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
-import {
-  createGameState,
-  renderWithGame,
-} from "../../testing/render-with-game";
 import { Lobby } from "./Lobby";
+import { createGameState, renderWithLobby } from "./testing/render-with-lobby";
+
+vi.mock("../../provider/LobbyProvider", () => ({
+  useLobby: vi.fn(),
+}));
 
 const mockAddAIPlayer = vi.fn().mockResolvedValue(undefined);
 vi.mock("@/services/lobby.api", () => ({
@@ -13,30 +14,30 @@ vi.mock("@/services/lobby.api", () => ({
 
 describe("Lobby", () => {
   it("renders the game code", () => {
-    renderWithGame(<Lobby />);
+    renderWithLobby(<Lobby />);
     expect(screen.getByText("ABC123")).toBeInTheDocument();
   });
 
   it("displays both player names", () => {
-    renderWithGame(<Lobby />);
+    renderWithLobby(<Lobby />);
     expect(screen.getByText(/Player 1/)).toBeInTheDocument();
     expect(screen.getByText(/Player 2/)).toBeInTheDocument();
   });
 
   it("shows rounds info", () => {
-    renderWithGame(<Lobby />);
+    renderWithLobby(<Lobby />);
     expect(screen.getByText("Best of 3 rounds")).toBeInTheDocument();
   });
 
   it("shows singular round for best of 1", () => {
-    renderWithGame(<Lobby />, {
+    renderWithLobby(<Lobby />, {
       game: createGameState({ rounds: 1 }),
     });
     expect(screen.getByText("Best of 1 round")).toBeInTheDocument();
   });
 
   it("shows waiting for opponent when only one player", () => {
-    renderWithGame(<Lobby />, {
+    renderWithLobby(<Lobby />, {
       game: createGameState({
         players: [
           { name: "Player 1", ready: false, score: 0, hasChosen: false },
@@ -47,7 +48,7 @@ describe("Lobby", () => {
   });
 
   it("disables ready button when only one player", () => {
-    renderWithGame(<Lobby />, {
+    renderWithLobby(<Lobby />, {
       game: createGameState({
         players: [
           { name: "Player 1", ready: false, score: 0, hasChosen: false },
@@ -58,13 +59,13 @@ describe("Lobby", () => {
   });
 
   it("calls handleReady when ready button is clicked", () => {
-    const { context } = renderWithGame(<Lobby />);
+    const { context } = renderWithLobby(<Lobby />);
     fireEvent.click(screen.getByRole("button", { name: /Ready/ }));
     expect(context.handleReady).toHaveBeenCalledOnce();
   });
 
   it("shows waiting message when player is ready", () => {
-    renderWithGame(<Lobby />, {
+    renderWithLobby(<Lobby />, {
       game: createGameState({
         players: [
           { name: "Player 1", ready: true, score: 0, hasChosen: false },
@@ -81,13 +82,13 @@ describe("Lobby", () => {
     const writeText = vi.fn().mockResolvedValue(undefined);
     Object.assign(navigator, { clipboard: { writeText } });
 
-    renderWithGame(<Lobby />);
+    renderWithLobby(<Lobby />);
     fireEvent.click(screen.getByTitle("Click to copy"));
     expect(writeText).toHaveBeenCalledWith("ABC123");
   });
 
   it("shows AI button when waiting for opponent as creator", () => {
-    renderWithGame(<Lobby />, {
+    renderWithLobby(<Lobby />, {
       game: createGameState({
         players: [
           { name: "Player 1", ready: false, score: 0, hasChosen: false },
@@ -99,7 +100,7 @@ describe("Lobby", () => {
   });
 
   it("does not show AI button for non-creator", () => {
-    renderWithGame(<Lobby />, {
+    renderWithLobby(<Lobby />, {
       game: createGameState({
         players: [
           { name: "Player 1", ready: false, score: 0, hasChosen: false },
@@ -112,7 +113,7 @@ describe("Lobby", () => {
 
   it("opens AI difficulty modal and calls addAIPlayer on selection", async () => {
     mockAddAIPlayer.mockClear();
-    renderWithGame(<Lobby />, {
+    renderWithLobby(<Lobby />, {
       game: createGameState({
         players: [
           { name: "Player 1", ready: false, score: 0, hasChosen: false },

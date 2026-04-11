@@ -14,14 +14,11 @@ type GameContextValue = {
   gameNotFound: boolean;
   rematchState: RematchState;
   rematchRequesterName: string;
-  isReadyPending: boolean;
   isMovePending: boolean;
   isNextRoundPending: boolean;
   isRequestRematchPending: boolean;
   isAcceptRematchPending: boolean;
   isDenyRematchPending: boolean;
-  isKickPending: boolean;
-  handleReady: () => void;
   handleMove: (move: Move) => void;
   handleNextRound: () => void;
   handlePlayAgain: () => void;
@@ -29,7 +26,6 @@ type GameContextValue = {
   handleRequestRematch: () => void;
   handleAcceptRematch: () => void;
   handleDenyRematch: () => void;
-  handleKickPlayer: () => void;
 };
 
 // Re-create a minimal context for testing without importing the real provider
@@ -52,7 +48,7 @@ export function createGameState(overrides: Partial<GameState> = {}): GameState {
     id: "ABC123",
     rounds: 3,
     currentRound: 1,
-    status: "waiting",
+    status: "playing",
     players: [
       { name: "Player 1", ready: false, score: 0, hasChosen: false },
       { name: "Player 2", ready: false, score: 0, hasChosen: false },
@@ -94,14 +90,11 @@ export function renderWithGame(ui: ReactNode, options: RenderOptions = {}) {
     gameNotFound: false,
     rematchState: options.rematchState ?? "idle",
     rematchRequesterName: options.rematchRequesterName ?? "",
-    isReadyPending: false,
     isMovePending: false,
     isNextRoundPending: false,
     isRequestRematchPending: false,
     isAcceptRematchPending: false,
     isDenyRematchPending: false,
-    isKickPending: false,
-    handleReady: vi.fn(),
     handleMove: vi.fn(),
     handleNextRound: vi.fn(),
     handlePlayAgain: vi.fn(),
@@ -109,7 +102,6 @@ export function renderWithGame(ui: ReactNode, options: RenderOptions = {}) {
     handleRequestRematch: vi.fn(),
     handleAcceptRematch: vi.fn(),
     handleDenyRematch: vi.fn(),
-    handleKickPlayer: vi.fn(),
   };
 
   const result = render(

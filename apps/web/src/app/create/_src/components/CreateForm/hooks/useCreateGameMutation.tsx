@@ -13,7 +13,7 @@ export const useCreateGameMutation = () => {
     mutationFn: createGame,
     onSuccess: ({ gameId, playerToken }) => {
       setPlayerToken(playerToken, gameId);
-      router.push(`/game/${gameId}`);
+      router.push(`/lobby/${gameId}`);
     },
     onError: (err: Error) => toast.error(err.message),
   });

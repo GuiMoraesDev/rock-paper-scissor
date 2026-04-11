@@ -9,10 +9,10 @@ import { Button } from "@/components/atoms/Button";
 import { toast } from "@/components/atoms/Toaster";
 import { getAIMoveHistory } from "@/lib/game-api";
 import { addAIPlayer } from "@/services/lobby.api";
-import { useGame } from "../../../../../provider/GameProvider";
+import { useLobby } from "../../provider/LobbyProvider";
 import { AIDifficultyModal } from "./_src/components/AIDifficultyModal";
 
-export function Lobby() {
+export const Lobby = () => {
   const {
     game,
     playerIndex,
@@ -21,7 +21,7 @@ export function Lobby() {
     handleKickPlayer,
     isReadyPending,
     isKickPending,
-  } = useGame();
+  } = useLobby();
   const [isAIModalOpen, setIsAIModalOpen] = useState(false);
 
   const addAIMutation = useMutation({
@@ -197,4 +197,4 @@ export function Lobby() {
       />
     </section>
   );
-}
+};

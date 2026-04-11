@@ -28,10 +28,6 @@ import {
   startNextRound as nextRoundService,
   requestRematch as requestRematchService,
 } from "@/services/game.api";
-import {
-  kickPlayer as kickPlayerService,
-  markPlayerReady as playerReadyService,
-} from "@/services/lobby.api";
 
 type RematchState = "idle" | "requested" | "received";
 
@@ -43,14 +39,11 @@ type GameContextValue = {
   gameNotFound: boolean;
   rematchState: RematchState;
   rematchRequesterName: string;
-  isReadyPending: boolean;
   isMovePending: boolean;
   isNextRoundPending: boolean;
   isRequestRematchPending: boolean;
   isAcceptRematchPending: boolean;
   isDenyRematchPending: boolean;
-  isKickPending: boolean;
-  handleReady: () => void;
   handleMove: (move: Move) => void;
   handleNextRound: () => void;
   handlePlayAgain: () => void;
@@ -58,7 +51,6 @@ type GameContextValue = {
   handleRequestRematch: () => void;
   handleAcceptRematch: () => void;
   handleDenyRematch: () => void;
-  handleKickPlayer: () => void;
 };
 
 const GameContext = createContext<GameContextValue | null>(null);
@@ -103,6 +95,11 @@ export function GameProvider({ gameId, children }: GameProviderProps) {
     eventSource.addEventListener("game-state", (e) => {
       const { game: gameState, playerIndex: pIdx } = JSON.parse(e.data);
       if (gameState && pIdx >= 0) {
+        if (gameState.status === "waiting" || gameState.status === "ready") {
+          eventSource.close();
+          router.push(`/lobby/${gameId}`);
+          return;
+        }
         setGame(gameState);
         setPlayerIndex(pIdx);
       } else {
@@ -144,11 +141,6 @@ export function GameProvider({ gameId, children }: GameProviderProps) {
       setError(`${playerName} disconnected!`);
     });
 
-    eventSource.addEventListener("player-kicked", () => {
-      clearPlayerToken();
-      router.push("/");
-    });
-
     eventSource.addEventListener("rematch-requested", (e) => {
       const { playerName } = JSON.parse(e.data);
       setRematchState("received");
@@ -168,7 +160,7 @@ export function GameProvider({ gameId, children }: GameProviderProps) {
       }
       setRematchState("idle");
       eventSource.close();
-      router.push(`/game/${newGameId}`);
+      router.push(`/lobby/${newGameId}`);
     });
 
     eventSource.onerror = () => {
@@ -182,11 +174,6 @@ export function GameProvider({ gameId, children }: GameProviderProps) {
       eventSourceRef.current = null;
     };
   }, [gameId, router]);
-
-  const readyMutation = useMutation({
-    mutationFn: () => playerReadyService({ gameId }),
-    onError: (err: Error) => toast.error(err.message),
-  });
 
   const moveMutation = useMutation({
     mutationFn: (move: Move) => makeMoveService({ gameId, move }),
@@ -215,11 +202,6 @@ export function GameProvider({ gameId, children }: GameProviderProps) {
     onError: (err: Error) => toast.error(err.message),
   });
 
-  const kickMutation = useMutation({
-    mutationFn: () => kickPlayerService({ gameId }),
-    onError: (err: Error) => toast.error(err.message),
-  });
-
   const handleLeaveGame = useCallback(() => {
     leaveGameService({ gameId });
     clearPlayerToken();
@@ -240,14 +222,11 @@ export function GameProvider({ gameId, children }: GameProviderProps) {
         gameNotFound,
         rematchState,
         rematchRequesterName,
-        isReadyPending: readyMutation.isPending,
         isMovePending: moveMutation.isPending,
         isNextRoundPending: nextRoundMutation.isPending,
         isRequestRematchPending: requestRematchMutation.isPending,
         isAcceptRematchPending: acceptRematchMutation.isPending,
         isDenyRematchPending: denyRematchMutation.isPending,
-        isKickPending: kickMutation.isPending,
-        handleReady: readyMutation.mutate,
         handleMove: moveMutation.mutate,
         handleNextRound: nextRoundMutation.mutate,
         handlePlayAgain,
@@ -255,7 +234,6 @@ export function GameProvider({ gameId, children }: GameProviderProps) {
         handleRequestRematch: requestRematchMutation.mutate,
         handleAcceptRematch: acceptRematchMutation.mutate,
         handleDenyRematch: denyRematchMutation.mutate,
-        handleKickPlayer: kickMutation.mutate,
       }}
     >
       {children}
