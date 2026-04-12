@@ -1,17 +1,17 @@
-import { authenticateSSE } from "../../../_lib/auth";
-import { sanitizeGame, sanitizeGameFull } from "../../../_lib/game.logic";
+import { authenticateSSE } from "../../_lib/auth";
+import { sanitizeGame, sanitizeGameFull } from "../../_lib/game.logic";
 import {
   clearDisconnectTimer,
   deleteGame,
   getGame,
   setDisconnectTimer,
-} from "../../../_lib/game.store";
+} from "../../_lib/game.store";
 import {
   addConnection,
   broadcastToGame,
   getGameConnectionCount,
   removeConnection,
-} from "../../../_lib/sse-connections";
+} from "../../_lib/sse-connections";
 
 export const dynamic = "force-dynamic";
 

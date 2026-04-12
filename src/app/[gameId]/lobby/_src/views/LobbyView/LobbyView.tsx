@@ -7,7 +7,7 @@ import { useCallback } from "react";
 import { Button } from "@/components/atoms/Button";
 import { toast } from "@/components/atoms/Toaster";
 import { clearPlayerToken } from "@/lib/game-api";
-import { leaveGame as leaveGameService } from "@/services/game.api";
+import { leaveGame as leaveGameService } from "@/services/lobby.api";
 import { useGameSSE } from "../../../../_src/providers/GameSSEProvider";
 import { AddAIButton } from "./_src/components/AddAIButton";
 import { KickPlayerButton } from "./_src/components/KickPlayerButton";

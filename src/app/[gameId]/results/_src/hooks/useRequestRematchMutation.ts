@@ -2,7 +2,7 @@
 
 import { useMutation } from "@tanstack/react-query";
 import { toast } from "@/components/atoms/Toaster";
-import { requestRematch as requestRematchService } from "@/services/game.api";
+import { requestRematch as requestRematchService } from "@/services/results.api";
 
 type UseRequestRematchMutationParams = {
   onSuccess: VoidFunction;

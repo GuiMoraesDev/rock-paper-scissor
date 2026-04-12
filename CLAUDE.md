@@ -24,9 +24,9 @@ All state synchronization uses **SSE (Server-Sent Events)** for server→client 
 
 **Game phases:** Home → Create/Join → Lobby (waiting + ready) → Playing → Round Result → (repeat) → Finished
 
-**API routes (client→server):** `POST /api/game/create`, `/api/game/join`, `/api/game/[gameId]/ready`, `/api/game/[gameId]/move`, `/api/game/[gameId]/next-round`, etc.
+**API routes (client→server):** `POST /api/create`, `/api/join`, `/api/[gameId]/lobby/{action}`, `/api/[gameId]/game/{action}`, `/api/[gameId]/results/rematch/{action}`
 **SSE events (server→client):** `game-state`, `game-updated`, `round-result`, `game-finished`, `error-msg`, `player-disconnected`, `player-kicked`, `rematch-requested`, `rematch-denied`, `rematch-game-created`
-**SSE stream:** `GET /api/game/[gameId]/events?token=<signed>`
+**SSE stream:** `GET /api/[gameId]/events?token=<signed>`
 
 ### Player Authentication
 
@@ -66,8 +66,9 @@ Players are identified by **HMAC-signed tokens** that bind `gameId + playerIndex
 
 `src/services/` — HTTP action helpers (one file per domain). Components never call `fetch` or axios directly.
 
-- `lobby.api.ts` — `createGame`, `joinGame`, `markPlayerReady`, `addAIPlayer`, `kickPlayer`
-- `game.api.ts` — `makeMove`, `startNextRound`, `leaveGame`, `requestRematch`, `acceptRematch`, `denyRematch`
+- `lobby.api.ts` — `createGame`, `joinGame`, `markPlayerReady`, `addAIPlayer`, `kickPlayer`, `leaveGame`
+- `game.api.ts` — `makeMove`, `startNextRound`
+- `results.api.ts` — `requestRematch`, `acceptRematch`, `denyRematch`
 
 `src/providers/QueryProvider.tsx` — Wraps the app with `QueryClientProvider` from TanStack React Query (mutations retry disabled by default).
 
@@ -76,9 +77,12 @@ Players are identified by **HMAC-signed tokens** that bind `gameId + playerIndex
 Game logic lives in `src/app/api/`:
 
 - `api/_lib/` — Server-side infrastructure: game store, game logic, AI strategy, SSE connection management, HMAC auth
-- `api/game/create/` and `api/game/join/` — Public routes (no token needed)
-- `api/game/[gameId]/events/` — SSE stream (GET, requires token as query param)
-- `api/game/[gameId]/{action}/` — Game actions (POST, requires `X-Player-Token` header)
+- `api/create/` and `api/join/` — Public routes (no token needed)
+- `api/[gameId]/events/` — SSE stream (GET, requires token as query param)
+- `api/[gameId]/check/` — Game existence check (GET, no token)
+- `api/[gameId]/lobby/{action}/` — Lobby actions: `ready`, `add-ai`, `kick`, `leave` (POST, requires `X-Player-Token`)
+- `api/[gameId]/game/{action}/` — Game actions: `move`, `next-round` (POST, requires `X-Player-Token`)
+- `api/[gameId]/results/rematch/{action}/` — Rematch actions: `request`, `accept`, `deny` (POST, requires `X-Player-Token`)
 
 ## Components
 

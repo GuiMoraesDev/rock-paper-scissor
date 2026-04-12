@@ -1,8 +1,8 @@
 import { NextResponse } from "next/server";
-import { createPlayerToken } from "../../_lib/auth";
-import { generateGameId, sanitizeGame } from "../../_lib/game.logic";
-import { setGame, setPlayerToken } from "../../_lib/game.store";
-import type { Game } from "../../_lib/game.types";
+import { createPlayerToken } from "../_lib/auth";
+import { generateGameId, sanitizeGame } from "../_lib/game.logic";
+import { setGame, setPlayerToken } from "../_lib/game.store";
+import type { Game } from "../_lib/game.types";
 
 export const POST = async (request: Request) => {
   try {

@@ -9,8 +9,9 @@ Client-side HTTP layer. All API calls go through here — components never call 
 
 ## Modules
 
-- **`lobby.api.ts`** — pre-game actions: `createGame`, `joinGame`, `markPlayerReady`, `addAIPlayer`, `kickPlayer`
-- **`game.api.ts`** — in-game actions: `makeMove`, `startNextRound`, `leaveGame`, `requestRematch`, `acceptRematch`, `denyRematch`
+- **`lobby.api.ts`** — lobby actions: `createGame`, `joinGame`, `markPlayerReady`, `addAIPlayer`, `kickPlayer`, `leaveGame`
+- **`game.api.ts`** — in-game actions: `makeMove`, `startNextRound`
+- **`results.api.ts`** — post-game actions: `requestRematch`, `acceptRematch`, `denyRematch`
 
 ## Conventions
 

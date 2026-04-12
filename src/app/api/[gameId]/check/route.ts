@@ -1,4 +1,4 @@
-import { getGame } from "../../../_lib/game.store";
+import { getGame } from "../../_lib/game.store";
 
 type RouteContext = { params: Promise<{ gameId: string }> };
 

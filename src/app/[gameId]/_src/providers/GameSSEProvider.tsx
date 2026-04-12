@@ -36,7 +36,7 @@ const connectToGame = ({
   gameId: string;
   token: string;
 }): EventSource => {
-  const url = `/api/game/${gameId}/events?token=${encodeURIComponent(token)}`;
+  const url = `/api/${gameId}/events?token=${encodeURIComponent(token)}`;
   return new EventSource(url);
 };
 
@@ -112,7 +112,7 @@ export const GameSSEProvider = ({ gameId, children }: GameSSEProviderProps) => {
     const token = getPlayerToken();
     if (!token) {
       type CheckGameResponse = { exists: boolean };
-      fetch(`/api/game/${gameId}/check`)
+      fetch(`/api/${gameId}/check`)
         .then((res) => res.json() as Promise<CheckGameResponse>)
         .then(({ exists }) => {
           if (exists) {

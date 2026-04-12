@@ -5,8 +5,8 @@ Next.js 15 App Router pages. Pages are **server components by default** — only
 ## Routes
 
 - `/` (`page.tsx`) — Landing page with Create/Join buttons
-- `/create` (`create/page.tsx`) — Enter name, select rounds (1/3/5), POSTs to `/api/game/create`
-- `/join` (`join/page.tsx`) — Enter name + 6-char game code, POSTs to `/api/game/join`
+- `/create` (`create/page.tsx`) — Enter name, select rounds (1/3/5), POSTs to `/api/create`
+- `/join` (`join/page.tsx`) — Enter name + 6-char game code, POSTs to `/api/join`
 - `/[gameId]/layout.tsx` — Shared layout for all game phases. Provides `GameNotFoundContext` and renders the "Game not found" screen when any provider signals it. Also wraps children in the shared `<main>` layout.
 - `/[gameId]/lobby` (`[gameId]/lobby/page.tsx`) — Waiting room. Players ready up; owner can add AI or kick.
 - `/[gameId]/game` (`[gameId]/game/page.tsx`) — Active gameplay: move selection and round result screen.

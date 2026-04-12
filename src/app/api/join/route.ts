@@ -1,8 +1,8 @@
 import { NextResponse } from "next/server";
-import { createPlayerToken } from "../../_lib/auth";
-import { sanitizeGame } from "../../_lib/game.logic";
-import { getGame, setPlayerToken } from "../../_lib/game.store";
-import { broadcastToGame } from "../../_lib/sse-connections";
+import { createPlayerToken } from "../_lib/auth";
+import { sanitizeGame } from "../_lib/game.logic";
+import { getGame, setPlayerToken } from "../_lib/game.store";
+import { broadcastToGame } from "../_lib/sse-connections";
 
 export const POST = async (request: Request) => {
   try {

@@ -2,7 +2,7 @@
 
 import { useMutation } from "@tanstack/react-query";
 import { toast } from "@/components/atoms/Toaster";
-import { denyRematch as denyRematchService } from "@/services/game.api";
+import { denyRematch as denyRematchService } from "@/services/results.api";
 
 type UseDenyRematchMutationParams = {
   onSuccess: VoidFunction;

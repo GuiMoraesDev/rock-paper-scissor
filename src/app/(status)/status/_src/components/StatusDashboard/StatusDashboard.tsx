@@ -53,7 +53,7 @@ export function StatusDashboard() {
     // 1. API health check
     try {
       const start = performance.now();
-      const res = await fetch("/api/game/create", {
+      const res = await fetch("/api/create", {
         method: "OPTIONS",
       });
       const latency = Math.round(performance.now() - start);
