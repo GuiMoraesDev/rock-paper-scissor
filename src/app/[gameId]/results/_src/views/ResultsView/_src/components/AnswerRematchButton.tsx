@@ -1,4 +1,3 @@
-import { useGameSSE } from "@/app/[gameId]/_src/providers/GameSSEProvider";
 import { Button } from "@/components/atoms/Button";
 import { useAcceptRematchMutation } from "../../../../hooks/useAcceptRematchMutation";
 import { useDenyRematchMutation } from "../../../../hooks/useDenyRematchMutation";
@@ -8,19 +7,15 @@ type AnswerRematchButtonProps = {
 };
 
 export const AnswerRematchButton = ({ gameId }: AnswerRematchButtonProps) => {
-  const { markRematchCancelled } = useGameSSE();
-
   const acceptRematchMutation = useAcceptRematchMutation();
-  const denyRematchMutation = useDenyRematchMutation({
-    onSuccess: markRematchCancelled,
-  });
+  const denyRematchMutation = useDenyRematchMutation();
 
   const handleAcceptRematch = () => {
     acceptRematchMutation.mutate({ gameId });
   };
 
   const handleDenyRematch = () => {
-    acceptRematchMutation.mutate({ gameId });
+    denyRematchMutation.mutate({ gameId });
   };
 
   const isPending =
