@@ -1,10 +1,96 @@
-import { fireEvent, screen } from "@testing-library/react";
-import { describe, expect, it } from "vitest";
-import {
-  createGameState,
-  renderWithGame,
-} from "../../testing/render-with-game";
+import type { GameState, Move, RoundResult } from "@rps/shared";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { fireEvent, render, screen } from "@testing-library/react";
+import type { ReactNode } from "react";
+import { createContext, useContext } from "react";
+import { describe, expect, it, vi } from "vitest";
 import { GamePlay } from "./GamePlay";
+
+type RematchState = "idle" | "requested" | "received";
+
+type GameContextValue = {
+  game: GameState | null;
+  playerIndex: number;
+  lastRoundResult: RoundResult | null;
+  rematchState: RematchState;
+  rematchRequesterName: string;
+  isMovePending: boolean;
+  isNextRoundPending: boolean;
+  isRequestRematchPending: boolean;
+  isAcceptRematchPending: boolean;
+  isDenyRematchPending: boolean;
+  handleMove: (move: Move) => void;
+  handleNextRound: () => void;
+  handlePlayAgain: () => void;
+  handleLeaveGame: () => void;
+  handleRequestRematch: () => void;
+  handleAcceptRematch: () => void;
+  handleDenyRematch: () => void;
+};
+
+const GameContext = createContext<GameContextValue | null>(null);
+
+vi.mock("../../../../../provider/GameProvider", () => ({
+  useGame: () => {
+    const ctx = useContext(GameContext);
+    if (!ctx) throw new Error("useGame must be used within test GameProvider");
+    return ctx;
+  },
+}));
+
+const createGameState = (overrides: Partial<GameState> = {}): GameState => ({
+  id: "ABC123",
+  rounds: 3,
+  currentRound: 1,
+  status: "playing",
+  players: [
+    { name: "Player 1", ready: false, score: 0, hasChosen: false },
+    { name: "Player 2", ready: false, score: 0, hasChosen: false },
+  ],
+  roundResults: [],
+  ...overrides,
+});
+
+type RenderOptions = {
+  game?: GameState;
+  playerIndex?: number;
+  lastRoundResult?: RoundResult | null;
+  rematchState?: RematchState;
+  rematchRequesterName?: string;
+};
+
+const renderWithGame = (ui: ReactNode, options: RenderOptions = {}) => {
+  const testQueryClient = new QueryClient({
+    defaultOptions: { mutations: { retry: false } },
+  });
+  const context: GameContextValue = {
+    game: options.game ?? createGameState(),
+    playerIndex: options.playerIndex ?? 0,
+    lastRoundResult: options.lastRoundResult ?? null,
+    rematchState: options.rematchState ?? "idle",
+    rematchRequesterName: options.rematchRequesterName ?? "",
+    isMovePending: false,
+    isNextRoundPending: false,
+    isRequestRematchPending: false,
+    isAcceptRematchPending: false,
+    isDenyRematchPending: false,
+    handleMove: vi.fn(),
+    handleNextRound: vi.fn(),
+    handlePlayAgain: vi.fn(),
+    handleLeaveGame: vi.fn(),
+    handleRequestRematch: vi.fn(),
+    handleAcceptRematch: vi.fn(),
+    handleDenyRematch: vi.fn(),
+  };
+
+  const result = render(
+    <QueryClientProvider client={testQueryClient}>
+      <GameContext.Provider value={context}>{ui}</GameContext.Provider>
+    </QueryClientProvider>,
+  );
+
+  return { ...result, context };
+};
 
 const playingGame = () =>
   createGameState({
