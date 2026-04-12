@@ -1,5 +1,4 @@
-import { LobbyClient } from "./_src/components/LobbyClient";
-import { LobbyProvider } from "./_src/provider/LobbyProvider";
+import { LobbyView } from "./_src/views/LobbyView";
 
 type LobbyPageProps = {
   params: Promise<{ gameId: string }>;
@@ -8,9 +7,5 @@ type LobbyPageProps = {
 export default async function LobbyPage({ params }: LobbyPageProps) {
   const { gameId } = await params;
 
-  return (
-    <LobbyProvider gameId={gameId}>
-      <LobbyClient />
-    </LobbyProvider>
-  );
+  return <LobbyView gameId={gameId} />;
 }
