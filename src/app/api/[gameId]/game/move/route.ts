@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { authenticatePlayer } from "../../../_lib/auth";
+import { captureApiError } from "../../../_lib/capture-error";
 import {
   resolveRound,
   sanitizeGame,
@@ -84,6 +85,7 @@ export const POST = async (request: Request, context: RouteContext) => {
 
     return NextResponse.json({ success: true });
   } catch (error) {
+    captureApiError({ error, context: { gameId } });
     console.error("Error on make-move:", error);
     return NextResponse.json(
       { error: "Failed to process move" },

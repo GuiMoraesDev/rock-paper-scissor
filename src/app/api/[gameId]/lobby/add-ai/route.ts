@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { authenticatePlayer } from "../../../_lib/auth";
+import { captureApiError } from "../../../_lib/capture-error";
 import { sanitizeGame } from "../../../_lib/game.logic";
 import { getGame } from "../../../_lib/game.store";
 import { broadcastToGame } from "../../../_lib/sse-connections";
@@ -56,6 +57,7 @@ export const POST = async (request: Request, context: RouteContext) => {
 
     return NextResponse.json({ success: true });
   } catch (error) {
+    captureApiError({ error, context: { gameId } });
     console.error("Error adding AI player:", error);
     return NextResponse.json(
       { error: "Failed to add AI player" },

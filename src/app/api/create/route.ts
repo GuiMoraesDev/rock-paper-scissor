@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { createPlayerToken } from "../_lib/auth";
+import { captureApiError } from "../_lib/capture-error";
 import { generateGameId, sanitizeGame } from "../_lib/game.logic";
 import { setGame, setPlayerToken } from "../_lib/game.store";
 import type { Game } from "../_lib/game.types";
@@ -57,6 +58,7 @@ export const POST = async (request: Request) => {
       game: sanitizeGame({ game }),
     });
   } catch (error) {
+    captureApiError({ error });
     console.error("Error creating game:", error);
     return NextResponse.json(
       { error: "Failed to create game" },

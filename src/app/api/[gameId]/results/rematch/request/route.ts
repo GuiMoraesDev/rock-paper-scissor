@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { authenticatePlayer } from "../../../../_lib/auth";
+import { captureApiError } from "../../../../_lib/capture-error";
 import { createRematchGame } from "../../../../_lib/game.logic";
 import { findTokenByGameAndPlayer, getGame } from "../../../../_lib/game.store";
 import { sendToPlayer } from "../../../../_lib/sse-connections";
@@ -46,6 +47,7 @@ export const POST = async (request: Request, context: RouteContext) => {
 
     return NextResponse.json({ success: true });
   } catch (error) {
+    captureApiError({ error, context: { gameId } });
     console.error("Error on request-rematch:", error);
     return NextResponse.json(
       { error: "Failed to request rematch" },

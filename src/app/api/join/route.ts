@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { createPlayerToken } from "../_lib/auth";
+import { captureApiError } from "../_lib/capture-error";
 import { sanitizeGame } from "../_lib/game.logic";
 import { getGame, setPlayerToken } from "../_lib/game.store";
 import { broadcastToGame } from "../_lib/sse-connections";
@@ -69,6 +70,7 @@ export const POST = async (request: Request) => {
       game: sanitizeGame({ game }),
     });
   } catch (error) {
+    captureApiError({ error });
     console.error("Error joining game:", error);
     return NextResponse.json({ error: "Failed to join game" }, { status: 500 });
   }

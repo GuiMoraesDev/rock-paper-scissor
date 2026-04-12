@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { authenticatePlayer } from "../../../../_lib/auth";
+import { captureApiError } from "../../../../_lib/capture-error";
 import { createRematchGame } from "../../../../_lib/game.logic";
 import { getGame } from "../../../../_lib/game.store";
 
@@ -24,6 +25,7 @@ export const POST = async (request: Request, context: RouteContext) => {
 
     return NextResponse.json({ success: true });
   } catch (error) {
+    captureApiError({ error, context: { gameId } });
     console.error("Error on rematch-accepted:", error);
     return NextResponse.json(
       { error: "Failed to create rematch game" },
