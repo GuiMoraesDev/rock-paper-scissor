@@ -193,8 +193,8 @@ test.describe("Rock Paper Scissors - Full Game", () => {
     // Click Rematch
     await expect(player1.getByTestId("rematch-button")).toBeVisible();
 
-    // Should navigate to home
-    await expect(player1).toHaveURL(`/${gameCode}/game`);
+    // Should be on the results page
+    await expect(player1).toHaveURL(`/${gameCode}/results`);
 
     await player1Context.close();
     await player2Context.close();

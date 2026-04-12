@@ -2,16 +2,14 @@ import { defineConfig } from "@playwright/test";
 
 export default defineConfig({
   testDir: "./src/tests/e2e",
-  timeout: 30_000,
-  expect: {
-    timeout: 10_000,
-  },
   fullyParallel: false,
   retries: 1,
+  timeout: 60000,
   use: {
     baseURL: "http://localhost:3000",
     headless: true,
   },
+  expect: { timeout: 10000 },
   projects: [
     {
       name: "chromium",

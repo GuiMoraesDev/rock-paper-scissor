@@ -111,7 +111,19 @@ export const GameSSEProvider = ({ gameId, children }: GameSSEProviderProps) => {
   useEffect(() => {
     const token = getPlayerToken();
     if (!token) {
-      router.push(`/join?code=${gameId}`);
+      type CheckGameResponse = { exists: boolean };
+      fetch(`/api/game/${gameId}/check`)
+        .then((res) => res.json() as Promise<CheckGameResponse>)
+        .then(({ exists }) => {
+          if (exists) {
+            router.push(`/join?code=${gameId}`);
+          } else {
+            setGameNotFound(true);
+          }
+        })
+        .catch(() => {
+          router.push(`/join?code=${gameId}`);
+        });
       return;
     }
 
