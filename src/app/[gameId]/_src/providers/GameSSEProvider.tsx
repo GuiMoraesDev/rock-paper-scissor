@@ -23,6 +23,7 @@ import { useGameNotFound } from "./GameNotFoundProvider";
 const STORAGE_KEY = "rps-ai-move-history";
 
 const REMATCH_DENIED_TOAST_DURATION = 4000;
+const KICKED_TOAST_DURATION = 3000;
 
 export type GameError =
   | { type: "player-disconnected"; playerName: string }
@@ -184,10 +185,11 @@ export const GameSSEProvider = ({ gameId, children }: GameSSEProviderProps) => {
       }
     });
 
-    eventSource.addEventListener("player-kicked", () => {
+    eventSource.addEventListener("player-kicked", (e) => {
+      const { message } = JSON.parse(e.data);
       clearPlayerToken();
-
-      router.push("/");
+      toast.error(message, { duration: KICKED_TOAST_DURATION });
+      setTimeout(() => router.push("/"), KICKED_TOAST_DURATION);
     });
 
     eventSource.addEventListener("rematch-requested", (e) => {
