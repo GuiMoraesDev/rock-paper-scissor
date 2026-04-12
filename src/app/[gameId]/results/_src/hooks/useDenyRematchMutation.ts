@@ -5,16 +5,14 @@ import { toast } from "@/components/atoms/Toaster";
 import { denyRematch as denyRematchService } from "@/services/game.api";
 
 type UseDenyRematchMutationParams = {
-  gameId: string;
-  onSuccess: () => void;
+  onSuccess: VoidFunction;
 };
 
 export const useDenyRematchMutation = ({
-  gameId,
   onSuccess,
 }: UseDenyRematchMutationParams) => {
   return useMutation({
-    mutationFn: () => denyRematchService({ gameId }),
+    mutationFn: denyRematchService,
     onSuccess,
     onError: (err: Error) => toast.error(err.message),
   });

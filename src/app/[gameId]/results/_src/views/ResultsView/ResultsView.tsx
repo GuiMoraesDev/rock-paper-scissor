@@ -8,34 +8,17 @@ import { Button } from "@/components/atoms/Button";
 import { clearPlayerToken } from "@/lib/game-api";
 import { moveEmojiMap } from "@/lib/gameplay";
 import { useGameSSE } from "../../../../_src/providers/GameSSEProvider";
-import { useAcceptRematchMutation } from "../../hooks/useAcceptRematchMutation";
-import { useDenyRematchMutation } from "../../hooks/useDenyRematchMutation";
-import { useRequestRematchMutation } from "../../hooks/useRequestRematchMutation";
+import { AnswerRematchButton } from "./_src/components/AnswerRematchButton";
+import { RequestRematchButton } from "./_src/components/RequestRematchButton";
 
-type ResultsClientProps = {
+type ResultsViewProps = {
   gameId: string;
 };
 
-export const ResultsClient = ({ gameId }: ResultsClientProps) => {
+export const ResultsView = ({ gameId }: ResultsViewProps) => {
   const router = useRouter();
-  const {
-    game,
-    playerIndex,
-    rematchState,
-    rematchRequesterName,
-    markRematchSent,
-    markRematchCancelled,
-  } = useGameSSE();
-
-  const requestRematchMutation = useRequestRematchMutation({
-    gameId,
-    onSuccess: markRematchSent,
-  });
-  const acceptRematchMutation = useAcceptRematchMutation({ gameId });
-  const denyRematchMutation = useDenyRematchMutation({
-    gameId,
-    onSuccess: markRematchCancelled,
-  });
+  const { game, playerIndex, rematchState, rematchRequesterName } =
+    useGameSSE();
 
   const handlePlayAgain = useCallback(() => {
     clearPlayerToken();
@@ -44,8 +27,6 @@ export const ResultsClient = ({ gameId }: ResultsClientProps) => {
 
   if (!game) return null;
 
-  const p1Score = game.players[0]?.score || 0;
-  const p2Score = game.players[1]?.score || 0;
   const isDraw = game.winner === "draw";
   const playerWon =
     (playerIndex === 0 && game.winner === "player1") ||
@@ -105,7 +86,7 @@ export const ResultsClient = ({ gameId }: ResultsClientProps) => {
               !isDraw && game.winner === "player2" && "text-rps-red",
             )}
           >
-            {game.players[0]?.name}: {p1Score}
+            {game.players[0]?.name}: {game.players[0]?.score ?? 0}
           </span>
           <span className="text-gray-300">-</span>
           <span
@@ -115,7 +96,7 @@ export const ResultsClient = ({ gameId }: ResultsClientProps) => {
               !isDraw && game.winner === "player1" && "text-rps-red",
             )}
           >
-            {game.players[1]?.name}: {p2Score}
+            {game.players[1]?.name}: {game.players[1]?.score ?? 0}
           </span>
         </motion.div>
 
@@ -160,9 +141,7 @@ export const ResultsClient = ({ gameId }: ResultsClientProps) => {
                   <span className="text-2xl">
                     {moveEmojiMap[result.moves[0]]}
                   </span>
-
                   <span className="font-fun text-sm text-gray-300">vs</span>
-
                   <span className="text-2xl">
                     {moveEmojiMap[result.moves[1]]}
                   </span>
@@ -193,16 +172,7 @@ export const ResultsClient = ({ gameId }: ResultsClientProps) => {
           transition={{ delay: 1 }}
           className="flex flex-col items-center gap-4 w-full"
         >
-          {rematchState === "idle" && (
-            <Button
-              data-testid="rematch-button"
-              variant="green"
-              disabled={requestRematchMutation.isPending}
-              onClick={() => requestRematchMutation.mutate()}
-            >
-              {requestRematchMutation.isPending ? "..." : "🔄 Rematch"}
-            </Button>
-          )}
+          {rematchState === "idle" && <RequestRematchButton gameId={gameId} />}
 
           {rematchState === "requested" && (
             <motion.p
@@ -219,32 +189,8 @@ export const ResultsClient = ({ gameId }: ResultsClientProps) => {
               <p className="font-fun text-xl text-gray-600">
                 {rematchRequesterName} wants a rematch!
               </p>
-              <div className="flex gap-4">
-                <Button
-                  data-testid="accept-rematch-button"
-                  variant="green"
-                  size="sm"
-                  disabled={
-                    acceptRematchMutation.isPending ||
-                    denyRematchMutation.isPending
-                  }
-                  onClick={() => acceptRematchMutation.mutate()}
-                >
-                  {acceptRematchMutation.isPending ? "..." : "Accept"}
-                </Button>
-                <Button
-                  data-testid="deny-rematch-button"
-                  variant="red"
-                  size="sm"
-                  disabled={
-                    denyRematchMutation.isPending ||
-                    acceptRematchMutation.isPending
-                  }
-                  onClick={() => denyRematchMutation.mutate()}
-                >
-                  {denyRematchMutation.isPending ? "..." : "Decline"}
-                </Button>
-              </div>
+
+              <AnswerRematchButton gameId={gameId} />
             </section>
           )}
 

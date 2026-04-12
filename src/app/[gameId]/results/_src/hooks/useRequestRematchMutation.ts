@@ -5,16 +5,14 @@ import { toast } from "@/components/atoms/Toaster";
 import { requestRematch as requestRematchService } from "@/services/game.api";
 
 type UseRequestRematchMutationParams = {
-  gameId: string;
-  onSuccess: () => void;
+  onSuccess: VoidFunction;
 };
 
 export const useRequestRematchMutation = ({
-  gameId,
   onSuccess,
 }: UseRequestRematchMutationParams) => {
   return useMutation({
-    mutationFn: () => requestRematchService({ gameId }),
+    mutationFn: requestRematchService,
     onSuccess,
     onError: (err: Error) => toast.error(err.message),
   });
