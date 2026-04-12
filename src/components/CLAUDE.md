@@ -35,5 +35,5 @@ import { Button } from "@/components/atoms/Button";
 ## Testing
 
 - Tests use **Vitest** + **@testing-library/react** (config in `vitest.config.ts`, setup in `vitest.setup.ts`)
-- Run tests: `npm run test` from `apps/web`
+- Run tests: `npm run test`
 - Every component must have a co-located test file

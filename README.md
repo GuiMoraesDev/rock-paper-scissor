@@ -1,6 +1,6 @@
 # Rock Paper Scissors
 
-Real-time multiplayer Rock Paper Scissors game built with Next.js and Fastify.
+Real-time multiplayer Rock Paper Scissors game built with Next.js.
 
 ## How it works
 
@@ -12,10 +12,10 @@ Real-time multiplayer Rock Paper Scissors game built with Next.js and Fastify.
 
 ## Tech stack
 
-- **Frontend** — Next.js 15 (App Router), React 18, Tailwind CSS, Socket.IO client
-- **Backend** — Fastify 5, Socket.IO server
-- **Shared** — TypeScript types package (`@rps/shared`)
-- **Monorepo** — Turborepo with npm workspaces
+- **Framework** — Next.js 15 (App Router), React 18
+- **Styling** — Tailwind CSS, Framer Motion
+- **Real-time** — SSE (server→client), HTTP POST (client→server)
+- **Game logic** — Next.js API routes, in-memory game store
 
 ## Getting started
 
@@ -24,20 +24,19 @@ npm install
 npm run dev
 ```
 
-This starts both the web app (`http://localhost:3000`) and the server (`http://localhost:3001`).
-
-## Environment variables
-
-| Variable                 | App | Default                 | Description          |
-| ------------------------ | --- | ----------------------- | -------------------- |
-| `NEXT_PUBLIC_SERVER_URL` | web | `http://localhost:3001` | Socket.IO server URL |
+Opens at `http://localhost:3000`.
 
 ## Project structure
 
 ```
-apps/
-  web/       → Next.js frontend
-  server/    → Fastify + Socket.IO backend
-packages/
-  shared/    → Shared TypeScript types
+src/
+  app/
+    api/         → Game API routes + server-side logic
+    [gameId]/    → Lobby, game, and results pages
+    create/      → Create game page
+    join/        → Join game page
+  components/    → Shared UI atoms (Button, Input, Modal, Toaster)
+  lib/           → Client utilities (token management, types)
+  services/      → Client HTTP layer
+  schemas/       → Zod validation schemas
 ```
