@@ -3,16 +3,12 @@ import { act, fireEvent, render, screen } from "@testing-library/react";
 import type { ReactNode } from "react";
 import { describe, expect, it, vi } from "vitest";
 import type { GameState } from "@/lib/types";
+import { addAIPlayer } from "@/services/lobby.api";
 import { useLobby } from "../../provider/LobbyProvider";
 import { Lobby } from "./Lobby";
 
 vi.mock("../../provider/LobbyProvider", () => ({
   useLobby: vi.fn(),
-}));
-
-const mockAddAIPlayer = vi.fn().mockResolvedValue(undefined);
-vi.mock("@/services/lobby.api", () => ({
-  addAIPlayer: (...args: unknown[]) => mockAddAIPlayer(...args),
 }));
 
 const createGameState = (overrides: Partial<GameState> = {}): GameState => ({
@@ -157,7 +153,7 @@ describe("Lobby", () => {
   });
 
   it("opens AI difficulty modal and calls addAIPlayer on selection", async () => {
-    mockAddAIPlayer.mockClear();
+    vi.mocked(addAIPlayer).mockClear();
     renderWithLobby(<Lobby />, {
       game: createGameState({
         players: [
@@ -174,7 +170,7 @@ describe("Lobby", () => {
       fireEvent.click(screen.getByTestId("ai-difficulty-hard"));
     });
 
-    expect(mockAddAIPlayer).toHaveBeenCalledWith(
+    expect(vi.mocked(addAIPlayer)).toHaveBeenCalledWith(
       { gameId: "ABC123", difficulty: "hard", moveHistory: [] },
       expect.anything(),
     );

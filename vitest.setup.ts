@@ -2,6 +2,9 @@ import "@testing-library/jest-dom/vitest";
 import React from "react";
 import { vi } from "vitest";
 
+vi.mock("@/services/lobby.api");
+vi.mock("@/services/game.api");
+
 // Mock framer-motion to render elements immediately without animations
 vi.mock("framer-motion", async () => {
   const actual =
