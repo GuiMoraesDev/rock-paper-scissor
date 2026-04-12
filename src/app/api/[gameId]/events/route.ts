@@ -4,6 +4,7 @@ import {
   clearDisconnectTimer,
   deleteGame,
   getGame,
+  getPlayerMeta,
   setDisconnectTimer,
 } from "../../_lib/game.store";
 import {
@@ -67,7 +68,10 @@ export const GET = async (request: Request, context: RouteContext) => {
         removeConnection(gameId, token);
 
         const game = getGame(gameId);
-        if (game) {
+        // Only broadcast if the player token still exists — if it was already
+        // deleted (intentional leave via the leave API), skip the broadcast to
+        // avoid overriding the game-updated event the owner already received.
+        if (game && getPlayerMeta(token)) {
           const playerName =
             game.players[meta.playerIndex]?.name ?? "Unknown player";
 
