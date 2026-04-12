@@ -86,7 +86,7 @@ Organized using **Atomic Design** — see `src/components/CLAUDE.md` for full co
 
 - `atoms/` — Generic reusable primitives (Button, Input, Toast, Toaster, Modal)
 
-Page-specific components (Lobby, GamePlay, RoundResultScreen, GameFinished) live inside each page's `_src/` directory, not in the shared `src/components/` tree. Each component has its own folder with barrel file and co-located unit test. Interactive elements should have `data-testid` attributes for e2e test targeting.
+Page-specific components live inside each page's `_src/` directory, not in the shared `src/components/` tree. Game phase pages (`[gameId]/lobby`, `[gameId]/game`, `[gameId]/results`) each delegate to a `*View` component in `_src/views/` (e.g. `LobbyView`, `GameView`, `ResultsView`). Views call `useGameSSE()` directly and compose sub-components from their own `_src/components/` directory. Each component has its own folder with barrel file and co-located unit test. Interactive elements should have `data-testid` attributes for e2e test targeting.
 
 ## Styling
 
