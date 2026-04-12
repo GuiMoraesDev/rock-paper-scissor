@@ -1,32 +1,52 @@
 {
   "name": "rock-paper-scissor",
+  "version": "1.0.0",
   "private": true,
   "packageManager": "npm@11.8.0",
-  "workspaces": [
-    "apps/*"
-  ],
   "scripts": {
-    "start": "turbo start",
-    "dev": "turbo dev",
-    "build": "turbo build",
-    "test": "turbo test",
-    "test:e2e": "turbo test:e2e",
-    "test:e2e:ui": "turbo test:e2e:ui",
+    "dev": "next dev --port 3000 --turbo",
+    "build": "next build",
+    "start": "next start",
+    "test": "vitest run",
+    "test:e2e": "playwright test",
+    "test:e2e:ui": "playwright test --ui",
+    "check-types": "tsc --noEmit",
     "lint": "biome check .",
     "lint:fix": "biome check --write .",
-    "check-types": "turbo check-types",
     "prepare": "husky"
-  },
-  "devDependencies": {
-    "@biomejs/biome": "2.4.9",
-    "husky": "^9.1.7",
-    "turbo": "^2.4.0",
-    "typescript": "^5.4.0"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",
+    "@radix-ui/react-slot": "^1.2.4",
+    "@sentry/nextjs": "^10.47.0",
+    "@tanstack/react-query": "^5.97.0",
+    "axios": "^1.15.0",
+    "clsx": "^2.1.1",
+    "framer-motion": "^12.38.0",
+    "next": "^15.5.0",
+    "react": "^18.3.0",
+    "react-dom": "^18.3.0",
     "react-hook-form": "^7.72.0",
     "sonner": "^2.0.7",
+    "tailwind-merge": "^3.5.0",
+    "tailwind-variants": "^3.2.2",
     "zod": "^4.3.6"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "2.4.9",
+    "@playwright/test": "^1.58.2",
+    "@testing-library/jest-dom": "^6.9.1",
+    "@testing-library/react": "^16.3.2",
+    "@types/node": "^20.0.0",
+    "@types/react": "^18.3.0",
+    "@types/react-dom": "^18.3.0",
+    "@vitejs/plugin-react": "^6.0.1",
+    "autoprefixer": "^10.4.0",
+    "husky": "^9.1.7",
+    "jsdom": "^29.0.1",
+    "postcss": "^8.4.0",
+    "tailwindcss": "^3.4.0",
+    "typescript": "^5.4.0",
+    "vitest": "^4.1.1"
   }
 }

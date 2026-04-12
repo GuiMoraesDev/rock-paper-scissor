@@ -18,17 +18,9 @@ export default defineConfig({
       use: { browserName: "chromium" },
     },
   ],
-  webServer: [
-    {
-      command: "npm run dev",
-      cwd: "../server",
-      port: 3001,
-      reuseExistingServer: !process.env.CI,
-    },
-    {
-      command: "npm run dev",
-      port: 3000,
-      reuseExistingServer: !process.env.CI,
-    },
-  ],
+  webServer: {
+    command: "npm run dev",
+    port: 3000,
+    reuseExistingServer: !process.env.CI,
+  },
 });
