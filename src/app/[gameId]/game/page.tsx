@@ -1,5 +1,4 @@
-import { GameClient } from "./_src/components/GameClient";
-import { GameProvider } from "./_src/provider/GameProvider";
+import { GameView } from "./_src/views/GameView";
 
 type GamePageProps = {
   params: Promise<{ gameId: string }>;
@@ -7,9 +6,5 @@ type GamePageProps = {
 
 export default async function GamePage({ params }: GamePageProps) {
   const { gameId } = await params;
-  return (
-    <GameProvider gameId={gameId}>
-      <GameClient />
-    </GameProvider>
-  );
+  return <GameView gameId={gameId} />;
 }

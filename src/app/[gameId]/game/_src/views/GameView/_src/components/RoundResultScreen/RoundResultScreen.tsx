@@ -5,24 +5,23 @@ import { motion } from "framer-motion";
 import { useMemo } from "react";
 import { Button } from "@/components/atoms/Button";
 import { moveEmojiMap } from "@/lib/gameplay";
-import { useGame } from "../../../../../provider/GameProvider";
+import { useGameSSE } from "../../../../../../../_src/providers/GameSSEProvider";
+import { useNextRoundMutation } from "../../../../../hooks/useNextRoundMutation";
 
 const WIN_MESSAGES = ["CRUSHED IT 💥", "LET'S GO 🔥", "TOO EASY 😎", "BOOM 💣"];
 const LOSE_MESSAGES = ["Ouch 😅", "Try again 👀", "Not this time 💀", "Oof 😬"];
 const DRAW_MESSAGES = ["Too close 🤝", "Great minds... 🧠", "Mirror match 🪞"];
 
-function getRandomMessage(messages: string[]) {
-  return messages[Math.floor(Math.random() * messages.length)];
-}
+const getRandomMessage = (messages: string[]) =>
+  messages[Math.floor(Math.random() * messages.length)];
 
-export function RoundResultScreen() {
-  const {
-    game,
-    playerIndex,
-    lastRoundResult,
-    handleNextRound,
-    isNextRoundPending,
-  } = useGame();
+type RoundResultScreenProps = {
+  gameId: string;
+};
+
+export const RoundResultScreen = ({ gameId }: RoundResultScreenProps) => {
+  const { game, playerIndex, lastRoundResult } = useGameSSE();
+  const { mutate, isPending } = useNextRoundMutation();
 
   const message = useMemo(() => {
     if (!lastRoundResult) return "";
@@ -145,18 +144,18 @@ export function RoundResultScreen() {
           <motion.button
             type="button"
             data-testid="next-round-button"
-            onClick={handleNextRound}
-            disabled={isNextRoundPending}
+            onClick={() => mutate({ gameId })}
+            disabled={isPending}
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.7 }}
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
           >
-            {isNextRoundPending ? "..." : "Next Round →"}
+            {isPending ? "..." : "Next Round →"}
           </motion.button>
         </Button>
       )}
     </section>
   );
-}
+};

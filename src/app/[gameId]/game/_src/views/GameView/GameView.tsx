@@ -1,13 +1,16 @@
 "use client";
 
 import { AnimatePresence, motion } from "framer-motion";
-import { useGame } from "../../provider/GameProvider";
+import { useGameSSE } from "../../../../_src/providers/GameSSEProvider";
 import { GamePlay } from "./_src/components/GamePlay";
 import { RoundResultScreen } from "./_src/components/RoundResultScreen";
 
-export function GameClient() {
-  const { game } = useGame();
+type GameViewProps = {
+  gameId: string;
+};
 
+export const GameView = ({ gameId }: GameViewProps) => {
+  const { game } = useGameSSE();
   const status = game?.status;
 
   return (
@@ -20,7 +23,7 @@ export function GameClient() {
           exit={{ opacity: 0, scale: 0.95 }}
           transition={{ duration: 0.3 }}
         >
-          <GamePlay />
+          <GamePlay gameId={gameId} />
         </motion.div>
       )}
 
@@ -32,9 +35,9 @@ export function GameClient() {
           exit={{ opacity: 0, scale: 1.1 }}
           transition={{ duration: 0.4 }}
         >
-          <RoundResultScreen />
+          <RoundResultScreen gameId={gameId} />
         </motion.div>
       )}
     </AnimatePresence>
   );
-}
+};

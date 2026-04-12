@@ -5,11 +5,17 @@ import { motion } from "framer-motion";
 import { useState } from "react";
 import { moveEmojiMap } from "@/lib/gameplay";
 import type { Move } from "@/lib/types";
-import { useGame } from "../../../../../provider/GameProvider";
+import { useGameSSE } from "../../../../../../../_src/providers/GameSSEProvider";
+import { useMakeMovesMutation } from "../../../../../hooks/useMakeMovesMutation";
 import { MOVES_OPTIONS } from "../../constants/gameplay";
 
-export function GamePlay() {
-  const { game, playerIndex, handleMove, isMovePending } = useGame();
+type GamePlayProps = {
+  gameId: string;
+};
+
+export const GamePlay = ({ gameId }: GamePlayProps) => {
+  const { game, playerIndex } = useGameSSE();
+  const { mutate, isPending } = useMakeMovesMutation();
   const [selectedMove, setSelectedMove] = useState<Move | null>(null);
 
   if (!game) return null;
@@ -19,10 +25,9 @@ export function GamePlay() {
   const opponentHasChosen = game.players[opponentIndex]?.hasChosen;
 
   const onMove = (move: Move) => {
-    if (hasChosen || isMovePending) return;
-
+    if (hasChosen || isPending) return;
     setSelectedMove(move);
-    handleMove(move);
+    mutate({ gameId, move });
   };
 
   return (
@@ -110,7 +115,7 @@ export function GamePlay() {
             type="button"
             key={move}
             data-testid={`move-${move}`}
-            disabled={hasChosen || isMovePending}
+            disabled={hasChosen || isPending}
             onClick={() => onMove(move)}
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -170,4 +175,4 @@ export function GamePlay() {
       </footer>
     </section>
   );
-}
+};
