@@ -14,7 +14,7 @@ import {
 
 type RouteContext = { params: Promise<{ gameId: string }> };
 
-export async function POST(request: Request, context: RouteContext) {
+export const POST = async (request: Request, context: RouteContext) => {
   const { gameId } = await context.params;
 
   const auth = authenticatePlayer(request, gameId, ["OWNER"]);
@@ -47,7 +47,7 @@ export async function POST(request: Request, context: RouteContext) {
     }
 
     broadcastToGame(gameId, "game-updated", {
-      game: sanitizeGame(game),
+      game: sanitizeGame({ game }),
     });
 
     console.log(`${kicked.name} was kicked from game ${gameId}`);
@@ -60,4 +60,4 @@ export async function POST(request: Request, context: RouteContext) {
       { status: 500 },
     );
   }
-}
+};

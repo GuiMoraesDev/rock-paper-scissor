@@ -4,7 +4,7 @@ import { sanitizeGame } from "../../_lib/game.logic";
 import { getGame, setPlayerToken } from "../../_lib/game.store";
 import { broadcastToGame } from "../../_lib/sse-connections";
 
-export async function POST(request: Request) {
+export const POST = async (request: Request) => {
   try {
     const { gameId, playerName } = await request.json();
 
@@ -58,7 +58,7 @@ export async function POST(request: Request) {
 
     // Notify existing players via SSE
     broadcastToGame(normalizedGameId, "game-updated", {
-      game: sanitizeGame(game),
+      game: sanitizeGame({ game }),
     });
 
     console.log(`${playerName} joined game ${normalizedGameId}`);
@@ -66,10 +66,10 @@ export async function POST(request: Request) {
     return NextResponse.json({
       gameId: normalizedGameId,
       playerToken,
-      game: sanitizeGame(game),
+      game: sanitizeGame({ game }),
     });
   } catch (error) {
     console.error("Error joining game:", error);
     return NextResponse.json({ error: "Failed to join game" }, { status: 500 });
   }
-}
+};

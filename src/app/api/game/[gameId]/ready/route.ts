@@ -1,25 +1,13 @@
 import { NextResponse } from "next/server";
 import { generateAIMove } from "../../../_lib/ai-strategy";
 import { authenticatePlayer } from "../../../_lib/auth";
-import { sanitizeGame } from "../../../_lib/game.logic";
+import { getAIMoveHistory, sanitizeGame } from "../../../_lib/game.logic";
 import { getGame } from "../../../_lib/game.store";
-import type { Game } from "../../../_lib/game.types";
 import { broadcastToGame } from "../../../_lib/sse-connections";
-
-function getAIMoveHistory(game: Game): string[] {
-  const currentGameMoves = game.roundResults.map((r) => r.moves[0]);
-  const pastMoves = game.aiMoveHistory ?? [];
-
-  if (game.aiDifficulty === "normal") {
-    return currentGameMoves;
-  }
-
-  return [...pastMoves, ...currentGameMoves];
-}
 
 type RouteContext = { params: Promise<{ gameId: string }> };
 
-export async function POST(request: Request, context: RouteContext) {
+export const POST = async (request: Request, context: RouteContext) => {
   const { gameId } = await context.params;
 
   const auth = authenticatePlayer(request, gameId, ["OWNER", "GUEST"]);
@@ -46,17 +34,17 @@ export async function POST(request: Request, context: RouteContext) {
       });
 
       if (game.aiDifficulty) {
-        const history = getAIMoveHistory(game);
-        game.players[1].move = generateAIMove(
-          game.aiDifficulty,
-          history,
-          game.roundResults,
-        );
+        const history = getAIMoveHistory({ game });
+        game.players[1].move = generateAIMove({
+          difficulty: game.aiDifficulty,
+          moveHistory: history,
+          roundResults: game.roundResults,
+        });
       }
     }
 
     broadcastToGame(gameId, "game-updated", {
-      game: sanitizeGame(game),
+      game: sanitizeGame({ game }),
     });
 
     return NextResponse.json({ success: true });
@@ -67,4 +55,4 @@ export async function POST(request: Request, context: RouteContext) {
       { status: 500 },
     );
   }
-}
+};

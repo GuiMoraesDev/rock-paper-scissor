@@ -1,4 +1,4 @@
-const MOVES = ["rock", "paper", "scissors"] as const;
+import { VALID_MOVES } from "./game.logic";
 
 const COUNTER_MOVE: Record<string, string> = {
   rock: "paper",
@@ -12,7 +12,11 @@ type RoundResultInput = { moves: [string, string]; winner: string };
 
 const RECENCY_DECAY = 0.85;
 
-export function predictByRecency(history: string[]): Prediction | null {
+type PredictByHistoryParams = { history: string[] };
+
+export const predictByRecency = ({
+  history,
+}: PredictByHistoryParams): Prediction | null => {
   if (history.length === 0) return null;
 
   const weights: Record<string, number> = {};
@@ -35,9 +39,11 @@ export function predictByRecency(history: string[]): Prediction | null {
 
   if (!bestMove) return null;
   return { move: bestMove, confidence: bestWeight / totalWeight };
-}
+};
 
-export function predictByTransition(history: string[]): Prediction | null {
+export const predictByTransition = ({
+  history,
+}: PredictByHistoryParams): Prediction | null => {
   if (history.length < 3) return null;
 
   const transitions: Record<string, Record<string, number>> = {};
@@ -65,9 +71,11 @@ export function predictByTransition(history: string[]): Prediction | null {
 
   if (!bestMove) return null;
   return { move: bestMove, confidence: bestCount / totalFromLast };
-}
+};
 
-export function predictBySequence(history: string[]): Prediction | null {
+export const predictBySequence = ({
+  history,
+}: PredictByHistoryParams): Prediction | null => {
   if (history.length < 4) return null;
 
   for (
@@ -103,9 +111,13 @@ export function predictBySequence(history: string[]): Prediction | null {
   }
 
   return null;
-}
+};
 
-export function detectCounterStrategy(roundResults: RoundResultInput[]): 1 | 2 {
+type DetectCounterStrategyParams = { roundResults: RoundResultInput[] };
+
+export const detectCounterStrategy = ({
+  roundResults,
+}: DetectCounterStrategyParams): 1 | 2 => {
   const recentWindow = 5;
   const recent = roundResults.slice(-recentWindow);
   if (recent.length < 3) return 1;
@@ -116,11 +128,13 @@ export function detectCounterStrategy(roundResults: RoundResultInput[]): 1 | 2 {
   }
 
   return playerWins / recent.length > 0.6 ? 2 : 1;
-}
+};
 
-function pickBestPrediction(
-  predictions: (Prediction | null)[],
-): Prediction | null {
+type PickBestPredictionParams = { predictions: (Prediction | null)[] };
+
+const pickBestPrediction = ({
+  predictions,
+}: PickBestPredictionParams): Prediction | null => {
   let best: Prediction | null = null;
   for (const p of predictions) {
     if (p && (!best || p.confidence > best.confidence)) {
@@ -128,44 +142,49 @@ function pickBestPrediction(
     }
   }
   return best;
-}
+};
 
-function randomMove(): string {
-  return MOVES[Math.floor(Math.random() * MOVES.length)];
-}
+const randomMove = (): string =>
+  VALID_MOVES[Math.floor(Math.random() * VALID_MOVES.length)];
 
-export function generateAIMove(
-  difficulty: "easy" | "normal" | "hard",
-  moveHistory: string[],
-  roundResults?: RoundResultInput[],
-): string {
+type GenerateAIMoveParams = {
+  difficulty: "easy" | "normal" | "hard";
+  moveHistory: string[];
+  roundResults?: RoundResultInput[];
+};
+
+export const generateAIMove = ({
+  difficulty,
+  moveHistory,
+  roundResults,
+}: GenerateAIMoveParams): string => {
   if (difficulty === "easy") {
     return randomMove();
   }
 
   if (difficulty === "normal") {
-    const prediction = predictByRecency(moveHistory);
+    const prediction = predictByRecency({ history: moveHistory });
     if (!prediction) return randomMove();
     return Math.random() < 0.6 ? COUNTER_MOVE[prediction.move] : randomMove();
   }
 
   // Hard mode: multi-strategy + meta-game awareness
   const predictions = [
-    predictByRecency(moveHistory),
-    predictByTransition(moveHistory),
-    predictBySequence(moveHistory),
+    predictByRecency({ history: moveHistory }),
+    predictByTransition({ history: moveHistory }),
+    predictBySequence({ history: moveHistory }),
   ];
 
-  const best = pickBestPrediction(predictions);
+  const best = pickBestPrediction({ predictions });
   if (!best) return randomMove();
 
   if (Math.random() >= 0.85) return randomMove();
 
-  const depth = detectCounterStrategy(roundResults ?? []);
+  const depth = detectCounterStrategy({ roundResults: roundResults ?? [] });
 
   if (depth === 2) {
     return best.move;
   }
 
   return COUNTER_MOVE[best.move];
-}
+};

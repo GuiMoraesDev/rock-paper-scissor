@@ -5,7 +5,7 @@ import { sendToPlayer } from "../../../../_lib/sse-connections";
 
 type RouteContext = { params: Promise<{ gameId: string }> };
 
-export async function POST(request: Request, context: RouteContext) {
+export const POST = async (request: Request, context: RouteContext) => {
   const { gameId } = await context.params;
 
   const auth = authenticatePlayer(request, gameId, ["OWNER", "GUEST"]);
@@ -44,4 +44,4 @@ export async function POST(request: Request, context: RouteContext) {
       { status: 500 },
     );
   }
-}
+};

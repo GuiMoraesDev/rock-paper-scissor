@@ -4,7 +4,7 @@ import { generateGameId, sanitizeGame } from "../../_lib/game.logic";
 import { setGame, setPlayerToken } from "../../_lib/game.store";
 import type { Game } from "../../_lib/game.types";
 
-export async function POST(request: Request) {
+export const POST = async (request: Request) => {
   try {
     const { playerName, rounds } = await request.json();
 
@@ -54,7 +54,7 @@ export async function POST(request: Request) {
     return NextResponse.json({
       gameId,
       playerToken,
-      game: sanitizeGame(game),
+      game: sanitizeGame({ game }),
     });
   } catch (error) {
     console.error("Error creating game:", error);
@@ -63,4 +63,4 @@ export async function POST(request: Request) {
       { status: 500 },
     );
   }
-}
+};

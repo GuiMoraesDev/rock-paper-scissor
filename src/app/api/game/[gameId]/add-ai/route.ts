@@ -6,7 +6,7 @@ import { broadcastToGame } from "../../../_lib/sse-connections";
 
 type RouteContext = { params: Promise<{ gameId: string }> };
 
-export async function POST(request: Request, context: RouteContext) {
+export const POST = async (request: Request, context: RouteContext) => {
   const { gameId } = await context.params;
 
   const auth = authenticatePlayer(request, gameId, ["OWNER"]);
@@ -49,7 +49,7 @@ export async function POST(request: Request, context: RouteContext) {
     game.aiMoveHistory = Array.isArray(moveHistory) ? moveHistory : [];
 
     broadcastToGame(gameId, "game-updated", {
-      game: sanitizeGame(game),
+      game: sanitizeGame({ game }),
     });
 
     console.log(`AI (${difficulty}) added to game ${gameId}`);
@@ -62,4 +62,4 @@ export async function POST(request: Request, context: RouteContext) {
       { status: 500 },
     );
   }
-}
+};

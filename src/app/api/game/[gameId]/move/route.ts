@@ -4,16 +4,15 @@ import {
   resolveRound,
   sanitizeGame,
   sanitizeGameFull,
+  VALID_MOVES,
 } from "../../../_lib/game.logic";
 import { getGame } from "../../../_lib/game.store";
 import type { RoundResult } from "../../../_lib/game.types";
 import { broadcastToGame } from "../../../_lib/sse-connections";
 
-const VALID_MOVES = ["rock", "paper", "scissors"];
-
 type RouteContext = { params: Promise<{ gameId: string }> };
 
-export async function POST(request: Request, context: RouteContext) {
+export const POST = async (request: Request, context: RouteContext) => {
   const { gameId } = await context.params;
 
   const auth = authenticatePlayer(request, gameId, ["OWNER", "GUEST"]);
@@ -39,11 +38,14 @@ export async function POST(request: Request, context: RouteContext) {
     game.players[meta.playerIndex].move = move;
 
     broadcastToGame(gameId, "game-updated", {
-      game: sanitizeGame(game),
+      game: sanitizeGame({ game }),
     });
 
     if (game.players[0].move && game.players[1].move) {
-      const result = resolveRound(game.players[0].move, game.players[1].move);
+      const result = resolveRound({
+        move1: game.players[0].move,
+        move2: game.players[1].move,
+      });
 
       const roundResult: RoundResult = {
         round: game.currentRound,
@@ -58,7 +60,7 @@ export async function POST(request: Request, context: RouteContext) {
       game.status = "round-result";
 
       broadcastToGame(gameId, "round-result", {
-        game: sanitizeGameFull(game),
+        game: sanitizeGameFull({ game }),
         roundResult,
       });
 
@@ -75,7 +77,7 @@ export async function POST(request: Request, context: RouteContext) {
               : "draw";
 
         broadcastToGame(gameId, "game-finished", {
-          game: sanitizeGameFull(game),
+          game: sanitizeGameFull({ game }),
         });
       }
     }
@@ -88,4 +90,4 @@ export async function POST(request: Request, context: RouteContext) {
       { status: 500 },
     );
   }
-}
+};

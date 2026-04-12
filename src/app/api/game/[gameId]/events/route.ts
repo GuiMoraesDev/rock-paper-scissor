@@ -20,7 +20,7 @@ const DISCONNECT_TIMEOUT_MS = 30_000;
 
 type RouteContext = { params: Promise<{ gameId: string }> };
 
-export async function GET(request: Request, context: RouteContext) {
+export const GET = async (request: Request, context: RouteContext) => {
   const { gameId } = await context.params;
 
   const auth = authenticateSSE(request, gameId);
@@ -42,8 +42,8 @@ export async function GET(request: Request, context: RouteContext) {
       if (game) {
         const sanitized =
           game.status === "round-result" || game.status === "finished"
-            ? sanitizeGameFull(game)
-            : sanitizeGame(game);
+            ? sanitizeGameFull({ game })
+            : sanitizeGame({ game });
 
         const message = `event: game-state\ndata: ${JSON.stringify({
           game: sanitized,
@@ -94,4 +94,4 @@ export async function GET(request: Request, context: RouteContext) {
       Connection: "keep-alive",
     },
   });
-}
+};
