@@ -18,6 +18,9 @@ vi.mock("./_src/components/AddAIButton", () => ({
 vi.mock("next/navigation", () => ({ useRouter: vi.fn() }));
 vi.mock("@/lib/game-api");
 vi.mock("@/services/game.api");
+vi.mock("../../hooks/useLeaveGameMutation", () => ({
+  useLeaveGameMutation: () => ({ mutate: vi.fn(), isPending: false }),
+}));
 
 const createGameState = (overrides: Partial<GameState> = {}): GameState => ({
   id: "ABC123",

@@ -2,13 +2,10 @@
 
 import clsx from "clsx";
 import { AnimatePresence, motion } from "framer-motion";
-import { useRouter } from "next/navigation";
-import { useCallback } from "react";
 import { Button } from "@/components/atoms/Button";
 import { toast } from "@/components/atoms/Toaster";
-import { clearPlayerToken } from "@/lib/game-api";
-import { leaveGame as leaveGameService } from "@/services/lobby.api";
 import { useGameSSE } from "../../../../_src/providers/GameSSEProvider";
+import { useLeaveGameMutation } from "../../hooks/useLeaveGameMutation";
 import { AddAIButton } from "./_src/components/AddAIButton";
 import { KickPlayerButton } from "./_src/components/KickPlayerButton";
 import { ReadyButton } from "./_src/components/ReadyButton";
@@ -18,14 +15,8 @@ type LobbyViewProps = {
 };
 
 export const LobbyView = ({ gameId }: LobbyViewProps) => {
-  const router = useRouter();
   const { game, playerIndex } = useGameSSE();
-
-  const handleLeaveGame = useCallback(() => {
-    leaveGameService({ gameId });
-    clearPlayerToken();
-    router.push("/");
-  }, [gameId, router]);
+  const { mutate: leaveGame, isPending: isLeaving } = useLeaveGameMutation();
 
   if (!game) return null;
 
@@ -156,7 +147,8 @@ export const LobbyView = ({ gameId }: LobbyViewProps) => {
             variant="ghost"
             size="sm"
             data-testid="leave-game-button"
-            onClick={handleLeaveGame}
+            disabled={isLeaving}
+            onClick={() => leaveGame({ gameId })}
           >
             ← {playerIndex === 0 ? "Destroy & Leave" : "Leave Game"}
           </Button>
