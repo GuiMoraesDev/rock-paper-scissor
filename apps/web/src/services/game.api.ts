@@ -1,4 +1,4 @@
-import type { Move } from "@rps/shared";
+import type { Move } from "@/lib/types";
 import { api } from "./api";
 
 type MakeMovePayload = { gameId: string; move: Move };

@@ -1,8 +1,8 @@
-import type { GameState } from "@rps/shared";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { act, fireEvent, render, screen } from "@testing-library/react";
 import type { ReactNode } from "react";
 import { describe, expect, it, vi } from "vitest";
+import type { GameState } from "@/lib/types";
 import { useLobby } from "../../provider/LobbyProvider";
 import { Lobby } from "./Lobby";
 

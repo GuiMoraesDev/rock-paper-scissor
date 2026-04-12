@@ -1,4 +1,4 @@
-import type { AIDifficulty, GameState, Move } from "@rps/shared";
+import type { AIDifficulty, GameState, Move } from "@/lib/types";
 import { api } from "./api";
 
 type CreateGamePayload = { playerName: string; rounds: number };

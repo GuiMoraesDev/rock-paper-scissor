@@ -1,8 +1,8 @@
 "use client";
 
-import type { AIDifficulty } from "@rps/shared";
 import { Button } from "@/components/atoms/Button";
 import { Modal } from "@/components/atoms/Modal";
+import type { AIDifficulty } from "@/lib/types";
 
 const DIFFICULTY_OPTIONS: {
   value: AIDifficulty;

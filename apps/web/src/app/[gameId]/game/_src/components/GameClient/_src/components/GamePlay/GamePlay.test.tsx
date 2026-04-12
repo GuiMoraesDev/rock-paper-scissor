@@ -1,9 +1,9 @@
-import type { GameState, Move, RoundResult } from "@rps/shared";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { fireEvent, render, screen } from "@testing-library/react";
 import type { ReactNode } from "react";
 import { createContext, useContext } from "react";
 import { describe, expect, it, vi } from "vitest";
+import type { GameState, Move, RoundResult } from "@/lib/types";
 import { GamePlay } from "./GamePlay";
 
 type RematchState = "idle" | "requested" | "received";

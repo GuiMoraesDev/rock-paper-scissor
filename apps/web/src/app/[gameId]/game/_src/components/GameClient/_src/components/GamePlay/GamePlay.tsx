@@ -1,10 +1,10 @@
 "use client";
 
-import type { Move } from "@rps/shared";
 import clsx from "clsx";
 import { motion } from "framer-motion";
 import { useState } from "react";
 import { moveEmojiMap } from "@/lib/gameplay";
+import type { Move } from "@/lib/types";
 import { useGame } from "../../../../../provider/GameProvider";
 import { MOVES_OPTIONS } from "../../constants/gameplay";
 

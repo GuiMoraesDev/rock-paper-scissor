@@ -104,4 +104,4 @@ When exposing state through context, wrap state transitions in **named functions
 
 ## Types
 
-Shared types from `@rps/shared`: `Move`, `Player`, `GameState`, `RoundResult`, `SSEEvents`, `AIDifficulty`.
+Game types live in `src/lib/types.ts`: `Move`, `Player`, `GameState`, `RoundResult`, `SSEEvents`, `AIDifficulty`.

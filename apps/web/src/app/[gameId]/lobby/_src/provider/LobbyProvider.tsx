@@ -1,11 +1,11 @@
 "use client";
 
-import type { GameState } from "@rps/shared";
 import { useMutation } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { createContext, type ReactNode, useCallback, useContext } from "react";
 import { toast } from "@/components/atoms/Toaster";
 import { clearPlayerToken } from "@/lib/game-api";
+import type { GameState } from "@/lib/types";
 import { leaveGame as leaveGameService } from "@/services/game.api";
 import {
   kickPlayer as kickPlayerService,

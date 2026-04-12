@@ -1,6 +1,5 @@
 "use client";
 
-import type { GameState, Move, RoundResult } from "@rps/shared";
 import { usePathname, useRouter } from "next/navigation";
 import {
   createContext,
@@ -18,6 +17,7 @@ import {
   getPlayerToken,
   setPlayerToken,
 } from "@/lib/game-api";
+import type { GameState, Move, RoundResult } from "@/lib/types";
 import { useGameNotFound } from "./GameNotFoundProvider";
 
 const STORAGE_KEY = "rps-ai-move-history";

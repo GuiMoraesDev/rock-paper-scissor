@@ -23,10 +23,9 @@ npm run dev -- --filter=@rps/web    # Next.js on port 3000
 
 ## Architecture
 
-Turborepo monorepo with two workspaces:
+Turborepo monorepo with one workspace:
 
-- **`apps/web`** — Next.js 15 frontend (App Router) with Tailwind CSS, Framer Motion, SSE for real-time updates, and API routes for game logic
-- **`packages/shared`** — Shared TypeScript types (`Move`, `Player`, `GameState`, `RoundResult`, `SSEEvents`) imported as `@rps/shared`
+- **`apps/web`** — Next.js 15 frontend (App Router) with Tailwind CSS, Framer Motion, SSE for real-time updates, and API routes for game logic. Game types (`Move`, `Player`, `GameState`, `RoundResult`, `SSEEvents`, `AIDifficulty`) live in `src/lib/types.ts`.
 
 ### Real-time game flow
 

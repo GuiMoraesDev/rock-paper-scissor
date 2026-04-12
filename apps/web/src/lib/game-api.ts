@@ -35,7 +35,7 @@ export function getStoredGameId(): string | null {
   }
 }
 
-import type { Move } from "@rps/shared";
+import type { Move } from "@/lib/types";
 
 const STORAGE_KEY = "rps-ai-move-history";
 

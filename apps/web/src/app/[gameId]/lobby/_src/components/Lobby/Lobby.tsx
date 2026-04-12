@@ -1,6 +1,5 @@
 "use client";
 
-import type { AIDifficulty } from "@rps/shared";
 import { useMutation } from "@tanstack/react-query";
 import clsx from "clsx";
 import { motion } from "framer-motion";
@@ -8,6 +7,7 @@ import { useState } from "react";
 import { Button } from "@/components/atoms/Button";
 import { toast } from "@/components/atoms/Toaster";
 import { getAIMoveHistory } from "@/lib/game-api";
+import type { AIDifficulty } from "@/lib/types";
 import { addAIPlayer } from "@/services/lobby.api";
 import { useLobby } from "../../provider/LobbyProvider";
 import { AIDifficultyModal } from "./_src/components/AIDifficultyModal";
