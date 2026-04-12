@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { createPlayerToken } from "../_lib/auth";
 import { captureApiError } from "../_lib/capture-error";
 import { sanitizeGame } from "../_lib/game.logic";
-import { getGame, setPlayerToken } from "../_lib/game.store";
+import { findGame, savePlayerToken } from "../_lib/game.repository";
 import { broadcastToGame } from "../_lib/sse-connections";
 
 export const POST = async (request: Request) => {
@@ -24,7 +24,7 @@ export const POST = async (request: Request) => {
     }
 
     const normalizedGameId = gameId.toUpperCase();
-    const game = getGame(normalizedGameId);
+    const game = findGame(normalizedGameId);
 
     if (!game) {
       return NextResponse.json({ error: "Game not found!" }, { status: 404 });
@@ -51,7 +51,7 @@ export const POST = async (request: Request) => {
       score: 0,
     });
 
-    setPlayerToken(playerToken, {
+    savePlayerToken(playerToken, {
       gameId: normalizedGameId,
       playerIndex: 1,
       role: "GUEST",

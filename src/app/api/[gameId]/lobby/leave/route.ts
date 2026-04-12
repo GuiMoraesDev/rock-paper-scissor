@@ -3,11 +3,11 @@ import { authenticatePlayer } from "../../../_lib/auth";
 import { captureApiError } from "../../../_lib/capture-error";
 import { sanitizeGame } from "../../../_lib/game.logic";
 import {
-  deleteGame,
-  deletePlayerToken,
-  deleteTokensByGame,
-  getGame,
-} from "../../../_lib/game.store";
+  findGame,
+  removeAllGameTokens,
+  removeGame,
+  removePlayerToken,
+} from "../../../_lib/game.repository";
 import {
   broadcastToGame,
   removeConnection,
@@ -25,7 +25,7 @@ export const POST = async (request: Request, context: RouteContext) => {
   const { meta, token } = auth;
 
   try {
-    const game = getGame(gameId);
+    const game = findGame(gameId);
     if (!game) {
       return NextResponse.json({ error: "Game not found" }, { status: 404 });
     }
@@ -35,14 +35,14 @@ export const POST = async (request: Request, context: RouteContext) => {
 
     if (isCreator) {
       broadcastToGame(gameId, "player-disconnected", { playerName });
-      deleteTokensByGame(gameId);
-      deleteGame(gameId);
+      removeAllGameTokens(gameId);
+      removeGame(gameId);
       removeGameConnections(gameId);
       console.log(`${playerName} destroyed game ${gameId}`);
     } else {
       game.players.splice(meta.playerIndex, 1);
       game.status = "waiting";
-      deletePlayerToken(token);
+      removePlayerToken(token);
       removeConnection(gameId, token);
       broadcastToGame(gameId, "game-updated", {
         game: sanitizeGame({ game }),

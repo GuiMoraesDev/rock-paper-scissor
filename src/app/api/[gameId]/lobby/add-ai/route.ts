@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { authenticatePlayer } from "../../../_lib/auth";
 import { captureApiError } from "../../../_lib/capture-error";
 import { sanitizeGame } from "../../../_lib/game.logic";
-import { getGame } from "../../../_lib/game.store";
+import { findGame } from "../../../_lib/game.repository";
 import { broadcastToGame } from "../../../_lib/sse-connections";
 
 type RouteContext = { params: Promise<{ gameId: string }> };
@@ -23,7 +23,7 @@ export const POST = async (request: Request, context: RouteContext) => {
       );
     }
 
-    const game = getGame(gameId);
+    const game = findGame(gameId);
     if (!game) {
       return NextResponse.json({ error: "Game not found" }, { status: 404 });
     }

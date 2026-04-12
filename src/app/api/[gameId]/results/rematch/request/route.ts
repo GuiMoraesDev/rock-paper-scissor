@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { authenticatePlayer } from "../../../../_lib/auth";
 import { captureApiError } from "../../../../_lib/capture-error";
 import { createRematchGame } from "../../../../_lib/game.logic";
-import { findTokenByGameAndPlayer, getGame } from "../../../../_lib/game.store";
+import { findGame, findTokenByPlayer } from "../../../../_lib/game.repository";
 import { sendToPlayer } from "../../../../_lib/sse-connections";
 
 type RouteContext = { params: Promise<{ gameId: string }> };
@@ -16,7 +16,7 @@ export const POST = async (request: Request, context: RouteContext) => {
   const { meta } = auth;
 
   try {
-    const game = getGame(gameId);
+    const game = findGame(gameId);
     if (!game || game.status !== "finished") {
       return NextResponse.json(
         { error: "Game is not finished" },
@@ -35,7 +35,7 @@ export const POST = async (request: Request, context: RouteContext) => {
     const playerName = game.players[meta.playerIndex]?.name ?? "Unknown";
 
     const opponentIndex = meta.playerIndex === 0 ? 1 : 0;
-    const opponentToken = findTokenByGameAndPlayer(gameId, opponentIndex);
+    const opponentToken = findTokenByPlayer(gameId, opponentIndex);
 
     if (opponentToken) {
       sendToPlayer(gameId, opponentToken, "rematch-requested", {

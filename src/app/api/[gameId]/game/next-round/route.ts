@@ -3,7 +3,7 @@ import { generateAIMove } from "../../../_lib/ai-strategy";
 import { authenticatePlayer } from "../../../_lib/auth";
 import { captureApiError } from "../../../_lib/capture-error";
 import { getAIMoveHistory, sanitizeGame } from "../../../_lib/game.logic";
-import { getGame } from "../../../_lib/game.store";
+import { findGame } from "../../../_lib/game.repository";
 import { broadcastToGame } from "../../../_lib/sse-connections";
 
 type RouteContext = { params: Promise<{ gameId: string }> };
@@ -15,7 +15,7 @@ export const POST = async (request: Request, context: RouteContext) => {
   if (!auth.success) return auth.response;
 
   try {
-    const game = getGame(gameId);
+    const game = findGame(gameId);
     if (!game || game.status !== "round-result") {
       return NextResponse.json(
         { error: "Game is not in round-result state" },

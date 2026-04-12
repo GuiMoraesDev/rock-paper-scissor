@@ -1,12 +1,12 @@
 import { authenticateSSE } from "../../_lib/auth";
 import { sanitizeGame, sanitizeGameFull } from "../../_lib/game.logic";
 import {
-  clearDisconnectTimer,
-  deleteGame,
-  getGame,
-  getPlayerMeta,
-  setDisconnectTimer,
-} from "../../_lib/game.store";
+  cancelDisconnectCleanup,
+  findGame,
+  findPlayerMeta,
+  removeGame,
+  scheduleDisconnectCleanup,
+} from "../../_lib/game.repository";
 import {
   addConnection,
   broadcastToGame,
@@ -30,7 +30,7 @@ export const GET = async (request: Request, context: RouteContext) => {
   const { meta, token } = auth;
 
   // Cancel any pending disconnect timer for this player
-  clearDisconnectTimer(token);
+  cancelDisconnectCleanup(token);
 
   const encoder = new TextEncoder();
 
@@ -39,7 +39,7 @@ export const GET = async (request: Request, context: RouteContext) => {
       addConnection(gameId, token, controller);
 
       // Send initial game state
-      const game = getGame(gameId);
+      const game = findGame(gameId);
       if (game) {
         const sanitized =
           game.status === "round-result" || game.status === "finished"
@@ -67,25 +67,26 @@ export const GET = async (request: Request, context: RouteContext) => {
         clearInterval(heartbeat);
         removeConnection(gameId, token);
 
-        const game = getGame(gameId);
+        const disconnectedGame = findGame(gameId);
         // Only broadcast if the player token still exists — if it was already
         // deleted (intentional leave via the leave API), skip the broadcast to
         // avoid overriding the game-updated event the owner already received.
-        if (game && getPlayerMeta(token)) {
+        if (disconnectedGame && findPlayerMeta(token)) {
           const playerName =
-            game.players[meta.playerIndex]?.name ?? "Unknown player";
+            disconnectedGame.players[meta.playerIndex]?.name ??
+            "Unknown player";
 
           broadcastToGame(gameId, "player-disconnected", { playerName });
 
           // Schedule cleanup after timeout
           const timer = setTimeout(() => {
             if (getGameConnectionCount(gameId) === 0) {
-              deleteGame(gameId);
+              removeGame(gameId);
               console.log(`Game ${gameId} cleaned up after disconnect timeout`);
             }
           }, DISCONNECT_TIMEOUT_MS);
 
-          setDisconnectTimer(token, timer);
+          scheduleDisconnectCleanup(token, timer);
         }
       });
     },

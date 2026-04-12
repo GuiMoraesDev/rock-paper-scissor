@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { authenticatePlayer } from "../../../../_lib/auth";
 import { captureApiError } from "../../../../_lib/capture-error";
 import { createRematchGame } from "../../../../_lib/game.logic";
-import { getGame } from "../../../../_lib/game.store";
+import { findGame } from "../../../../_lib/game.repository";
 
 type RouteContext = { params: Promise<{ gameId: string }> };
 
@@ -13,7 +13,7 @@ export const POST = async (request: Request, context: RouteContext) => {
   if (!auth.success) return auth.response;
 
   try {
-    const oldGame = getGame(gameId);
+    const oldGame = findGame(gameId);
     if (!oldGame || oldGame.rematchRequestedBy === undefined) {
       return NextResponse.json(
         { error: "No rematch request pending" },

@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { authenticatePlayer } from "../../../../_lib/auth";
 import { captureApiError } from "../../../../_lib/capture-error";
-import { findTokenByGameAndPlayer, getGame } from "../../../../_lib/game.store";
+import { findGame, findTokenByPlayer } from "../../../../_lib/game.repository";
 import { sendToPlayer } from "../../../../_lib/sse-connections";
 
 type RouteContext = { params: Promise<{ gameId: string }> };
@@ -15,7 +15,7 @@ export const POST = async (request: Request, context: RouteContext) => {
   const { meta } = auth;
 
   try {
-    const game = getGame(gameId);
+    const game = findGame(gameId);
     if (!game || game.rematchRequestedBy === undefined) {
       return NextResponse.json(
         { error: "No rematch request pending" },
@@ -23,10 +23,7 @@ export const POST = async (request: Request, context: RouteContext) => {
       );
     }
 
-    const requesterToken = findTokenByGameAndPlayer(
-      gameId,
-      game.rematchRequestedBy,
-    );
+    const requesterToken = findTokenByPlayer(gameId, game.rematchRequestedBy);
 
     if (requesterToken) {
       sendToPlayer(gameId, requesterToken, "rematch-denied", {

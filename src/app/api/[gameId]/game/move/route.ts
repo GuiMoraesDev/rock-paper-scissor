@@ -7,7 +7,7 @@ import {
   sanitizeGameFull,
   VALID_MOVES,
 } from "../../../_lib/game.logic";
-import { getGame } from "../../../_lib/game.store";
+import { findGame } from "../../../_lib/game.repository";
 import type { RoundResult } from "../../../_lib/game.types";
 import { broadcastToGame } from "../../../_lib/sse-connections";
 
@@ -28,7 +28,7 @@ export const POST = async (request: Request, context: RouteContext) => {
       return NextResponse.json({ error: "Invalid move" }, { status: 400 });
     }
 
-    const game = getGame(gameId);
+    const game = findGame(gameId);
     if (!game || game.status !== "playing") {
       return NextResponse.json(
         { error: "Game is not in playing state" },

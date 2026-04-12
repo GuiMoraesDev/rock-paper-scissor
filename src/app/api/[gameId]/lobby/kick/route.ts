@@ -3,10 +3,10 @@ import { authenticatePlayer } from "../../../_lib/auth";
 import { captureApiError } from "../../../_lib/capture-error";
 import { sanitizeGame } from "../../../_lib/game.logic";
 import {
-  deletePlayerToken,
-  findTokenByGameAndPlayer,
-  getGame,
-} from "../../../_lib/game.store";
+  findGame,
+  findTokenByPlayer,
+  removePlayerToken,
+} from "../../../_lib/game.repository";
 import {
   broadcastToGame,
   removeConnection,
@@ -22,7 +22,7 @@ export const POST = async (request: Request, context: RouteContext) => {
   if (!auth.success) return auth.response;
 
   try {
-    const game = getGame(gameId);
+    const game = findGame(gameId);
     if (!game || game.players.length < 2) {
       return NextResponse.json({ error: "No player to kick" }, { status: 409 });
     }
@@ -35,7 +35,7 @@ export const POST = async (request: Request, context: RouteContext) => {
     }
 
     const kicked = game.players[1];
-    const kickedToken = findTokenByGameAndPlayer(gameId, 1);
+    const kickedToken = findTokenByPlayer(gameId, 1);
 
     game.players.splice(1, 1);
 
@@ -44,7 +44,7 @@ export const POST = async (request: Request, context: RouteContext) => {
         message: "You have been kicked from the game.",
       });
       removeConnection(gameId, kickedToken);
-      deletePlayerToken(kickedToken);
+      removePlayerToken(kickedToken);
     }
 
     broadcastToGame(gameId, "game-updated", {

@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { createPlayerToken } from "../_lib/auth";
 import { captureApiError } from "../_lib/capture-error";
 import { generateGameId, sanitizeGame } from "../_lib/game.logic";
-import { setGame, setPlayerToken } from "../_lib/game.store";
+import { saveGame, savePlayerToken } from "../_lib/game.repository";
 import type { Game } from "../_lib/game.types";
 
 export const POST = async (request: Request) => {
@@ -43,8 +43,8 @@ export const POST = async (request: Request) => {
       status: "waiting",
     };
 
-    setGame(gameId, game);
-    setPlayerToken(playerToken, {
+    saveGame(gameId, game);
+    savePlayerToken(playerToken, {
       gameId,
       playerIndex: 0,
       role: "OWNER",
