@@ -1,37 +1,27 @@
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { fireEvent, render, screen } from "@testing-library/react";
-import type { ReactNode } from "react";
-import { createContext, useContext } from "react";
-import { describe, expect, it, vi } from "vitest";
+import { useRouter } from "next/navigation";
+import { beforeEach, describe, expect, it, vi } from "vitest";
+import * as gameApiLib from "@/lib/game-api";
 import type { GameState, RoundResult } from "@/lib/types";
+import * as GameSSEProviderModule from "../../../../_src/providers/GameSSEProvider";
+import * as useAcceptRematchMutationModule from "../../hooks/useAcceptRematchMutation";
+import * as useDenyRematchMutationModule from "../../hooks/useDenyRematchMutation";
+import * as useRequestRematchMutationModule from "../../hooks/useRequestRematchMutation";
 import { ResultsClient } from "./ResultsClient";
 
-type RematchState = "idle" | "requested" | "received";
+vi.mock("../../../../_src/providers/GameSSEProvider");
+vi.mock("../../hooks/useRequestRematchMutation");
+vi.mock("../../hooks/useAcceptRematchMutation");
+vi.mock("../../hooks/useDenyRematchMutation");
+vi.mock("next/navigation", () => ({ useRouter: vi.fn() }));
+vi.mock("@/lib/game-api");
 
-type ResultsContextValue = {
-  game: GameState | null;
-  playerIndex: number;
-  rematchState: RematchState;
-  rematchRequesterName: string;
-  isRequestRematchPending: boolean;
-  isAcceptRematchPending: boolean;
-  isDenyRematchPending: boolean;
-  handlePlayAgain: () => void;
-  handleRequestRematch: () => void;
-  handleAcceptRematch: () => void;
-  handleDenyRematch: () => void;
-};
-
-const ResultsContext = createContext<ResultsContextValue | null>(null);
-
-vi.mock("../../provider/ResultsProvider", () => ({
-  useResults: () => {
-    const ctx = useContext(ResultsContext);
-    if (!ctx)
-      throw new Error("useResults must be used within test ResultsProvider");
-    return ctx;
-  },
-}));
+const mockPush = vi.fn();
+const mockRequestMutate = vi.fn();
+const mockAcceptMutate = vi.fn();
+const mockDenyMutate = vi.fn();
+const mockMarkRematchSent = vi.fn();
+const mockMarkRematchCancelled = vi.fn();
 
 const createRoundResult = (
   overrides: Partial<RoundResult> = {},
@@ -59,35 +49,48 @@ const createGameState = (overrides: Partial<GameState> = {}): GameState => ({
 type RenderOptions = {
   game?: GameState;
   playerIndex?: number;
-  rematchState?: RematchState;
+  rematchState?: "idle" | "requested" | "received";
   rematchRequesterName?: string;
+  isRequestRematchPending?: boolean;
+  isAcceptRematchPending?: boolean;
+  isDenyRematchPending?: boolean;
 };
 
-const renderWithResults = (ui: ReactNode, options: RenderOptions = {}) => {
-  const testQueryClient = new QueryClient({
-    defaultOptions: { mutations: { retry: false } },
-  });
-  const context: ResultsContextValue = {
+const renderWithMocks = (options: RenderOptions = {}) => {
+  vi.mocked(GameSSEProviderModule.useGameSSE).mockReturnValue({
     game: options.game ?? createGameState(),
     playerIndex: options.playerIndex ?? 0,
     rematchState: options.rematchState ?? "idle",
     rematchRequesterName: options.rematchRequesterName ?? "",
-    isRequestRematchPending: false,
-    isAcceptRematchPending: false,
-    isDenyRematchPending: false,
-    handlePlayAgain: vi.fn(),
-    handleRequestRematch: vi.fn(),
-    handleAcceptRematch: vi.fn(),
-    handleDenyRematch: vi.fn(),
-  };
+    markRematchSent: mockMarkRematchSent,
+    markRematchCancelled: mockMarkRematchCancelled,
+    error: null,
+    lastRoundResult: null,
+    setGameNotFound: vi.fn(),
+  } as never);
 
-  const result = render(
-    <QueryClientProvider client={testQueryClient}>
-      <ResultsContext.Provider value={context}>{ui}</ResultsContext.Provider>
-    </QueryClientProvider>,
-  );
+  vi.mocked(
+    useRequestRematchMutationModule.useRequestRematchMutation,
+  ).mockReturnValue({
+    mutate: mockRequestMutate,
+    isPending: options.isRequestRematchPending ?? false,
+  } as never);
 
-  return { ...result, context };
+  vi.mocked(
+    useAcceptRematchMutationModule.useAcceptRematchMutation,
+  ).mockReturnValue({
+    mutate: mockAcceptMutate,
+    isPending: options.isAcceptRematchPending ?? false,
+  } as never);
+
+  vi.mocked(
+    useDenyRematchMutationModule.useDenyRematchMutation,
+  ).mockReturnValue({
+    mutate: mockDenyMutate,
+    isPending: options.isDenyRematchPending ?? false,
+  } as never);
+
+  return render(<ResultsClient gameId="ABC123" />);
 };
 
 const finishedGame = (
@@ -122,87 +125,78 @@ const finishedGame = (
     ],
   });
 
+beforeEach(() => {
+  vi.clearAllMocks();
+  vi.mocked(useRouter).mockReturnValue({ push: mockPush } as never);
+});
+
 describe("ResultsClient", () => {
   it("renders Game Over heading", () => {
-    renderWithResults(<ResultsClient />, { game: finishedGame(2, 1) });
+    renderWithMocks({ game: finishedGame(2, 1) });
     expect(screen.getByText("Game Over!")).toBeInTheDocument();
   });
 
   it("shows You Win when player wins", () => {
-    renderWithResults(<ResultsClient />, {
-      game: finishedGame(2, 1),
-      playerIndex: 0,
-    });
+    renderWithMocks({ game: finishedGame(2, 1), playerIndex: 0 });
     expect(screen.getByText(/You Win/)).toBeInTheDocument();
   });
 
   it("shows You Lose when player loses", () => {
-    renderWithResults(<ResultsClient />, {
-      game: finishedGame(2, 1),
-      playerIndex: 1,
-    });
+    renderWithMocks({ game: finishedGame(2, 1), playerIndex: 1 });
     expect(screen.getByText(/You Lose/)).toBeInTheDocument();
   });
 
   it("shows tie when scores are equal", () => {
-    renderWithResults(<ResultsClient />, { game: finishedGame(1, 1) });
+    renderWithMocks({ game: finishedGame(1, 1) });
     expect(screen.getByText(/Tie/)).toBeInTheDocument();
   });
 
   it("displays final scores", () => {
-    renderWithResults(<ResultsClient />, { game: finishedGame(2, 1) });
+    renderWithMocks({ game: finishedGame(2, 1) });
     expect(screen.getByText("Alice: 2")).toBeInTheDocument();
     expect(screen.getByText("Bob: 1")).toBeInTheDocument();
   });
 
   it("renders round-by-round results", () => {
-    renderWithResults(<ResultsClient />, { game: finishedGame(2, 1) });
+    renderWithMocks({ game: finishedGame(2, 1) });
     expect(screen.getByText("Round 1")).toBeInTheDocument();
     expect(screen.getByText("Round 2")).toBeInTheDocument();
     expect(screen.getByText("Round 3")).toBeInTheDocument();
   });
 
   it("shows move emojis in round results", () => {
-    renderWithResults(<ResultsClient />, { game: finishedGame(2, 1) });
+    renderWithMocks({ game: finishedGame(2, 1) });
     expect(screen.getAllByText("🪨").length).toBeGreaterThanOrEqual(1);
     expect(screen.getAllByText("📄").length).toBeGreaterThanOrEqual(1);
   });
 
-  it("calls handlePlayAgain when back to home is clicked", () => {
-    const { context } = renderWithResults(<ResultsClient />, {
-      game: finishedGame(2, 1),
-    });
+  it("clears token and navigates home when back to home is clicked", () => {
+    renderWithMocks({ game: finishedGame(2, 1) });
     fireEvent.click(screen.getByTestId("back-home-button"));
-    expect(context.handlePlayAgain).toHaveBeenCalledOnce();
+    expect(vi.mocked(gameApiLib.clearPlayerToken)).toHaveBeenCalledOnce();
+    expect(mockPush).toHaveBeenCalledWith("/");
   });
 
   it("shows rematch button in idle state", () => {
-    renderWithResults(<ResultsClient />, {
-      game: finishedGame(2, 1),
-    });
+    renderWithMocks({ game: finishedGame(2, 1) });
     expect(screen.getByTestId("rematch-button")).toBeInTheDocument();
   });
 
-  it("calls handleRequestRematch when rematch is clicked", () => {
-    const { context } = renderWithResults(<ResultsClient />, {
-      game: finishedGame(2, 1),
-    });
+  it("calls request rematch mutation when rematch is clicked", () => {
+    renderWithMocks({ game: finishedGame(2, 1) });
     fireEvent.click(screen.getByTestId("rematch-button"));
-    expect(context.handleRequestRematch).toHaveBeenCalledOnce();
+    expect(mockRequestMutate).toHaveBeenCalledOnce();
   });
 
   it("shows waiting message when rematch is requested", () => {
-    renderWithResults(<ResultsClient />, {
-      game: finishedGame(2, 1),
-      rematchState: "requested",
-    });
+    renderWithMocks({ game: finishedGame(2, 1), rematchState: "requested" });
     expect(
       screen.getByText("Waiting for opponent to accept..."),
     ).toBeInTheDocument();
   });
 
   it("shows accept/deny buttons when rematch is received", () => {
-    renderWithResults(<ResultsClient />, {
+    renderWithMocks({
       game: finishedGame(2, 1),
       rematchState: "received",
       rematchRequesterName: "Alice",
@@ -210,5 +204,17 @@ describe("ResultsClient", () => {
     expect(screen.getByText("Alice wants a rematch!")).toBeInTheDocument();
     expect(screen.getByTestId("accept-rematch-button")).toBeInTheDocument();
     expect(screen.getByTestId("deny-rematch-button")).toBeInTheDocument();
+  });
+
+  it("calls accept rematch mutation when accept is clicked", () => {
+    renderWithMocks({ game: finishedGame(2, 1), rematchState: "received" });
+    fireEvent.click(screen.getByTestId("accept-rematch-button"));
+    expect(mockAcceptMutate).toHaveBeenCalledOnce();
+  });
+
+  it("calls deny rematch mutation when decline is clicked", () => {
+    renderWithMocks({ game: finishedGame(2, 1), rematchState: "received" });
+    fireEvent.click(screen.getByTestId("deny-rematch-button"));
+    expect(mockDenyMutate).toHaveBeenCalledOnce();
   });
 });

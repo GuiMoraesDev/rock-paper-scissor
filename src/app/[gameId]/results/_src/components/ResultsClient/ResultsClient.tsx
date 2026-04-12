@@ -2,24 +2,45 @@
 
 import clsx from "clsx";
 import { motion } from "framer-motion";
+import { useRouter } from "next/navigation";
+import { useCallback } from "react";
 import { Button } from "@/components/atoms/Button";
+import { clearPlayerToken } from "@/lib/game-api";
 import { moveEmojiMap } from "@/lib/gameplay";
-import { useResults } from "../../provider/ResultsProvider";
+import { useGameSSE } from "../../../../_src/providers/GameSSEProvider";
+import { useAcceptRematchMutation } from "../../hooks/useAcceptRematchMutation";
+import { useDenyRematchMutation } from "../../hooks/useDenyRematchMutation";
+import { useRequestRematchMutation } from "../../hooks/useRequestRematchMutation";
 
-export const ResultsClient = () => {
+type ResultsClientProps = {
+  gameId: string;
+};
+
+export const ResultsClient = ({ gameId }: ResultsClientProps) => {
+  const router = useRouter();
   const {
     game,
     playerIndex,
-    handlePlayAgain,
     rematchState,
     rematchRequesterName,
-    handleRequestRematch,
-    handleAcceptRematch,
-    handleDenyRematch,
-    isRequestRematchPending,
-    isAcceptRematchPending,
-    isDenyRematchPending,
-  } = useResults();
+    markRematchSent,
+    markRematchCancelled,
+  } = useGameSSE();
+
+  const requestRematchMutation = useRequestRematchMutation({
+    gameId,
+    onSuccess: markRematchSent,
+  });
+  const acceptRematchMutation = useAcceptRematchMutation({ gameId });
+  const denyRematchMutation = useDenyRematchMutation({
+    gameId,
+    onSuccess: markRematchCancelled,
+  });
+
+  const handlePlayAgain = useCallback(() => {
+    clearPlayerToken();
+    router.push("/");
+  }, [router]);
 
   if (!game) return null;
 
@@ -176,10 +197,10 @@ export const ResultsClient = () => {
             <Button
               data-testid="rematch-button"
               variant="green"
-              disabled={isRequestRematchPending}
-              onClick={handleRequestRematch}
+              disabled={requestRematchMutation.isPending}
+              onClick={() => requestRematchMutation.mutate()}
             >
-              {isRequestRematchPending ? "..." : "🔄 Rematch"}
+              {requestRematchMutation.isPending ? "..." : "🔄 Rematch"}
             </Button>
           )}
 
@@ -203,19 +224,25 @@ export const ResultsClient = () => {
                   data-testid="accept-rematch-button"
                   variant="green"
                   size="sm"
-                  disabled={isAcceptRematchPending || isDenyRematchPending}
-                  onClick={handleAcceptRematch}
+                  disabled={
+                    acceptRematchMutation.isPending ||
+                    denyRematchMutation.isPending
+                  }
+                  onClick={() => acceptRematchMutation.mutate()}
                 >
-                  {isAcceptRematchPending ? "..." : "Accept"}
+                  {acceptRematchMutation.isPending ? "..." : "Accept"}
                 </Button>
                 <Button
                   data-testid="deny-rematch-button"
                   variant="red"
                   size="sm"
-                  disabled={isDenyRematchPending || isAcceptRematchPending}
-                  onClick={handleDenyRematch}
+                  disabled={
+                    denyRematchMutation.isPending ||
+                    acceptRematchMutation.isPending
+                  }
+                  onClick={() => denyRematchMutation.mutate()}
                 >
-                  {isDenyRematchPending ? "..." : "Decline"}
+                  {denyRematchMutation.isPending ? "..." : "Decline"}
                 </Button>
               </div>
             </section>
