@@ -16,7 +16,7 @@
     "@sentry/nextjs": "^10.47.0",
     "clsx": "^2.1.1",
     "framer-motion": "^12.38.0",
-    "next": "^15.5.0",
+    "next": "^15.5.15",
     "react": "^18.3.0",
     "react-dom": "^18.3.0",
     "socket.io-client": "^4.7.0",
